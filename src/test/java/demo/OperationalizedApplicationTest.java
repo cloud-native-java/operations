@@ -14,8 +14,10 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @WebIntegrationTest({"server.port=0"})
 public class OperationalizedApplicationTest {
 
+
     @Before
     public void setUp() throws Exception {
+
     }
 
     @After
