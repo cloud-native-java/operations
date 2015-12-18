@@ -14,10 +14,7 @@
 
     <modules>
         <module>actuator</module>
-        <!--
-                <module>rest-basics</module>
-                <module>rest-client</module>
-        -->
+
     </modules>
 
     <build>
