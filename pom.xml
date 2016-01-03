@@ -13,7 +13,15 @@
     <artifactId>operations</artifactId>
 
     <modules>
+        <!-- how to capture metrics and other actuator tricks -->
+
         <module>actuator</module>
+
+        <!--
+            how to handle distributed tracing with S C Sleuth and Twitter's Zipkin
+        -->
+        <module>zipkin-query</module>
+        <module>zipkin-client</module>
 
     </modules>
 
