@@ -15,10 +15,10 @@ import java.util.Map;
 @RestController
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @SpringBootApplication
-public class ZipkinClientApplication {
+public class MessageService {
 
-    @RequestMapping("/hi")
-    Map<String, String> hi() {
+    @RequestMapping("/message")
+    Map<String, String> getMessage() {
         return Collections.singletonMap("message",
                 "Hi, " + System.currentTimeMillis());
     }
@@ -29,6 +29,6 @@ public class ZipkinClientApplication {
     }
 
     public static void main(String[] args) {
-        SpringApplication.run(ZipkinClientApplication.class, args);
+        SpringApplication.run(MessageService.class, args);
     }
 }
