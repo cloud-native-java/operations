@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
+    <artifactId>operations</artifactId>
     <packaging>pom</packaging>
 
     <parent>
@@ -9,20 +11,12 @@
         <artifactId>parent</artifactId>
         <version>1.0.0-SNAPSHOT</version>
         <relativePath/>
+
     </parent>
-    <artifactId>operations</artifactId>
-
     <modules>
-        <!-- how to capture metrics and other actuator tricks -->
-
         <module>actuator</module>
-
-        <!--
-            how to handle distributed tracing with S C Sleuth and Twitter's Zipkin
-        -->
-        <module>zipkin-query</module>
-        <module>zipkin-client</module>
-
+        <module>zipkin-client-a</module>
+        <module>zipkin-query-service</module>
     </modules>
 
     <build>

@@ -7,14 +7,14 @@ import org.springframework.boot.actuate.health.HealthIndicator;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.boot.actuate.metrics.GaugeService;
 import org.springframework.context.ApplicationListener;
+import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
 import java.util.Date;
 
 @Component
 class EmotionalHealthIndicator
-        implements HealthIndicator, ApplicationListener<AbstractEvent> {
-
+        implements HealthIndicator {
 
     private CounterService counterService;
     private GaugeService gaugeService;
@@ -26,17 +26,16 @@ class EmotionalHealthIndicator
                                     CounterService cs) {
         this.counterService = cs;
         this.gaugeService = gs;
-        happy(new HappyEvent());
-
+        this.happy(new HappyEvent());
     }
 
     @Override
-    public Health health() {
+    public synchronized Health health() {
         return lastKnownHealth;
     }
 
-    @Override
-    public void onApplicationEvent(AbstractEvent event) {
+    @EventListener
+    public void onHealthEvent(AbstractEvent event) {
         if (event.getClass().isAssignableFrom(SadEvent.class)) {
             sad(SadEvent.class.cast(event));
         } else if (event.getClass().isAssignableFrom(HappyEvent.class)) {
@@ -45,7 +44,6 @@ class EmotionalHealthIndicator
     }
 
     protected void emote(Health.Builder builder, AbstractEvent e) {
-
         this.gaugeService.submit("gauge." + e.getClass().getName(), Runtime.getRuntime().freeMemory());
         this.counterService.increment("meter." + e.getClass().getName());
         this.when = new Date();
