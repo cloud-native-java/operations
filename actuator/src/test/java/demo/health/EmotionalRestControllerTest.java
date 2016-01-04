@@ -9,7 +9,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.endpoint.HealthEndpoint;
-import org.springframework.boot.autoconfigure.AutoConfigurationPackage;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
@@ -32,6 +31,9 @@ public class EmotionalRestControllerTest {
     @Autowired
     private WebApplicationContext webApplicationContext;
 
+    @Autowired
+    private HealthEndpoint healthEndpoint;
+
     private Log log = LogFactory.getLog(getClass());
 
     private MockMvc mockMvc;
@@ -42,33 +44,28 @@ public class EmotionalRestControllerTest {
         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
     }
 
-    private void validate(String status, Class<? extends AbstractEvent> ec, ResultMatcher rm) throws Exception {
+    @Test
+    public void events() throws Exception {
+        this.mockMvc.perform(get("/event/happy")).andExpect(MockMvcResultMatchers.status().isOk());
+        this.confirmHealthEndpointStatus("UP", HappyEvent.class, status().isOk());
+        this.mockMvc.perform(get("/event/sad")).andExpect(MockMvcResultMatchers.status().isOk());
+        this.confirmHealthEndpointStatus("DOWN", SadEvent.class, status().is(503));
+    }
 
+    @Test
+    public void indicator() throws Exception {
+        this.mockMvc.perform(get("/indicator/happy")).andExpect(MockMvcResultMatchers.status().isOk());
+        this.confirmHealthEndpointStatus("UP", HappyEvent.class, status().isOk());
+        this.mockMvc.perform(get("/indicator/sad")).andExpect(MockMvcResultMatchers.status().isOk());
+        this.confirmHealthEndpointStatus("DOWN", SadEvent.class, status().is(503));
+    }
 
+    private void confirmHealthEndpointStatus(String status, Class<? extends AbstractEvent> ec, ResultMatcher rm) throws Exception {
         this.mockMvc.perform(get("/health"))
                 .andDo(mvcResult -> log.info(mvcResult.getResponse().getContentAsString()))
                 .andExpect(jsonPath("$.emotional.status", containsString(status)))
                 .andExpect(jsonPath("$.emotional.class", containsString(ec.getName())))
                 .andExpect(rm);
     }
-
-    @Test
-    public void events() throws Exception {
-        this.mockMvc.perform(get("/event/happy")).andExpect(MockMvcResultMatchers.status().isOk());
-        this.validate("UP", HappyEvent.class, status().isOk());
-        this.mockMvc.perform(get("/event/sad")).andExpect(MockMvcResultMatchers.status().isOk());
-        this.validate("DOWN", SadEvent.class, status().is(503));
-    }
-
-    @Test
-    public void indicator() throws Exception {
-        this.mockMvc.perform(get("/indicator/happy")).andExpect(MockMvcResultMatchers.status().isOk());
-        this.validate("UP", HappyEvent.class, status().isOk());
-        this.mockMvc.perform(get("/indicator/sad")).andExpect(MockMvcResultMatchers.status().isOk());
-        this.validate("DOWN", SadEvent.class, status().is(503));
-    }
-
-    @Autowired
-    private HealthEndpoint healthEndpoint;
 
 }
