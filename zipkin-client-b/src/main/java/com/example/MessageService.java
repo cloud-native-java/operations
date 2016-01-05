@@ -17,7 +17,7 @@ import java.util.Map;
 @SpringBootApplication
 public class MessageService {
 
-    @RequestMapping("/message")
+    @RequestMapping("/")
     Map<String, String> getMessage() {
         return Collections.singletonMap("message",
                 "Hi, " + System.currentTimeMillis());

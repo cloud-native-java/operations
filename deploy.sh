@@ -17,14 +17,9 @@ mvn -DskipTests=true clean install
 
 source ./build/utils/cf-common.sh
 
-## create Redis MQ
-#redis=cnj-redis-bus
-#cf s | grep ${redis} && echo "found ${redis}" || cf cs rediscloud 100mb ${redis}
-
 # create RabbitMQ
 rabbit=cnj-rabbitmq
-cf s | grep ${rabbit} && echo "found ${rabbit}" || cf cs cloudamqp tiger ${rabbit}
-
+cf s | grep ${rabbit} && echo "found ${rabbit}" || cf cs cloudamqp lemur ${rabbit}
 
 # create MySQL DB
 mysql=cnj-mysql
@@ -62,4 +57,4 @@ deploy_service $zc_b
 
 deploy_app $zc_a
 
-cf delete-orphaned-routes
+cf -f delete-orphaned-routes

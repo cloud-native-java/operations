@@ -40,8 +40,7 @@ public class EmotionalRestControllerTest {
 
     @Before
     public void begin() {
-        this.healthEndpoint.setTimeToLive(0); // for tests only
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
+         this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
     }
 
     @Test

@@ -29,7 +29,7 @@ public class MessageClient {
     @Value("${message-service}")
     private String host;
 
-    @RequestMapping("/message")
+    @RequestMapping("/")
     String getMessageFromAnotherService() {
 
         ParameterizedTypeReference<Map<String, String>> reference =
@@ -37,7 +37,7 @@ public class MessageClient {
                 };
 
         Map<String, String> msg = this.restTemplate.exchange(
-                this.host + "/message", HttpMethod.GET, null, reference).getBody();
+                this.host + "/", HttpMethod.GET, null, reference).getBody();
 
         return msg.get("message");
     }
