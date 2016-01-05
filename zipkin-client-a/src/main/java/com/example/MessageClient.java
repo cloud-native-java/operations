@@ -12,6 +12,7 @@ import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
@@ -30,16 +31,16 @@ public class MessageClient {
     private String host;
 
     @RequestMapping("/")
-    String getMessageFromAnotherService() {
+    Map<String, String>  getMessageFromAnotherService(@RequestParam(required = false) String uuid) {
 
         ParameterizedTypeReference<Map<String, String>> reference =
                 new ParameterizedTypeReference<Map<String, String>>() {
                 };
 
         Map<String, String> msg = this.restTemplate.exchange(
-                this.host + "/", HttpMethod.GET, null, reference).getBody();
+                this.host + (uuid != null ? "/?uuid=" + uuid : ""), HttpMethod.GET, null, reference).getBody();
 
-        return msg.get("message");
+        return msg ;
     }
 
     @Bean

@@ -6,10 +6,13 @@ import org.springframework.cloud.sleuth.Sampler;
 import org.springframework.cloud.sleuth.sampler.AlwaysSampler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.util.StringUtils;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
@@ -18,9 +21,14 @@ import java.util.Map;
 public class MessageService {
 
     @RequestMapping("/")
-    Map<String, String> getMessage() {
-        return Collections.singletonMap("message",
-                "Hi, " + System.currentTimeMillis());
+    Map<String, String> getMessage(@RequestHeader(name = "x-trace-id", required = false) String traceId) {
+
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "Hi, " + System.currentTimeMillis());
+        if (StringUtils.hasText(traceId)) {
+            response.put("trace", traceId);
+        }
+        return response;
     }
 
     @Bean
