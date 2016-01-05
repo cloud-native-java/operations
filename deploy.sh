@@ -17,9 +17,14 @@ mvn -DskipTests=true clean install
 
 source ./build/utils/cf-common.sh
 
-# create Redis MQ
-redis=redis-bus
-cf s | grep ${redis} && echo "found ${redis}" || cf cs rediscloud 30mb ${redis}
+## create Redis MQ
+#redis=cnj-redis-bus
+#cf s | grep ${redis} && echo "found ${redis}" || cf cs rediscloud 100mb ${redis}
+
+# create RabbitMQ
+rabbit=cnj-rabbitmq
+cf s | grep ${rabbit} && echo "found ${rabbit}" || cf cs cloudamqp tiger ${rabbit}
+
 
 # create MySQL DB
 mysql=cnj-mysql
@@ -48,7 +53,6 @@ cf restart $zw
 cd $root
 zc_a=zipkin-client-a
 zc_b=zipkin-client-b
-
 reset $zc_a
 reset $zc_b
 
@@ -57,3 +61,5 @@ deploy_app $zc_b
 deploy_service $zc_b
 
 deploy_app $zc_a
+
+cf delete-orphaned-routes

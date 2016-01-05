@@ -6,7 +6,7 @@ applications:
   host: zipkin-client-a-${random-word}
   path: target/zipkin-client-a.jar
   services:
-    - redis-bus
+    - cnj-rabbitmq
     - zipkin-client-b
   env:
     SPRING_PROFILES_ACTIVE: cloud

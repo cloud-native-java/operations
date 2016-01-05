@@ -6,7 +6,7 @@ applications:
   host: zipkin-query-service-${random-word}
   path: target/zipkin-query-service.jar
   services:
-    - redis-bus
+    - cnj-rabbitmq
     - cnj-mysql
   env:
     SPRING_PROFILES_ACTIVE: cloud
