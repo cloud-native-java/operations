@@ -35,10 +35,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class EmotionalRestControllerTest {
 
     @Autowired
-    public void configureTimeToLive(HealthEndpoint e) {
-        e.setTimeToLive(0);
+    public void configureTimeToLive(HealthEndpoint endpoint) {
+        endpoint.setTimeToLive(0);
     }
-
 
     @Autowired
     private WebApplicationContext webApplicationContext;
@@ -57,14 +56,6 @@ public class EmotionalRestControllerTest {
         this.mockMvc.perform(get("/event/happy")).andExpect(MockMvcResultMatchers.status().isOk());
         this.confirmHealthEndpointStatus("UP", HappyEvent.class, status().isOk());
         this.mockMvc.perform(get("/event/sad")).andExpect(MockMvcResultMatchers.status().isOk());
-        this.confirmHealthEndpointStatus("DOWN", SadEvent.class, status().is(503));
-    }
-
-    @Test
-    public void indicator() throws Exception {
-        this.mockMvc.perform(get("/indicator/happy")).andExpect(MockMvcResultMatchers.status().isOk());
-        this.confirmHealthEndpointStatus("UP", HappyEvent.class, status().isOk());
-        this.mockMvc.perform(get("/indicator/sad")).andExpect(MockMvcResultMatchers.status().isOk());
         this.confirmHealthEndpointStatus("DOWN", SadEvent.class, status().is(503));
     }
 
