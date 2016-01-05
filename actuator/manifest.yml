@@ -1,10 +1,10 @@
 ---
 applications:
-- name: cnj-rest-basics
+- name: actuator
   memory: 512M
   instances: 1
-  host: cnj-rest-basics-${random-word}
-  path: target/rest-basics.jar
+  host: actuator-${random-word}
+  path: target/actuator.jar
   env:
     SPRING_PROFILES_ACTIVE: cloud
     DEBUG: "true"

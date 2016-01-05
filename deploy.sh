@@ -2,20 +2,19 @@
 
 set -e
 
-reset(){
+function reset(){
     app_name=$1
     echo "going to remove ${app_name} if it exists"
-    cf a | grep $app_name && cf d -f $app_name
+    cf apps | grep $app_name && cf d -f $app_name
     echo "deleted ${app_name}"
 }
 
 cd `dirname $0`
 root=`pwd`
-echo $root
 
-mvn -DskipTests=true clean install
+echo "`dirname $0` in operations/deploy.sh"
 
-source ./build/utils/cf-common.sh
+source $BUILD_DIRECTORY/utils/cf-common.sh
 
 # create RabbitMQ
 rabbit=cnj-rabbitmq
@@ -57,4 +56,3 @@ deploy_service $zc_b
 
 deploy_app $zc_a
 
-cf -f delete-orphaned-routes
