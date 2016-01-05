@@ -28,15 +28,4 @@ class EmotionalRestController {
     void eventSad() {
         this.publisher.publishEvent(new SadEvent());
     }
-
-    @RequestMapping("/indicator/happy")
-    void indicatorHappy() {
-        this.indicator.happy(new HappyEvent());
-    }
-
-    @RequestMapping("/indicator/sad")
-    void indicatorSad() {
-        this.indicator.sad(new SadEvent());
-    }
-
 }
