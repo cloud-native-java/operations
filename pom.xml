@@ -15,7 +15,8 @@
 
     <modules>
         <module>actuator</module>
-         <module>tracing</module>
+        <module>tracing</module>
+        <module>remediation</module>
     </modules>
 
     <build>
