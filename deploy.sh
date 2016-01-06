@@ -2,6 +2,8 @@
 
 set -e
 
+source ${BUILD_DIRECTORY:-../build}/utils/cf-common.sh
+
 function reset(){
     app_name=$1
     echo "going to remove ${app_name} if it exists"
@@ -16,7 +18,6 @@ function tracing(){
 
     echo "`dirname $0` in operations/deploy.sh"
 
-    source $BUILD_DIRECTORY/utils/cf-common.sh
 
     # create RabbitMQ
     rabbit=cnj-rabbitmq
