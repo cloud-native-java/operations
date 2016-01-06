@@ -15,9 +15,7 @@
 
     <modules>
         <module>actuator</module>
-        <module>zipkin-client-a</module>
-        <module>zipkin-client-b</module>
-        <module>zipkin-query-service</module>
+         <module>tracing</module>
     </modules>
 
     <build>
