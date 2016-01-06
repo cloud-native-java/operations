@@ -38,6 +38,7 @@ public class OperationsIntegrationTest {
 
     @Autowired
     private CloudFoundryClient cloudFoundryClient;
+
     private Log log = LogFactory.getLog(getClass());
     private RestTemplate restTemplate = new RestTemplate();
     private String zcAName = "zipkin-client-a";
@@ -53,11 +54,13 @@ public class OperationsIntegrationTest {
                 new ParameterizedTypeReference<Map<String, String>>() {
                 };
 
-        ResponseEntity<Map<String, String>> serviceGreeting = this.restTemplate.exchange(service, HttpMethod.GET, null, ptr);
+        ResponseEntity<Map<String, String>> serviceGreeting =
+                this.restTemplate.exchange(service, HttpMethod.GET, null, ptr);
         serviceGreeting.getBody().entrySet().forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
         assertFalse(serviceGreeting.getBody().containsKey("x-trace-id"));
 
-        ResponseEntity<Map<String, String>> clientGreeting = this.restTemplate.exchange(client, HttpMethod.GET, null, ptr);
+        ResponseEntity<Map<String, String>> clientGreeting =
+                this.restTemplate.exchange(client, HttpMethod.GET, null, ptr);
         clientGreeting.getBody().entrySet().forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
         assertTrue(clientGreeting.getBody().containsKey("x-trace-id"));
     }
@@ -74,7 +77,6 @@ public class OperationsIntegrationTest {
         if (!url.toLowerCase().startsWith("http"))
             url = "http://" + url;
         return url;
-
     }
 }
 
