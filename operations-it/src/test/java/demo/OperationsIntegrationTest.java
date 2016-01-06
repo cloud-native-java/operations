@@ -36,33 +36,10 @@ import static org.junit.Assert.assertTrue;
 @SpringApplicationConfiguration(classes = CloudFoundryClientConfiguration.class)
 public class OperationsIntegrationTest {
 
-    private Log log = LogFactory.getLog(getClass());
-
     @Autowired
     private CloudFoundryClient cloudFoundryClient;
-
+    private Log log = LogFactory.getLog(getClass());
     private RestTemplate restTemplate = new RestTemplate();
-
-    private String urlForApp(String appName) {
-        String url = this.cloudFoundryClient
-                .getApplications()
-                .stream()
-                .filter(ca -> ca.getName().equals(appName))
-                .map(ca -> ca.getUris().stream().findFirst())
-                .findFirst()
-                .orElseThrow(AssertionFailedError::new)
-                .get();
-        if (!url.toLowerCase().startsWith("http"))
-            url = "http://" + url;
-        return url;
-
-       /* Map<String, String> urls = new HashMap<>();
-        urls.put("zipkin-client-a", "http://localhost:8082");
-        urls.put("zipkin-client-b", "http://localhost:8081");
-        urls.put("zipkin-query-service", "http://localhost:9411");
-        return urls.get(appName);*/
-    }
-
     private String zcAName = "zipkin-client-a";
     private String zcBName = "zipkin-client-b";
 
@@ -83,7 +60,20 @@ public class OperationsIntegrationTest {
         ResponseEntity<Map<String, String>> clientGreeting = this.restTemplate.exchange(client, HttpMethod.GET, null, ptr);
         clientGreeting.getBody().entrySet().forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
         assertTrue(clientGreeting.getBody().containsKey("x-trace-id"));
+    }
 
+    private String urlForApp(String appName) {
+        String url = this.cloudFoundryClient
+                .getApplications()
+                .stream()
+                .filter(ca -> ca.getName().equals(appName))
+                .map(ca -> ca.getUris().stream().findFirst())
+                .findFirst()
+                .orElseThrow(AssertionFailedError::new)
+                .get();
+        if (!url.toLowerCase().startsWith("http"))
+            url = "http://" + url;
+        return url;
 
     }
 }
