@@ -10,38 +10,15 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.EnableAspectJAutoProxy;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.Collections;
 import java.util.Map;
 
-@RestController
 @EnableAspectJAutoProxy(proxyTargetClass = true)
 @SpringBootApplication
 public class MessageClient {
-
-    @Autowired
-    private RestTemplate restTemplate;
-
-    @Value("${message-service}")
-    private String host;
-
-    @RequestMapping("/")
-    Map<String, String>  getMessageFromAnotherService(@RequestParam(required = false) String uuid) {
-
-        ParameterizedTypeReference<Map<String, String>> reference =
-                new ParameterizedTypeReference<Map<String, String>>() {
-                };
-
-        Map<String, String> msg = this.restTemplate.exchange(
-                this.host + (uuid != null ? "/?uuid=" + uuid : ""), HttpMethod.GET, null, reference).getBody();
-
-        return msg ;
-    }
 
     @Bean
     Sampler<?> sampler() {
@@ -50,5 +27,24 @@ public class MessageClient {
 
     public static void main(String[] args) {
         SpringApplication.run(MessageClient.class, args);
+    }
+}
+
+@RestController
+class MessageClientRestController {
+
+    @Autowired
+    private RestTemplate restTemplate;
+
+    @Value("${message-service}")
+    private String host;
+
+    @RequestMapping("/")
+    Map<String, String> message() {
+
+        ParameterizedTypeReference<Map<String, String>> ptr =
+                new ParameterizedTypeReference<Map<String, String>>() { };
+
+        return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr).getBody();
     }
 }
