@@ -5,7 +5,6 @@
 
 
     <artifactId>remediation</artifactId>
-    <name>operations/remediation</name>
     <packaging>pom</packaging>
 
     <parent>
@@ -15,8 +14,7 @@
     </parent>
 
     <modules>
-        <module>simple-source</module>
-        <module>simple-sink</module>
-      </modules>
+        <module>loggregator-source</module>
+    </modules>
 
 </project>

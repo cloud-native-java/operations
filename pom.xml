@@ -12,13 +12,36 @@
         <version>1.0.0-SNAPSHOT</version>
         <relativePath/>
     </parent>
+    <properties>				<version>1.0.0.BUILD-SNAPSHOT</version>
 
+        <spring-cloud-stream-test-support.version>1.0.0.M3</spring-cloud-stream-test-support.version>
+        <spring-cloud-stream-modules.version>1.0.0.M1</spring-cloud-stream-modules.version>
+    </properties>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud.stream.module</groupId>
+                <artifactId>spring-cloud-stream-modules-common-configuration</artifactId>
+                <version>${spring-cloud-stream-modules.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-stream-test-support</artifactId>
+                <version>${spring-cloud-stream-test-support.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.springframework.cloud.stream.module</groupId>
+                <artifactId>spring-cloud-stream-modules-test-support</artifactId>
+                <version>1.0.0.BUILD-SNAPSHOT</version>
+                <scope>test</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
     <modules>
         <module>actuator</module>
         <module>tracing</module>
         <module>remediation</module>
     </modules>
-
     <build>
         <plugins>
             <plugin>
