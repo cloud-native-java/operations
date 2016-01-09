@@ -7,8 +7,6 @@ import org.springframework.stereotype.Component;
 class LoggregatorSourceProperties {
 
     private String applicationName;
-    private String api;
-    private String user, password;
 
     public String getApplicationName() {
         return applicationName;
@@ -16,29 +14,5 @@ class LoggregatorSourceProperties {
 
     public void setApplicationName(String applicationName) {
         this.applicationName = applicationName;
-    }
-
-    public String getApi() {
-        return api;
-    }
-
-    public void setApi(String api) {
-        this.api = api;
-    }
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

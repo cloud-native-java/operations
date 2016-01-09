@@ -3,16 +3,12 @@ package nurse.logging.cloudfoundry;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.client.lib.ApplicationLogListener;
-import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.CloudFoundryClient;
 import org.cloudfoundry.client.lib.domain.ApplicationLog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.annotation.Output;
 import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.cloud.stream.module.PeriodicTriggerConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -21,8 +17,6 @@ import org.springframework.integration.endpoint.MessageProducerSupport;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 
-import java.net.MalformedURLException;
-import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,21 +36,6 @@ public class LoggregatorSource {
                 this.loggregatorSourceProperties.getApplicationName(),
                 cloudFoundryClient, source);
     }
-
-    @Bean
-    CloudCredentials cloudCredentials() {
-        return new CloudCredentials(this.loggregatorSourceProperties.getUser(),
-                this.loggregatorSourceProperties.getPassword());
-    }
-
-    @Bean
-    CloudFoundryClient cloudFoundryClient(CloudCredentials cc) throws MalformedURLException {
-        URI uri = URI.create(this.loggregatorSourceProperties.getApi());
-        CloudFoundryClient cloudFoundryClient = new CloudFoundryClient(cc, uri.toURL());
-        cloudFoundryClient.login();
-        return cloudFoundryClient;
-    }
-
 }
 
 class LoggregatorMessageSource extends MessageProducerSupport {
@@ -105,7 +84,7 @@ class LoggregatorMessageSource extends MessageProducerSupport {
         @Override
         public void onError(Throwable throwable) {
             log.error(String.format("error when streaming logs from %s in %s",
-                applicationName, getClass().getName()), throwable);
+                    applicationName, getClass().getName()), throwable);
         }
     }
 

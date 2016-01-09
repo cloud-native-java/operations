@@ -1,11 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
     <modelVersion>4.0.0</modelVersion>
 
+    <artifactId>cloudoundry-autoscaler-sink</artifactId>
 
-    <artifactId>loggregator-source</artifactId>
     <packaging>jar</packaging>
+
     <parent>
         <groupId>cnj</groupId>
         <artifactId>remediation</artifactId>
@@ -13,16 +15,22 @@
     </parent>
 
     <dependencies>
+
+        <dependency>
+            <groupId>cnj</groupId>
+            <artifactId>remediation-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
 
+        <!-- Common -->
         <dependency>
-            <groupId>cnj</groupId>
-            <artifactId>remediation-common</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.cloudfoundry</groupId>
+            <artifactId>cloudfoundry-client-lib</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.integration</groupId>
@@ -41,7 +49,7 @@
             <artifactId>spring-boot-starter-integration</artifactId>
         </dependency>
 
-
+        <!-- Test -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-stream-test-support</artifactId>

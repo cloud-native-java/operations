@@ -1,0 +1,8 @@
+nurse:
+  logging:
+    cloudfoundry:
+      api: ${CF_API}
+      password: ${CF_PASSWORD}
+      application-name: configuration-client
+      user: ${CF_USER}
+
