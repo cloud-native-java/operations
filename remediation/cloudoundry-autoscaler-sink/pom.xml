@@ -18,7 +18,7 @@
 
         <dependency>
             <groupId>cnj</groupId>
-            <artifactId>remediation-common</artifactId>
+            <artifactId>nurse-common</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

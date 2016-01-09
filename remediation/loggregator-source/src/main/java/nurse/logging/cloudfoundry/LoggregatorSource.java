@@ -88,7 +88,7 @@ class LoggregatorMessageSource extends MessageProducerSupport {
         }
     }
 
-    public enum LoggregatorHeaders {
+    enum LoggregatorHeaders {
         APPLICATION_ID,
         MESSAGE_TYPE,
         SOURCE_ID,
