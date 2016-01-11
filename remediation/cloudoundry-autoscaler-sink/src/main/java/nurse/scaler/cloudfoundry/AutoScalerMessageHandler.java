@@ -1,5 +1,7 @@
 package nurse.scaler.cloudfoundry;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.client.lib.CloudFoundryClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
 import org.springframework.messaging.Message;
@@ -9,11 +11,11 @@ import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 /**
- *
  * @author Josh Long
  */
 public class AutoScalerMessageHandler implements MessageHandler {
 
+    private Log log = LogFactory.getLog(getClass());
     private final Number maxNumber, minNumber;
     private final String applicationName, metricHeaderKey;
     private final CloudFoundryClient client;
@@ -39,7 +41,8 @@ public class AutoScalerMessageHandler implements MessageHandler {
                 message.getHeaders().get(key) :
                 message.getPayload();
 
-        Assert.isTrue(incomingValue.getClass().isAssignableFrom(Number.class));
+        boolean isANumber = Number.class.isAssignableFrom(incomingValue.getClass());
+        Assert.isTrue( isANumber );
         Number incomingNumber = Number.class.cast(incomingValue);
 
         // two simple use cases
@@ -57,13 +60,15 @@ public class AutoScalerMessageHandler implements MessageHandler {
             scale(this.applicationName, -1);
         }
     }
-
     protected void scale(String appName, int delta) throws MessagingException {
         CloudApplication application = client.getApplication(appName);
+        log.info( "applicationName: "+ appName);
         int currentInstances = application.getInstances();
+        log.info("currentInstances: "+ currentInstances);
         int newSum = currentInstances + delta;
         if (!(newSum <= 0)) {
             client.updateApplicationInstances(appName, newSum);
+            log.info(String.format("updating application instances for %s to %s", appName, newSum));
         }
     }
 }

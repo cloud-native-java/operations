@@ -23,8 +23,8 @@ public class AutoScalerSink {
             CloudFoundryClient client,
             AutoScalerSinkProperties properties) throws Exception {
 
-        final Number minNumber = properties.getMin(),
-                maxNumber = properties.getMax();
+        Number minNumber = properties.getThresholdMinimum(),
+                maxNumber = properties.getThresholdMaximum();
 
         AutoScalerMessageHandler messageHandler = new AutoScalerMessageHandler(
                 client,

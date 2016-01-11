@@ -1,15 +1,6 @@
 package nurse.scaler.cloudfoundry;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
-import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.messaging.Sink;
-import org.springframework.context.annotation.Bean;
-import org.springframework.integration.dsl.IntegrationFlow;
-import org.springframework.integration.dsl.IntegrationFlows;
-import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHandler;
-import org.springframework.messaging.MessagingException;
 
 /**
  * A sink that accepts two thresholds, an Cloud Foundry application ID
@@ -22,7 +13,7 @@ public class AutoScalerSinkProperties {
 
     private String applicationName, metricHeaderKey;
 
-    private Number max, min;
+    private Number thresholdMaximum, thresholdMinimum;
 
     public String getApplicationName() {
         return applicationName;
@@ -40,19 +31,19 @@ public class AutoScalerSinkProperties {
         this.metricHeaderKey = metricHeaderKey;
     }
 
-    public Number getMax() {
-        return max;
+    public Number getThresholdMaximum() {
+        return thresholdMaximum;
     }
 
-    public void setMax(Number max) {
-        this.max = max;
+    public void setThresholdMaximum(Number thresholdMaximum) {
+        this.thresholdMaximum = thresholdMaximum;
     }
 
-    public Number getMin() {
-        return min;
+    public Number getThresholdMinimum() {
+        return thresholdMinimum;
     }
 
-    public void setMin(Number min) {
-        this.min = min;
+    public void setThresholdMinimum(Number thresholdMinimum) {
+        this.thresholdMinimum = thresholdMinimum;
     }
 }

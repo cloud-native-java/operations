@@ -1,10 +1,116 @@
 package nurse.scaler.cloudfoundry;
 
-import static org.junit.Assert.*;
+import org.cloudfoundry.client.lib.CloudFoundryClient;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.cloud.stream.messaging.Sink;
+import org.springframework.cloud.stream.modules.test.PropertiesInitializer;
+import org.springframework.integration.support.MessageBuilder;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-/**
- * Created by jlong on 1/8/16.
- */
+import java.util.Properties;
+
+import static org.junit.Assert.assertEquals;
+
+
+@RunWith(SpringJUnit4ClassRunner.class)
+@SpringApplicationConfiguration(classes = AutoScalerSinkApplication.class,
+        initializers = PropertiesInitializer.class)
+@DirtiesContext
 public class AutoscalerSinkTest {
 
+    private static String APP_NAME = "configuration-client";
+
+    // CPU%
+    private static int MAX = 90;
+    private static int MIN = 30;
+
+    @Autowired
+    private Sink sink;
+
+    @Autowired
+    private CloudFoundryClient client;
+
+    @BeforeClass
+    public static void configureSink() throws Throwable {
+
+
+        Properties properties = new Properties();
+
+        // cf properties
+        String prefix = "cloudfoundry.client";
+        env(properties, prefix, "organization", System.getenv("CF_ORG"));
+        env(properties, prefix, "apiEndpoint", System.getenv("CF_API"));
+        env(properties, prefix, "space", System.getenv("CF_SPACE"));
+        env(properties, prefix, "username", System.getenv("CF_USER"));
+        env(properties, prefix, "password", System.getenv("CF_PASSWORD"));
+
+        // auto-scaler properties
+        prefix = "nurse.scaling.cloudfoundry";
+        env(properties, prefix, "applicationName", APP_NAME);
+        env(properties, prefix, "thresholdMaximum", Integer.toString(MAX));
+        env(properties, prefix, "thresholdMinimum", Integer.toString(MIN));
+        PropertiesInitializer.PROPERTIES = properties;
+    }
+
+    @Before
+    public void setUp() throws Exception {
+        reset();
+    }
+
+    @After
+    public void tearDown() throws Exception {
+        reset();
+    }
+
+    void reset() {
+        this.client.updateApplicationInstances(APP_NAME, 1);
+    }
+
+    int instances() {
+        return this.client.getApplication(APP_NAME).getInstances();
+    }
+
+    @Test
+    public void up() throws Exception {
+
+        // what we're testing:
+        // this simulates a metric publishing fictional CPU %.
+        // we'll send that we're at just 1% over the threshold
+        // and once we've confirmed that the auto-scaler has started 5
+        // instances trying to lower the instance count, we'll
+        // let it off the hook by publishing a metric
+        // 1% below the threshold.
+
+
+        // this should publish stepping messages,
+        // stepping instances counts from 1->2, 2->3, 3->4
+
+        int desiredInstanceCount = 4;
+        while (instances() < desiredInstanceCount) {
+            this.sink.input().send(MessageBuilder.withPayload(MAX + 1).build());
+            Thread.sleep(1000 * 5);
+        }
+        assertEquals(instances(), desiredInstanceCount);
+
+
+        // this should publish stepping messages,
+        // stepping instances counts from 4->3, 3->2, 2->1
+        desiredInstanceCount = 1;
+        while (instances() > desiredInstanceCount) {
+            this.sink.input().send(MessageBuilder.withPayload(MIN - 1).build());
+            Thread.sleep(1000 * 5);
+        }
+        assertEquals(instances(), desiredInstanceCount);
+    }
+
+    private static void env(Properties p, String s, String suffix, String envVarNane) {
+        p.put(s + "." + suffix, envVarNane);
+    }
 }

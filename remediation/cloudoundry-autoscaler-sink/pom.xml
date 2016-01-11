@@ -15,7 +15,6 @@
     </parent>
 
     <dependencies>
-
         <dependency>
             <groupId>cnj</groupId>
             <artifactId>nurse-common</artifactId>
