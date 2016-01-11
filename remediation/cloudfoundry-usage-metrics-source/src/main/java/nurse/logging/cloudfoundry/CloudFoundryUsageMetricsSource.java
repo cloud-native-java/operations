@@ -69,7 +69,7 @@ public class CloudFoundryUsageMetricsSource {
  */
 class CloudFoundryUsageMetricsMessageSource
         implements MessageSource<Map<String, Double>> {
-    
+
     private final String applicationName;
     private final CloudFoundryClient cloudFoundryClient;
 
