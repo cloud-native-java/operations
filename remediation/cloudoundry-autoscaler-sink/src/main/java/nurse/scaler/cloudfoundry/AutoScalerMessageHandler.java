@@ -16,7 +16,7 @@ import org.springframework.util.StringUtils;
 public class AutoScalerMessageHandler implements MessageHandler {
 
     private Log log = LogFactory.getLog(getClass());
-    private final Number maxNumber, minNumber;
+    private final Number icMin, icMax, maxNumber, minNumber;
     private final String applicationName, metricHeaderKey;
     private final CloudFoundryClient client;
 
@@ -24,10 +24,14 @@ public class AutoScalerMessageHandler implements MessageHandler {
             CloudFoundryClient client,
             Number minNumber,
             Number maxNumber,
+            Number icMin,
+            Number icMax,
             String metricHeaderKey,
             String appName) {
 
         this.client = client;
+        this.icMax = icMax;
+        this.icMin = icMin;
         this.maxNumber = maxNumber;
         this.minNumber = minNumber;
         this.applicationName = appName;
@@ -36,39 +40,59 @@ public class AutoScalerMessageHandler implements MessageHandler {
 
     @Override
     public void handleMessage(Message<?> message) throws MessagingException {
+
         String key = this.metricHeaderKey;
+
         Object incomingValue = (StringUtils.hasText(key) && message.getHeaders().containsKey(key)) ?
                 message.getHeaders().get(key) :
                 message.getPayload();
 
-        boolean isANumber = Number.class.isAssignableFrom(incomingValue.getClass());
-        Assert.isTrue( isANumber );
+        Assert.isTrue(Number.class.isAssignableFrom(incomingValue.getClass()));
         Number incomingNumber = Number.class.cast(incomingValue);
 
         // two simple use cases
-        double v = incomingNumber.doubleValue(); // lets say this is CPU% and its right now at 90%
-        double max = maxNumber.doubleValue(); // max acceptable rate is 80%, which means we need to scale up
+        double v = incomingNumber.doubleValue();
+        double max = maxNumber.doubleValue();
         double min = minNumber.doubleValue();
 
-        // if the CPU is 90% and the max tolerable threshold is 70%, then we need to add more capacity
+
+        // suppose the CPU is 90% and the max tolerable threshold is 70%, then we need to add more capacity, step up
         if (v > max) {
             scale(this.applicationName, 1);
         }
 
-        // if the CPU is 10% & the min tolerable threashold is 20%, then we have too much capacity, scale down
+        // suppose the CPU is 10% and the min tolerable threshold is 20%, then we have too much capacity, step down
         if (v < min) {
             scale(this.applicationName, -1);
         }
     }
+
     protected void scale(String appName, int delta) throws MessagingException {
         CloudApplication application = client.getApplication(appName);
-        log.info( "applicationName: "+ appName);
+        log.info("applicationName: " + appName);
         int currentInstances = application.getInstances();
-        log.info("currentInstances: "+ currentInstances);
+        log.info("currentInstances: " + currentInstances);
         int newSum = currentInstances + delta;
-        if (!(newSum <= 0)) {
+        if (isWithinBounds(newSum)) {
             client.updateApplicationInstances(appName, newSum);
             log.info(String.format("updating application instances for %s to %s", appName, newSum));
         }
+    }
+
+    protected boolean isWithinBounds(int newSum) {
+
+        int baseline = 1, roof = 0;
+
+        if (this.icMin != null && !this.icMin.equals(0)) {
+            baseline = this.icMin.intValue();
+        }
+
+        if (this.icMax != null && !this.icMax.equals(0))
+            roof = this.icMax.intValue();
+
+        boolean ltBaseline = (newSum < baseline);
+        // if the roof is 0, the default, then it's fine to keep going up
+        boolean gtCeiling = roof == 0 ? false : newSum > roof;
+        return !ltBaseline && !gtCeiling;
     }
 }

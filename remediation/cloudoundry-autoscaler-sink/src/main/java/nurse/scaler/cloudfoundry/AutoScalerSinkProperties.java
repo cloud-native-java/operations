@@ -15,6 +15,26 @@ public class AutoScalerSinkProperties {
 
     private Number thresholdMaximum, thresholdMinimum;
 
+    private Number instanceCountMinimum = 0;
+
+    private Number instanceCountMaximum = 0;
+
+    public Number getInstanceCountMinimum() {
+        return instanceCountMinimum;
+    }
+
+    public void setInstanceCountMinimum(Number instanceCountMinimum) {
+        this.instanceCountMinimum = instanceCountMinimum;
+    }
+
+    public Number getInstanceCountMaximum() {
+        return instanceCountMaximum;
+    }
+
+    public void setInstanceCountMaximum(Number instanceCountMaximum) {
+        this.instanceCountMaximum = instanceCountMaximum;
+    }
+
     public String getApplicationName() {
         return applicationName;
     }

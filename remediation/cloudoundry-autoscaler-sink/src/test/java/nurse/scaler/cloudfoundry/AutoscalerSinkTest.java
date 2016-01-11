@@ -1,10 +1,7 @@
 package nurse.scaler.cloudfoundry;
 
 import org.cloudfoundry.client.lib.CloudFoundryClient;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
@@ -31,6 +28,8 @@ public class AutoscalerSinkTest {
     private static int MAX = 90;
     private static int MIN = 30;
 
+    private static int MAX_AIS = 7;
+
     @Autowired
     private Sink sink;
 
@@ -39,8 +38,6 @@ public class AutoscalerSinkTest {
 
     @BeforeClass
     public static void configureSink() throws Throwable {
-
-
         Properties properties = new Properties();
 
         // cf properties
@@ -56,6 +53,8 @@ public class AutoscalerSinkTest {
         env(properties, prefix, "applicationName", APP_NAME);
         env(properties, prefix, "thresholdMaximum", Integer.toString(MAX));
         env(properties, prefix, "thresholdMinimum", Integer.toString(MIN));
+        env(properties, prefix, "instanceCountMaximum", Integer.toString(MAX_AIS));
+
         PropertiesInitializer.PROPERTIES = properties;
     }
 
@@ -78,7 +77,27 @@ public class AutoscalerSinkTest {
     }
 
     @Test
-    public void up() throws Exception {
+    public void upAndDownWithinBounds() throws Exception {
+
+        int start = MAX_AIS - 2;
+        this.client.updateApplicationInstances(APP_NAME, start);
+        Assert.assertEquals(start, instances());
+
+        this.sink.input().send(MessageBuilder.withPayload(MAX + 1).build());
+        Assert.assertEquals(start + 1, instances());
+
+        this.sink.input().send(MessageBuilder.withPayload(MAX + 1).build());
+        Assert.assertEquals(start + 2, instances());
+
+        // we know that this should kick off another
+        // step raise but we've capped it so it shouldn't go any further
+        this.sink.input().send(MessageBuilder.withPayload(MAX + 1).build());
+        Assert.assertEquals(start + 2, instances());
+
+    }
+
+    @Test
+    public void upAndDown() throws Exception {
 
         // what we're testing:
         // this simulates a metric publishing fictional CPU %.
