@@ -14,8 +14,10 @@
     </parent>
 
     <modules>
+
+        <module>cloudfoundry-usage-metrics-source</module>
+
         <module>loggregator-source</module>
-        <module>redis-metrics-source</module>
         <module>nurse-common</module>
         <module>cloudoundry-autoscaler-sink</module>
     </modules>
