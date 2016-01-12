@@ -46,8 +46,8 @@ public class CloudFoundryUsageMetricsSource {
     }
 
     @Bean
-    public CloudFoundryUsageMetricsMessageSource cloudFoundryUsageMetricsMessageSource(CloudFoundryUsageMetricsSourceProperties properties,
-                                                                                       CloudFoundryClient client) {
+    public CloudFoundryUsageMetricsMessageSource cloudFoundryUsageMetricsMessageSource(
+            CloudFoundryUsageMetricsSourceProperties properties, CloudFoundryClient client) {
         return new CloudFoundryUsageMetricsMessageSource(
                 properties.getApplicationName(), client);
     }
@@ -58,7 +58,6 @@ public class CloudFoundryUsageMetricsSource {
                 .from(msgSrc, pollerSpec -> pollerSpec.poller(poller()))
                 .channel(this.source.output())
                 .get();
-
     }
 }
 
