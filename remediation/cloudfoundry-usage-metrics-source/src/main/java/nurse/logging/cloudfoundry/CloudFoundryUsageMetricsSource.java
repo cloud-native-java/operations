@@ -99,8 +99,8 @@ class CloudFoundryUsageMetricsMessageSource
         Map<String, Double> m = new HashMap<>();
         InstanceStats.Usage usage = i.getUsage();
         m.put(UsageHeaders.CPU.toString(), usage.getCpu());
-        m.put(UsageHeaders.DISK.toString(), Double.class.cast(usage.getDisk()));
-        m.put(UsageHeaders.MEM.toString(), Double.class.cast(usage.getMem()));
+        m.put(UsageHeaders.DISK.toString(), Number.class.cast(usage.getDisk()).doubleValue());
+        m.put(UsageHeaders.MEM.toString(), Number.class.cast(usage.getMem()).doubleValue());
         return m;
     }
 

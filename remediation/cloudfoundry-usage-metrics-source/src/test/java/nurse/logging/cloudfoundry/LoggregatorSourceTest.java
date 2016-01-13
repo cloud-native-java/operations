@@ -4,6 +4,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.client.lib.CloudFoundryClient;
 import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,7 @@ import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.Map;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.TimeUnit;
 
@@ -71,8 +73,12 @@ public class LoggregatorSourceTest {
 
         Message<?> message = messageBlockingQueue.poll(1000 * 100, TimeUnit.MILLISECONDS);
         assertNotNull(message);
-        assertTrue(String.class.isAssignableFrom(message.getPayload().getClass()));
-        log.info( "received: " +message.toString());
+        assertTrue(Map.class.isAssignableFrom(message.getPayload().getClass()));
+        Map payload = Map.class.cast(message.getPayload());
+        assertTrue(payload.keySet().contains("MEM"));
+        assertTrue(payload.keySet().contains("DISK"));
+        assertTrue(payload.keySet().contains("CPU"));
+        log.info("received: " + message.toString());
     }
 
 

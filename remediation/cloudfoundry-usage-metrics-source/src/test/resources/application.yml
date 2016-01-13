@@ -1,5 +1,5 @@
 nurse:
-  logging:
+  metrics:
     cloudfoundry:
       application-name: configuration-client
 
