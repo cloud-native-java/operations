@@ -20,7 +20,7 @@ import java.util.Map;
 public class MessageService {
 
     @Bean
-    Sampler<?> sampler() {
+    Sampler sampler() {
         return new AlwaysSampler();
     }
 

@@ -21,7 +21,7 @@ import java.util.Map;
 public class MessageClient {
 
     @Bean
-    Sampler<?> sampler() {
+    Sampler  sampler() {
         return new AlwaysSampler();
     }
 
