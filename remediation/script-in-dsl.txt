@@ -19,6 +19,8 @@ ruby -run -e httpd ./repository/ -p 9889
 
 java -DremoteRepositories=http://localhost:9889 -jar spring-cloud-dataflow-admin-local-1.0.0.M2.jar
 
+#java -DremoteRepositories=http://localhost:9889 -jar spring-cloud-dataflow-admin-local-1.0.0.M2.jar
+
 ## 3. then start the Shell
 
 java -jar spring-cloud-dataflow-shell-1.0.0.M2.jar
