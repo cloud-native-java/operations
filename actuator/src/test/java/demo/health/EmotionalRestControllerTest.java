@@ -1,6 +1,5 @@
 package demo.health;
 
-import demo.EmotionalEvent;
 import demo.Application;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
