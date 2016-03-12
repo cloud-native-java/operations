@@ -1,21 +1,15 @@
 package demo.health;
 
-import demo.AbstractEvent;
+import demo.EmotionalEvent;
 import demo.Application;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.boot.actuate.endpoint.HealthEndpoint;
 import org.springframework.boot.test.SpringApplicationConfiguration;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Component;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.web.WebAppConfiguration;
 import org.springframework.test.web.servlet.MockMvc;
@@ -59,7 +53,7 @@ public class EmotionalRestControllerTest {
         this.confirmHealthEndpointStatus("DOWN", SadEvent.class, status().is(503));
     }
 
-    private void confirmHealthEndpointStatus(String status, Class<? extends AbstractEvent> ec, ResultMatcher rm) throws Exception {
+    private void confirmHealthEndpointStatus(String status, Class<? extends EmotionalEvent> ec, ResultMatcher rm) throws Exception {
         this.mockMvc.perform(get("/health"))
                 .andDo(mvcResult -> log.info(mvcResult.getResponse().getContentAsString()))
                 .andExpect(jsonPath("$.emotional.status", containsString(status)))

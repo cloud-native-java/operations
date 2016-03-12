@@ -1,6 +1,6 @@
 package demo.health;
 
-import demo.AbstractEvent;
+import demo.EmotionalEvent;
 
-public class HappyEvent extends AbstractEvent {
+public class HappyEvent extends EmotionalEvent {
 }
