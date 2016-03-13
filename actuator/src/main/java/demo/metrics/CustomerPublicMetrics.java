@@ -21,8 +21,14 @@ class CustomerPublicMetrics implements PublicMetrics {
 
 	@Override
 	public Collection<Metric<?>> metrics() {
+
 		Set<Metric<?>> metrics = new HashSet<>();
-		metrics.add(new Metric<Number>("customers.count", this.customerRepository.count()));
+
+		long count = this.customerRepository.count();
+
+		// <1>
+		Metric<Number> customersCountMetric = new Metric<>("customers.count", count);
+		metrics.add(customersCountMetric);
 		return metrics;
 	}
 }
