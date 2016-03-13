@@ -34,17 +34,17 @@ public class CustomerRestController {
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	ResponseEntity<?> get(@PathVariable Long id) {
 		return this.customerRepository.findById(id)
-				.map(customer -> {
-					this.counterService.increment(
-							this.metricPrefix("customers.read.found")); // <2>
-					return ResponseEntity.ok(customer);
-				})
-				.orElseGet(() -> {
-					this.counterService.increment(
-							this.metricPrefix("customers.read.not-found")); // <3>
-					return ResponseEntity.class.cast(
-							ResponseEntity.notFound().build());
-				});
+			.map(customer -> {
+				String metricName = metricPrefix("customers.read.found");
+				this.counterService.increment(metricName); // <2>
+				return ResponseEntity.ok(customer);
+			})
+			.orElseGet(() -> {
+				String metricName = metricPrefix("customers.read.not-found");
+				this.counterService.increment(metricName); // <3>
+				return ResponseEntity.class.cast(
+						ResponseEntity.notFound().build());
+			});
 	}
 
 	@RequestMapping(method = RequestMethod.POST)

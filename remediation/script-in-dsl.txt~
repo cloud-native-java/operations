@@ -1,0 +1,32 @@
+
+
+If your modules use `spring-cloud-stream` Redis then you'll need Redis. Remember, the admin will
+LAUNCH the modules (in CF, Mesos, whatever) and so you may need to when doing the
+registration etc specify the --launcherProperties to, among other things, tell it
+where to find the right spring.redis.host, etc. For simplicity's sake during
+development run it on your local machine (not Docker):
+
+`redis-server /usr/local/etc/redis.conf`
+
+# Running Data Flow:
+
+## 1. Run an HTTP server in the ~/.m2 directory:
+
+ruby -run -e httpd ./repository/ -p 9889
+
+
+## 2. pointing the Admin to the HTTP maven repo containing the custom modules you want exposed
+
+java -DremoteRepositories=http://localhost:9889 -jar spring-cloud-dataflow-admin-local-1.0.0.M2.jar
+
+## 3. then start the Shell
+
+java -jar spring-cloud-dataflow-shell-1.0.0.M2.jar
+
+
+# very simple DSL example
+module list
+module register --name simple-sink --coordinates com.example:simple-sink:0.0.1-SNAPSHOT --type sink
+module register --name simple-source --coordinates com.example:simple-source:0.0.1-SNAPSHOT --type source
+stream create --name t1 --definition " s1: simple-source | s2: simple-sink "
+stream deploy t1

@@ -7,10 +7,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/metered/customers")
-public class MeteredCustomerRestController extends CustomerRestController {
+public class MeterCustomerRestController extends CustomerRestController {
 
 	@Autowired
-	MeteredCustomerRestController(CustomerRepository repository, CounterService counterService) {
+	MeterCustomerRestController(CustomerRepository repository,
+	                            CounterService counterService) {
 		super(repository, counterService);
 	}
 
