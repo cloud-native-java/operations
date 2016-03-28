@@ -20,31 +20,32 @@ import java.util.Map;
 @SpringBootApplication
 public class MessageClient {
 
-    @Bean
-    Sampler  sampler() {
-        return new AlwaysSampler();
-    }
+	@Bean
+	Sampler sampler() {
+		return new AlwaysSampler();
+	}
 
-    public static void main(String[] args) {
-        SpringApplication.run(MessageClient.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(MessageClient.class, args);
+	}
 }
 
 @RestController
 class MessageClientRestController {
 
-    @Autowired
-    private RestTemplate restTemplate;
+	@Autowired
+	private RestTemplate restTemplate;
 
-    @Value("${message-service}")
-    private String host;
+	@Value("${message-service}")
+	private String host;
 
-    @RequestMapping("/")
-    Map<String, String> message() {
+	@RequestMapping("/")
+	Map<String, String> message() {
 
-        ParameterizedTypeReference<Map<String, String>> ptr =
-                new ParameterizedTypeReference<Map<String, String>>() { };
+		ParameterizedTypeReference<Map<String, String>> ptr =
+				new ParameterizedTypeReference<Map<String, String>>() {
+				};
 
-        return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr).getBody();
-    }
+		return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr).getBody();
+	}
 }

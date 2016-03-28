@@ -19,29 +19,29 @@ import java.util.Map;
 @SpringBootApplication
 public class MessageService {
 
-    @Bean
-    Sampler sampler() {
-        return new AlwaysSampler();
-    }
+	@Bean
+	Sampler sampler() {
+		return new AlwaysSampler();
+	}
 
-    public static void main(String[] args) {
-        SpringApplication.run(MessageService.class, args);
-    }
+	public static void main(String[] args) {
+		SpringApplication.run(MessageService.class, args);
+	}
 }
 
 @RestController
 class MesssageServiceRestController {
 
-    @RequestMapping("/")
-    Map<String, String> message(HttpServletRequest httpRequest) {
-        List<String> headers = Arrays.asList("x-span-id", "x-span-name", "x-trace-id");
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "Hi, " + System.currentTimeMillis());
-        headers
-                .stream()
-                .filter(h -> httpRequest.getHeader(h) != null)
-                .forEach(h -> response.put(h, httpRequest.getHeader(h)));
-        return response;
-    }
+	@RequestMapping("/")
+	Map<String, String> message(HttpServletRequest httpRequest) {
+		List<String> headers = Arrays.asList("x-span-id", "x-span-name", "x-trace-id");
+		Map<String, String> response = new HashMap<>();
+		response.put("message", "Hi, " + System.currentTimeMillis());
+		headers
+				.stream()
+				.filter(h -> httpRequest.getHeader(h) != null)
+				.forEach(h -> response.put(h, httpRequest.getHeader(h)));
+		return response;
+	}
 
 }

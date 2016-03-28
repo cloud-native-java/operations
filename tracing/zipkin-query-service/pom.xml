@@ -5,6 +5,9 @@
 
     <artifactId>zipkin-query-service</artifactId>
     <name>operations/tracing/zipkin-query-service</name>
+    <properties>
+        <zipkin-ui.version>1.38.1</zipkin-ui.version>
+    </properties>
     <packaging>jar</packaging>
 
     <parent>
@@ -14,6 +17,11 @@
     </parent>
 
     <dependencies>
+        <dependency>
+            <groupId>io.zipkin</groupId>
+            <artifactId>zipkin-ui</artifactId>
+            <version>${zipkin-ui.version}</version>
+         </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-sleuth-zipkin-stream</artifactId>
