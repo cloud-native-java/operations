@@ -17,7 +17,8 @@ class EmotionalHealthIndicator extends AbstractHealthIndicator {
 	// <1>
 	@EventListener
 	public void onHealthEvent(EmotionalEvent event) {
-		this.emote(event);
+		this.event = event;
+		this.when = new Date();
 	}
 
 	// <2>
@@ -26,16 +27,15 @@ class EmotionalHealthIndicator extends AbstractHealthIndicator {
 
 		Optional.ofNullable(this.event).ifPresent(evt -> {
 			Class<? extends EmotionalEvent> eventClass = this.event.getClass();
-			Health.Builder healthBuilder = eventClass.isAssignableFrom(SadEvent.class) ?
-					builder.down() : builder.up();
+			Health.Builder healthBuilder =
+					eventClass.isAssignableFrom(SadEvent.class) ?
+							builder.down() : builder.up();
+			String eventTimeAsString = this.when.toInstant().toString();
 			healthBuilder
 					.withDetail("class", eventClass)
-					.withDetail("when", this.when.toInstant().toString());
+					.withDetail("when", eventTimeAsString);
 		});
+
 	}
 
-	protected void emote(EmotionalEvent e) {
-		this.event = e;
-		this.when = new Date();
-	}
 }

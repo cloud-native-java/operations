@@ -8,24 +8,21 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 class EmotionalRestController {
 
-    private final ApplicationEventPublisher publisher;
+	private final ApplicationEventPublisher publisher; // <1>
 
-    private final EmotionalHealthIndicator indicator;
+	@Autowired
+	public EmotionalRestController(ApplicationEventPublisher publisher) {
+		this.publisher = publisher;
+	}
 
-    @Autowired
-    public EmotionalRestController(ApplicationEventPublisher publisher,
-                                   EmotionalHealthIndicator indicator) {
-        this.indicator = indicator;
-        this.publisher = publisher;
-    }
 
-    @RequestMapping("/event/happy")
-    void eventHappy() {
-        this.publisher.publishEvent(new HappyEvent());
-    }
+	@RequestMapping("/event/happy")
+	void eventHappy() {
+		this.publisher.publishEvent(new HappyEvent()); // <2>
+	}
 
-    @RequestMapping("/event/sad")
-    void eventSad() {
-        this.publisher.publishEvent(new SadEvent());
-    }
+	@RequestMapping("/event/sad")
+	void eventSad() {
+		this.publisher.publishEvent(new SadEvent());
+	}
 }

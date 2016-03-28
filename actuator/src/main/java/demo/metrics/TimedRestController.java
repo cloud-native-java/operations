@@ -20,7 +20,7 @@ public class TimedRestController {
 
 	@RequestMapping(method = RequestMethod.GET, value = "/timer/hello")
 	ResponseEntity<?> hello() throws Exception {
-		StopWatch sw = new StopWatch();
+		StopWatch sw = new StopWatch(); // <1>
 		sw.start();
 		try {
 			Thread.sleep((long) (Math.random() * 60) * 1000);
