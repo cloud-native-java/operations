@@ -1,21 +1,13 @@
 package demo.metrics;
 
 import demo.Customer;
-import demo.metrics.CustomerRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.actuate.endpoint.PublicMetrics;
 import org.springframework.boot.actuate.metrics.CounterService;
-import org.springframework.boot.actuate.metrics.Metric;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
-import javax.xml.crypto.URIReference;
 import java.net.URI;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Set;
 
 @RestController
 @RequestMapping("/customers")

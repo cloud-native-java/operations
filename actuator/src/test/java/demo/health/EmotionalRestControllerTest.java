@@ -1,6 +1,6 @@
 package demo.health;
 
-import demo.Application;
+import demo.ActuatorApplication;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.junit.Before;
@@ -23,7 +23,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = {Application.class})
+@SpringApplicationConfiguration(classes = {ActuatorApplication.class})
 @WebAppConfiguration
 public class EmotionalRestControllerTest {
 
