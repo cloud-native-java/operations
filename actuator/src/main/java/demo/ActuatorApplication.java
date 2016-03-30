@@ -34,6 +34,7 @@ public class ActuatorApplication {
 		return reporter;
 	}
 
+
 	public static void main(String[] args) {
 		SpringApplication.run(ActuatorApplication.class, args);
 	}
