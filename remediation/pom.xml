@@ -18,7 +18,9 @@
         <!-- <module>cloudfoundry-usage-metrics-source</module> -->
 
         <!-- <module>loggregator-source</module> -->
+<!--
         <module>nurse-common</module>
+-->
         <!-- <module>cloudoundry-autoscaler-sink</module> -->
     </modules>
 </project>

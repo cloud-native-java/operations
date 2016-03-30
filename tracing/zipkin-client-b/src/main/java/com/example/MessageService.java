@@ -10,10 +10,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @SpringBootApplication
 public class MessageService {
@@ -29,17 +27,20 @@ public class MessageService {
 }
 
 @RestController
-class MesssageServiceRestController {
+class MessageServiceRestController {
 
 	@RequestMapping("/")
 	Map<String, String> message(HttpServletRequest httpRequest) {
-		List<String> headers = Arrays.asList("x-span-id", "x-span-name", "x-trace-id");
+
+		List<String> traceHeaders = Collections
+				.list(httpRequest.getHeaderNames())
+				.stream()
+				.filter(h -> h.toLowerCase().startsWith("x-"))
+				.collect(Collectors.toList());
+
 		Map<String, String> response = new HashMap<>();
 		response.put("message", "Hi, " + System.currentTimeMillis());
-		headers
-				.stream()
-				.filter(h -> httpRequest.getHeader(h) != null)
-				.forEach(h -> response.put(h, httpRequest.getHeader(h)));
+		traceHeaders.forEach(h -> response.put(h, httpRequest.getHeader(h)));
 		return response;
 	}
 

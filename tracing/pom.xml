@@ -15,9 +15,9 @@
     </parent>
 
     <modules>
+        <module>zipkin-service</module>
         <module>zipkin-client-a</module>
         <module>zipkin-client-b</module>
-        <module>zipkin-query-service</module>
      </modules>
 
 </project>
