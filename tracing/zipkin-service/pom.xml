@@ -3,7 +3,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>zipkin-query-service</artifactId>
+    <artifactId>zipkin-service</artifactId>
     <name>operations/tracing/zipkin-query-service</name>
     <properties>
         <zipkin-ui.version>1.38.1</zipkin-ui.version>
