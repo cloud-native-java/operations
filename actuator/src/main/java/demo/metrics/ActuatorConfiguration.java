@@ -5,39 +5,35 @@ import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.actuate.autoconfigure.ExportMetricWriter;
-import org.springframework.boot.actuate.metrics.repository.redis.RedisMetricRepository;
+import org.springframework.boot.actuate.metrics.statsd.StatsdMetricWriter;
 import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Profile;
-import org.springframework.data.redis.connection.RedisConnectionFactory;
 
+import javax.annotation.PostConstruct;
 import java.util.concurrent.TimeUnit;
 
 @Configuration
 class ActuatorConfiguration {
 
-    // todo
-    @Bean
-    @Profile("graphite")
-    GraphiteReporter graphiteReporter(MetricRegistry registry,
-                                      @Value("${graphite.host}") String host,
-                                      @Value("${graphite.port}") int port,
-                                      @Value("${graphite.reporter.period}") int period) {
+	@PostConstruct
+	public void begin() throws Exception {
+		java.security.Security.setProperty("networkaddress.cache.ttl", "60"); // <1>
+	}
 
-        GraphiteReporter reporter = GraphiteReporter
-                .forRegistry(registry)
-                .prefixedWith("cnj.metrics")
-                .build(new Graphite(host, port));
+	@Bean
+	GraphiteReporter graphiteWriter(
+			@Value("${hostedGraphite.apiKey}") String apiKey,
+			@Value("${hostedGraphite.url}") String host,
+			@Value("${hostedGraphite.port}") int port,
+			MetricRegistry registry) {
 
-        reporter.start(period, TimeUnit.MILLISECONDS);
-        return reporter;
-    }
+		GraphiteReporter reporter = GraphiteReporter.forRegistry(registry)
+				.prefixedWith(apiKey) // <2>
+				.build(new Graphite(host, port));
+		reporter.start(1, TimeUnit.SECONDS);
+		return reporter;
+	}
 
 
-    @Bean
-    @ExportMetricWriter
-    MetricWriter metricWriter(RedisConnectionFactory cf) {
-        return new RedisMetricRepository(cf);
-    }
 }
