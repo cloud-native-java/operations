@@ -41,6 +41,7 @@
         <module>actuator</module>
         <module>tracing</module>
         <module>remediation</module>
+        <module>logging</module>
     </modules>
     <build>
         <plugins>

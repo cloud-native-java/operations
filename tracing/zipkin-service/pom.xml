@@ -4,10 +4,8 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>zipkin-service</artifactId>
-    <name>operations/tracing/zipkin-query-service</name>
-    <properties>
-        <zipkin-ui.version>1.38.1</zipkin-ui.version>
-    </properties>
+    <name>operations/tracing/zipkin-service</name>
+
     <packaging>jar</packaging>
 
     <parent>
@@ -20,8 +18,7 @@
         <dependency>
             <groupId>io.zipkin</groupId>
             <artifactId>zipkin-ui</artifactId>
-            <version>${zipkin-ui.version}</version>
-         </dependency>
+        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-sleuth-zipkin-stream</artifactId>

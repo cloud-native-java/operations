@@ -21,6 +21,11 @@ import java.util.Map;
 public class MessageClient {
 
 	@Bean
+	RestTemplate restTemplate (){
+		return new RestTemplate();
+	}
+
+	@Bean
 	Sampler sampler() {
 		return new AlwaysSampler();
 	}

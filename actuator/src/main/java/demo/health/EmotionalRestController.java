@@ -11,10 +11,9 @@ class EmotionalRestController {
 	private final ApplicationEventPublisher publisher; // <1>
 
 	@Autowired
-	public EmotionalRestController(ApplicationEventPublisher publisher) {
+	EmotionalRestController(ApplicationEventPublisher publisher) {
 		this.publisher = publisher;
 	}
-
 
 	@RequestMapping("/event/happy")
 	void eventHappy() {
