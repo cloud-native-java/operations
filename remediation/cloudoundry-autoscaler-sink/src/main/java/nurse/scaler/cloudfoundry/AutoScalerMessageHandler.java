@@ -50,7 +50,7 @@ public class AutoScalerMessageHandler implements MessageHandler {
         Assert.isTrue(Number.class.isAssignableFrom(incomingValue.getClass()));
         Number incomingNumber = Number.class.cast(incomingValue);
 
-        // two simple use cases
+        // two simple cases
         double v = incomingNumber.doubleValue();
         double max = maxNumber.doubleValue();
         double min = minNumber.doubleValue();

@@ -16,7 +16,8 @@
     <modules>
         <module>cloudfoundry-client-starter</module>
         <module>cloudfoundry-usage-metrics-source</module>
-
+        <module>dataflow-server</module>
+        <module>dataflow-shell</module>
         <!-- <module>loggregator-source</module> -->
         <!--
                 <module>nurse-common</module>
