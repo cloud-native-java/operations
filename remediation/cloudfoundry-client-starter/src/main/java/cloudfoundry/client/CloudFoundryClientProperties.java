@@ -1,4 +1,4 @@
-package nurse.autoconfigure.cloudfoundry;
+package cloudfoundry.client;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 

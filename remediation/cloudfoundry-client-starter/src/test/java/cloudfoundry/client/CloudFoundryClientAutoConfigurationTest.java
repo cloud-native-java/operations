@@ -1,4 +1,4 @@
-package nurse.autoconfigure.cloudfoundry;
+package cloudfoundry.client;
 
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.CloudFoundryClient;

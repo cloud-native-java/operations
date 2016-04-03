@@ -1,10 +1,10 @@
-package nurse.logging.cloudfoundry;
+package cloudfoundry.metrics.source;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
-@ConfigurationProperties(prefix = "nurse.metrics.cloudfoundry")
-class CloudFoundryUsageMetricsSourceProperties {
+@ConfigurationProperties(prefix = "cloudfoundry.metrics.source")
+public class CloudFoundryUsageMetricsSourceProperties {
 
     private String applicationName;
 

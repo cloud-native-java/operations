@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
 
-    <artifactId>nurse-common</artifactId>
+    <artifactId>cloudfoundry-client-starter</artifactId>
     <packaging>jar</packaging>
     <parent>
         <groupId>cnj</groupId>
