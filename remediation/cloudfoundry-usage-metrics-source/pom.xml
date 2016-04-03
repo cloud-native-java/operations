@@ -2,8 +2,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
-
-
     <artifactId>cloudfoundry-usage-metrics-source</artifactId>
     <packaging>jar</packaging>
     <parent>
@@ -11,13 +9,7 @@
         <artifactId>remediation</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-
-
     <dependencies>
-
-
-        <!-- common for all spring cloud stream modules
-        -->
         <dependency>
             <groupId>org.springframework.integration</groupId>
             <artifactId>spring-integration-java-dsl</artifactId>
@@ -29,64 +21,17 @@
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-stream-test-support</artifactId>
-             <scope>test</scope>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.cloud.stream.module</groupId>
             <artifactId>spring-cloud-stream-modules-test-support</artifactId>
-<!--
-            <version>1.0.0.BUILD-SNAPSHOT</version>
--->
             <scope>test</scope>
         </dependency>
-
-
         <dependency>
             <groupId>cnj</groupId>
             <artifactId>cloudfoundry-client-starter</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <!--    <dependency>
-                <groupId>org.springframework.integration</groupId>
-                <artifactId>spring-integration-java-dsl</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-cloud-connectors</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud.stream.module</groupId>
-                <artifactId>spring-cloud-stream-modules-common-configuration</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-integration</artifactId>
-            </dependency>
-
-
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-stream-test-support</artifactId>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.integration</groupId>
-                <artifactId>spring-integration-test</artifactId>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-starter-test</artifactId>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud.stream.module</groupId>
-                <artifactId>spring-cloud-stream-modules-test-support</artifactId>
-                <scope>test</scope>
-            </dependency>
-    -->
-
     </dependencies>
-
-
 </project>
