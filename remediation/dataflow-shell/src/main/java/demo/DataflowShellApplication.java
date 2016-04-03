@@ -1,4 +1,4 @@
-package com.example;
+package demo;
 
 import org.springframework.boot.Banner;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
