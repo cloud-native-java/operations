@@ -71,8 +71,8 @@ class CloudFoundryUsageMetricsMessageSource
 	private final String applicationName;
 	private final CloudFoundryClient cloudFoundryClient;
 
-	public CloudFoundryUsageMetricsMessageSource(String applicationName,
-	                                             CloudFoundryClient cloudFoundryClient) {
+	CloudFoundryUsageMetricsMessageSource(String applicationName,
+	                                      CloudFoundryClient cloudFoundryClient) {
 		this.applicationName = applicationName;
 		this.cloudFoundryClient = cloudFoundryClient;
 	}
@@ -94,7 +94,7 @@ class CloudFoundryUsageMetricsMessageSource
 		return MessageBuilder.withPayload(avgs).build();
 	}
 
-	protected Map<String, Double> instanceStatsMapFrom(InstanceStats i) {
+	private Map<String, Double> instanceStatsMapFrom(InstanceStats i) {
 		Map<String, Double> m = new HashMap<>();
 		InstanceStats.Usage usage = i.getUsage();
 		m.put(UsageHeaders.CPU.toString(), usage.getCpu());
@@ -103,7 +103,7 @@ class CloudFoundryUsageMetricsMessageSource
 		return m;
 	}
 
-	protected void avg(List<Map<String, Double>> collection, Map<String, Double> avgs, UsageHeaders h) {
+	private void avg(List<Map<String, Double>> collection, Map<String, Double> avgs, UsageHeaders h) {
 		String key = h.toString();
 		Double avgDouble = collection
 				.stream()
