@@ -14,6 +14,7 @@ import org.springframework.cloud.sleuth.SpanReporter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+// TODO talk about this in the book?
 @Configuration
 @ConditionalOnClass({Meter.class, SpanReporter.class})
 public class MetricsSpanReporterAutoConfiguration {
@@ -54,7 +55,6 @@ public class MetricsSpanReporterAutoConfiguration {
 					gaugeService.submit("timer.spans." + span.getName(), span.getAccumulatedMillis());
 				}
 			}
-
 		};
 	}
 
