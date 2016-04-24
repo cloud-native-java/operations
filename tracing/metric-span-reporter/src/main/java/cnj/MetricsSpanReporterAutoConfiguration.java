@@ -19,14 +19,14 @@ import org.springframework.context.annotation.Configuration;
 public class MetricsSpanReporterAutoConfiguration {
 
 	@Bean
-	BeanPostProcessor metricSpanReportBeanPostProcessor(GaugeService gaugeService,
+	public BeanPostProcessor metricSpanReportBeanPostProcessor(GaugeService gaugeService,
                 CounterService counterService) {
 
 		return new BeanPostProcessor() {
 
 			@Override
 			public Object postProcessBeforeInitialization(Object o, String s) throws BeansException {
-				return null;
+				return o ;
 			}
 
 			@Override
