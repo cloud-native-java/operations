@@ -28,7 +28,6 @@ public class MessageService {
 	}
 }
 
-
 @RestController
 class MessageServiceRestController {
 
@@ -46,5 +45,4 @@ class MessageServiceRestController {
 		traceHeaders.forEach(h -> response.put(h, httpRequest.getHeader(h)));
 		return response;
 	}
-
 }
