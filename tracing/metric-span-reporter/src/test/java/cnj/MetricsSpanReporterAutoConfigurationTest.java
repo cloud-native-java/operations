@@ -28,6 +28,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CountDownLatch;
 
+import static org.junit.Assert.*;
+
 public class MetricsSpanReporterAutoConfigurationTest {
 
 	private static CountDownLatch countDownLatch = new CountDownLatch(2);
@@ -124,7 +126,7 @@ public class MetricsSpanReporterAutoConfigurationTest {
 		countDownLatch.await();
 
 		log.info("the applications are ready!");
-		Assert.assertEquals(contexts.size(), 2);
+		assertEquals(contexts.size(), 2);
 		contexts.entrySet().forEach(e -> {
 
 			ResponseEntity<Map<String, String>> responseEntity =
@@ -139,21 +141,30 @@ public class MetricsSpanReporterAutoConfigurationTest {
 			Map<String, String> body = responseEntity.getBody();
 			log.info("result from calling '" + e.getKey() + "': " + body);
 			String message = body.get("message");
-			Assert.assertNotNull(message);
-			Assert.assertTrue(message.contains("Hi from"));
+			assertNotNull(message);
+			assertTrue(message.contains("Hi from"));
 		});
 
+		ParameterizedTypeReference<Map<String, Object>> ptr =
+				new ParameterizedTypeReference<Map<String, Object>>() { };
 
 		int portForB = contexts.get("b"),
 				portForA = contexts.get("a");
 
 		String url = "http://localhost:" + portForB + "/service";
-		Map<String, String> msg = this.restTemplate.exchange(url, HttpMethod.GET, null, new ParameterizedTypeReference<Map<String, String>>() {
-		}).getBody();
-		Assert.assertEquals(msg.get("message"), "Hello, client!");
-		log.info(msg);
+		for (int i = 0; i < 10; i++) {
+			Map<String, Object> msg = this.restTemplate.exchange(url, HttpMethod.GET, null, ptr).getBody();
+			assertEquals(msg.get("message"), "Hello, client!");
+		}
+		Arrays.asList(portForA, portForB)
+				.forEach(port -> {
+					ResponseEntity<Map<String, Object>> entity = this.restTemplate.exchange("http://localhost:" + port + "/metrics", HttpMethod.GET, null, ptr);
+					Map<String, Object> map = entity.getBody();
+					Object metrics98thPercentile = map.get("timer.spans.http:/hi.snapshot.98thPercentile");
+					assertTrue("the 98th percentile should be non-zero!", Double.parseDouble("" + metrics98thPercentile) > 0);
+					log.info(entity);
+				});
 
-		Arrays.asList( portForA , portForB  ).forEach(port -> log.info(this.restTemplate.exchange("http://localhost:" + port + "/metrics", HttpMethod.GET, null, String.class)));
 
 	}
 

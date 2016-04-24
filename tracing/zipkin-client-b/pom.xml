@@ -36,12 +36,12 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
+      <!--  <dependency>
             <groupId>cnj</groupId>
             <artifactId>metric-span-reporter</artifactId>
             <version>${project.version}</version>
         </dependency>
-
+-->
     </dependencies>
 
     <build>
