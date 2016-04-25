@@ -39,9 +39,8 @@ public class OperationsIntegrationTest {
 
 	private RestTemplate restTemplate = new RestTemplate();
 
-
 	@Test
-	public void metrics() throws Exception {
+	public void healthEndpoint() throws Exception {
 
 		String actuatorURL = this.urlForApp("actuator");
 		log.info("the actuator endpoint is at " + actuatorURL);
@@ -51,29 +50,6 @@ public class OperationsIntegrationTest {
 
 		assertTrue(this.restTemplate.getForEntity(actuatorURL + "/event/sad", String.class).getStatusCode().is2xxSuccessful());
 		confirmHealth(actuatorURL, "DOWN", HttpStatus.SERVICE_UNAVAILABLE);
-	}
-
-
-	private void confirmHealth(String actuatorURL, String upOrDown, HttpStatus status) {
-		try {
-			ParameterizedTypeReference<Map<String, Object>> ptr =
-					new ParameterizedTypeReference<Map<String, Object>>() { };
-
-			ResponseEntity<Map<String, Object>> responseEntity = this.restTemplate.exchange(actuatorURL + "/admin/health", HttpMethod.GET, null, ptr);
-			Map<String, Object> body = responseEntity.getBody();
-			log.info(body.toString());
-			HttpStatus httpStatus = responseEntity.getStatusCode();
-			assertEquals(httpStatus, status);
-			if (status == HttpStatus.OK) {
-				Map healthResults = Map.class.cast(body.get("emotional"));
-				String statusFromResults = String.class.cast(healthResults.get("status"));
-				assertEquals(upOrDown, statusFromResults);
-				log.info(healthResults.toString());
-			}
-		}
-		catch (HttpStatusCodeException e) {
-			Assert.assertEquals(e.getStatusCode(), status);
-		}
 	}
 
 	@Test
@@ -97,6 +73,28 @@ public class OperationsIntegrationTest {
 				this.restTemplate.exchange(client, HttpMethod.GET, null, ptr);
 		clientGreeting.getBody().entrySet().forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
 		assertTrue(clientGreeting.getBody().containsKey("x-b3-traceid"));
+	}
+
+	private void confirmHealth(String actuatorURL, String upOrDown, HttpStatus status) {
+		try {
+			ParameterizedTypeReference<Map<String, Object>> ptr =
+					new ParameterizedTypeReference<Map<String, Object>>() {
+					};
+
+			ResponseEntity<Map<String, Object>> responseEntity = this.restTemplate.exchange(actuatorURL + "/admin/health", HttpMethod.GET, null, ptr);
+			Map<String, Object> body = responseEntity.getBody();
+			log.info(body.toString());
+			HttpStatus httpStatus = responseEntity.getStatusCode();
+			assertEquals(httpStatus, status);
+			if (status == HttpStatus.OK) {
+				Map healthResults = Map.class.cast(body.get("emotional"));
+				String statusFromResults = String.class.cast(healthResults.get("status"));
+				assertEquals(upOrDown, statusFromResults);
+				log.info(healthResults.toString());
+			}
+		} catch (HttpStatusCodeException e) {
+			Assert.assertEquals(e.getStatusCode(), status);
+		}
 	}
 
 	private String urlForApp(String appName) {
