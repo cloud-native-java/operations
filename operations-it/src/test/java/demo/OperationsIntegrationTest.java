@@ -6,6 +6,7 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.client.lib.CloudCredentials;
 import org.cloudfoundry.client.lib.CloudFoundryClient;
+import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +16,17 @@ import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestTemplate;
 
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.util.Map;
 
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @SpringApplicationConfiguration(classes = CloudFoundryClientConfiguration.class)
@@ -34,7 +36,45 @@ public class OperationsIntegrationTest {
 	private CloudFoundryClient cloudFoundryClient;
 
 	private Log log = LogFactory.getLog(getClass());
+
 	private RestTemplate restTemplate = new RestTemplate();
+
+
+	@Test
+	public void metrics() throws Exception {
+
+		String actuatorURL = this.urlForApp("actuator");
+		log.info("the actuator endpoint is at " + actuatorURL);
+
+		assertTrue(this.restTemplate.getForEntity(actuatorURL + "/event/happy", String.class).getStatusCode().is2xxSuccessful());
+		confirmHealth(actuatorURL, "UP", HttpStatus.OK);
+
+		assertTrue(this.restTemplate.getForEntity(actuatorURL + "/event/sad", String.class).getStatusCode().is2xxSuccessful());
+		confirmHealth(actuatorURL, "DOWN", HttpStatus.SERVICE_UNAVAILABLE);
+	}
+
+
+	private void confirmHealth(String actuatorURL, String upOrDown, HttpStatus status) {
+		try {
+			ParameterizedTypeReference<Map<String, Object>> ptr =
+					new ParameterizedTypeReference<Map<String, Object>>() { };
+
+			ResponseEntity<Map<String, Object>> responseEntity = this.restTemplate.exchange(actuatorURL + "/admin/health", HttpMethod.GET, null, ptr);
+			Map<String, Object> body = responseEntity.getBody();
+			log.info(body.toString());
+			HttpStatus httpStatus = responseEntity.getStatusCode();
+			assertEquals(httpStatus, status);
+			if (status == HttpStatus.OK) {
+				Map healthResults = Map.class.cast(body.get("emotional"));
+				String statusFromResults = String.class.cast(healthResults.get("status"));
+				assertEquals(upOrDown, statusFromResults);
+				log.info(healthResults.toString());
+			}
+		}
+		catch (HttpStatusCodeException e) {
+			Assert.assertEquals(e.getStatusCode(), status);
+		}
+	}
 
 	@Test
 	public void trace() throws Exception {

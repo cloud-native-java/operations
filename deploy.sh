@@ -2,10 +2,12 @@
 
 set -e
 
+operations=`dirname $0`
+echo $operations
+
 source $BUILD_DIRECTORY/utils/cf-common.sh
 
-
-cd tracing
+cd ${operations}/tracing
 
 z_c=zipkin-client-
 z_a=${z_c}a
@@ -21,3 +23,16 @@ deploy_app $z_b
 deploy_service $z_b
 
 deploy_app $z_a
+
+cd ${operations}/actuator
+
+cf push --no-start
+cf set-env actuator HOSTEDGRAPHITE_APIKEY $HOSTEDGRAPHITE_APIKEY
+cf set-env actuator HOSTEDGRAPHITE_URL $HOSTEDGRAPHITE_URL
+cf set-env actuator HOSTEDGRAPHITE_PORT $HOSTEDGRAPHITE_PORT
+cf set-env actuator HOSTEDGRAPHITE_PORT $HOSTEDGRAPHITE_PORT
+cf restart actuator
+
+
+
+
