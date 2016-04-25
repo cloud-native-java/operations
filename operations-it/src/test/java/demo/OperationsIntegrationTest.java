@@ -51,24 +51,20 @@ public class OperationsIntegrationTest {
 		ResponseEntity<Map<String, String>> serviceGreeting =
 				this.restTemplate.exchange(service, HttpMethod.GET, null, ptr);
 		serviceGreeting.getBody().entrySet().forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
-		assertFalse(serviceGreeting.getBody().containsKey("x-trace-id"));
+		assertFalse(serviceGreeting.getBody().containsKey("x-b3-traceid"));
 
 		ResponseEntity<Map<String, String>> clientGreeting =
 				this.restTemplate.exchange(client, HttpMethod.GET, null, ptr);
 		clientGreeting.getBody().entrySet().forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
-		assertTrue(clientGreeting.getBody().containsKey("x-trace-id"));
+		assertTrue(clientGreeting.getBody().containsKey("x-b3-traceid"));
 	}
 
 	private String urlForApp(String appName) {
 		String url = this.cloudFoundryClient
 				.getApplications()
 				.stream()
-				.filter(ca -> {
-					return ca.getName().equals(appName) ;
-				})
-				.map(ca -> {
-					return ca.getUris().stream().findFirst() ;
-				})
+				.filter(ca -> ca.getName().equals(appName))
+				.map(ca -> ca.getUris().stream().findFirst())
 				.findFirst()
 				.orElseThrow(AssertionFailedError::new)
 				.get();

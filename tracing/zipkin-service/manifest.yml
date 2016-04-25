@@ -1,10 +1,10 @@
 ---
 applications:
-- name: zipkin-query-service
+- name: zipkin-service
   memory: 512M
   instances: 1
-  host: zipkin-query-service-${random-word}
-  path: target/zipkin-query-service.jar
+  host: zipkin-service-${random-word}
+  path: target/zipkin-service.jar
   services:
     - cnj-rabbitmq
     - cnj-mysql
