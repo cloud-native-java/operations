@@ -12,5 +12,4 @@ public class ZipkinClientApplicationTests {
 	@Test
 	public void contextLoads() {
 	}
-
 }
