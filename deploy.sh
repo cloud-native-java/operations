@@ -3,7 +3,6 @@
 set -e
 
 operations=`dirname $0`
-echo $operations
 
 source $BUILD_DIRECTORY/utils/cf-common.sh
 
@@ -33,17 +32,5 @@ cf set-env actuator HOSTEDGRAPHITE_PORT $HOSTEDGRAPHITE_PORT
 cf set-env actuator HOSTEDGRAPHITE_PORT $HOSTEDGRAPHITE_PORT
 cf restart actuator
 
-
-
-
 ${operations}/spring-boot-admin/deploy.sh
-
 ${operations}/hystrix-dashboard/deploy.sh
-
-
-#deploy_app spring-boot-admin-server
-#deploy_service spring-boot-admin-server
-
-#cd ${operations}/spring-boot-admin
-
-#deploy_app spring-boot-admin-client

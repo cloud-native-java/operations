@@ -59,12 +59,12 @@ class ShakyRestController {
 			throw new RuntimeException("tripping circuit breaker!");
 		}
 
-		ResponseEntity<String> googleResponse = this.restTemplate.getForEntity(
+		ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(
 				url, String.class);
 
 		return ResponseEntity.ok()
-				.contentType(googleResponse.getHeaders().getContentType())
-				.body(googleResponse.getBody());
+				.contentType(responseEntity.getHeaders().getContentType())
+				.body(responseEntity.getBody());
 	}
 
 }
