@@ -16,7 +16,7 @@ import java.net.URI;
 import java.util.Random;
 
 @SpringBootApplication
-@EnableCircuitBreaker
+@EnableCircuitBreaker // <1>
 public class HystrixCircuitBreakerApplication {
 
 	@Bean
@@ -35,10 +35,12 @@ class ShakyRestController {
 	@Autowired
 	private RestTemplate restTemplate;
 
+	// <2>
 	public ResponseEntity<String> fallback() {
 		return ResponseEntity.ok("ONOES");
 	}
 
+	// <3>
 	@HystrixCommand(fallbackMethod = "fallback")
 	@RequestMapping(method = RequestMethod.GET, value = "/google")
 	public ResponseEntity<String> google() {

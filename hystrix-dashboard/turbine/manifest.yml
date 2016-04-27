@@ -1,0 +1,13 @@
+---
+applications:
+- name: turbine
+  memory: 512M
+  instances: 1
+  host: turbine-${random-word}
+  path: target/turbine.jar
+  services:
+    - rabbitmq-bus
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    debug: "true"

@@ -38,6 +38,8 @@ cf restart actuator
 
 ${operations}/spring-boot-admin/deploy.sh
 
+${operations}/hystrix-dashboard/deploy.sh
+
 
 #deploy_app spring-boot-admin-server
 #deploy_service spring-boot-admin-server

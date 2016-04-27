@@ -1,0 +1,13 @@
+---
+applications:
+- name: hystrix-client
+  memory: 512M
+  instances: 1
+  host: hystrix-client-${random-word}
+  path: target/hystrix-client.jar
+  services:
+    - rabbitmq-bus
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    debug: "true"

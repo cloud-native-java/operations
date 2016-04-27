@@ -1,0 +1,11 @@
+---
+applications:
+- name: hystrix-dashboard-ui
+  memory: 512M
+  instances: 1
+  host: hystrix-dashboard-ui-${random-word}
+  path: target/hystrix-dashboard-ui.jar
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    debug: "true"

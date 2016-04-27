@@ -17,7 +17,7 @@
 
     <modules>
         <module>hystrix-client</module>
-        <module>hystrix-dashboard</module>
+        <module>hystrix-dashboard-ui</module>
         <module>turbine</module>
     </modules>
 </project>
