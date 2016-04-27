@@ -14,5 +14,4 @@ public class SpringBootAdminApplicationTests {
 	@Test
 	public void contextLoads() {
 	}
-
 }

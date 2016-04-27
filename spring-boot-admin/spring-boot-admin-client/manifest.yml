@@ -1,0 +1,13 @@
+---
+applications:
+- name: spring-boot-admin-client
+  memory: 512M
+  instances: 1
+  host: spring-boot-admin-client-${random-word}
+  path: target/spring-boot-admin-client.jar
+  services:
+    - spring-boot-admin-server
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    debug: "true"

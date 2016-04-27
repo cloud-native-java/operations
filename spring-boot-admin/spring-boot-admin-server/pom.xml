@@ -2,50 +2,62 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
+    <artifactId>spring-boot-admin-server</artifactId>
+    <name>operations/spring-boot-admin/spring-boot-admin-server</name>
+    <version>1.0.0-SNAPSHOT</version>
+    <groupId>cnj</groupId>
+    <packaging>jar</packaging>
     <modelVersion>4.0.0</modelVersion>
-    <artifactId>operations</artifactId>
-    <packaging>pom</packaging>
+
 
     <parent>
-        <groupId>cnj</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
-        <relativePath/>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>1.3.3.RELEASE</version>
+        <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <!--<properties>
-        <cloudfoundry-client-lib.version>1.1.4.RELEASE</cloudfoundry-client-lib.version>
-     </properties>-->
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <version>1.0.0.BUILD-SNAPSHOT</version>
-                <groupId>org.springframework.cloud.stream.module</groupId>
-                <artifactId>spring-cloud-stream-modules-test-support</artifactId>
-                <scope>test</scope>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-stream-binder-redis</artifactId>
-            </dependency>
-            <dependency>
-                <groupId>org.springframework.cloud.stream.module</groupId>
-                <artifactId>spring-cloud-stream-modules-dependencies</artifactId>
-                <version>1.0.0.BUILD-SNAPSHOT</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
 
-        </dependencies>
-    </dependencyManagement>
-    <modules>
-        <module>actuator</module>
-        <module>tracing</module>
-        <module>spring-boot-admin</module>
-        <module>remediation</module>
-        <module>logging</module>
-    </modules>
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>1.8</java.version>
+        <spring-boot-admin.version>1.3.2</spring-boot-admin.version>
+    </properties>
+
+    <dependencies>
+
+        <!-- Codecentric's Spring Boot Admin -->
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-server</artifactId>
+            <version>${spring-boot-admin.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>de.codecentric</groupId>
+            <artifactId>spring-boot-admin-server-ui</artifactId>
+            <version>${spring-boot-admin.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
     <build>
+        <finalName>${project.artifactId}</finalName>
         <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+
+
             <plugin>
                 <groupId>org.jfrog.buildinfo</groupId>
                 <artifactId>artifactory-maven-plugin</artifactId>
@@ -115,6 +127,5 @@
             <url>https://cloudnativejava.artifactoryonline.com/cloudnativejava/plugins-snapshot</url>
         </pluginRepository>
     </pluginRepositories>
-
 
 </project>

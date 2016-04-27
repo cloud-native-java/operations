@@ -36,3 +36,12 @@ cf restart actuator
 
 
 
+cd ${operations}/spring-boot-admin
+
+
+#deploy_app spring-boot-admin-server
+#deploy_service spring-boot-admin-server
+
+#cd ${operations}/spring-boot-admin
+
+#deploy_app spring-boot-admin-client
