@@ -39,6 +39,7 @@
     </dependencyManagement>
     <modules>
         <module>actuator</module>
+        <module>hystrix-dashboard</module>
         <module>tracing</module>
         <module>spring-boot-admin</module>
         <module>remediation</module>
