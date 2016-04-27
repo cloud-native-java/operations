@@ -9,13 +9,15 @@ source $BUILD_DIRECTORY/utils/cf-common.sh
 
 cd $c
 
-cf d -f spring-boot-admin-client
-cf d -f spring-boot-admin-server
-cf ds -f spring-boot-admin-server
+bac=spring-boot-admin-client
+bas=spring-boot-admin-server
+
+cf d -f $bac
+cf d -f $bas
+cf ds -f $bas
 
 
-deploy_app spring-boot-admin-server
-deploy_service spring-boot-admin-server
+deploy_app $bas
+deploy_service $bas
 
-
-deploy_app spring-boot-admin-client
+deploy_app $bac
