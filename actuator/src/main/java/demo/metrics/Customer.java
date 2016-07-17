@@ -13,7 +13,8 @@ public class Customer {
 
 	private String email, name;
 
-	Customer() { }
+	Customer() {
+	}
 
 	public Long getId() {
 		return id;

@@ -18,32 +18,36 @@ public class CustomerRestController {
 
 	@Autowired
 	CustomerRestController(CustomerRepository repository,
-	                       CounterService counterService) {
+			CounterService counterService) {
 		this.customerRepository = repository;
 		this.counterService = counterService;
 	}
 
 	@RequestMapping(method = RequestMethod.GET, value = "/{id}")
 	ResponseEntity<?> get(@PathVariable Long id) {
-		return this.customerRepository.findById(id)
-			.map(customer -> {
-				String metricName = metricPrefix("customers.read.found");
-				this.counterService.increment(metricName); // <2>
-				return ResponseEntity.ok(customer);
-			})
-			.orElseGet(() -> {
-				String metricName = metricPrefix("customers.read.not-found");
-				this.counterService.increment(metricName); // <3>
-				return ResponseEntity.class.cast(
-						ResponseEntity.notFound().build());
-			});
+		return this.customerRepository
+				.findById(id)
+				.map(customer -> {
+					String metricName = metricPrefix("customers.read.found");
+					this.counterService.increment(metricName); // <2>
+					return ResponseEntity.ok(customer);
+				})
+				.orElseGet(
+						() -> {
+							String metricName = metricPrefix("customers.read.not-found");
+							this.counterService.increment(metricName); // <3>
+							return ResponseEntity.class.cast(ResponseEntity
+									.notFound().build());
+						});
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
 	ResponseEntity<?> add(@RequestBody Customer newCustomer) {
 		this.customerRepository.save(newCustomer);
-		ServletUriComponentsBuilder url = ServletUriComponentsBuilder.fromCurrentRequest();
-		URI location = url.path("/{id}").buildAndExpand(newCustomer.getId()).toUri();
+		ServletUriComponentsBuilder url = ServletUriComponentsBuilder
+				.fromCurrentRequest();
+		URI location = url.path("/{id}").buildAndExpand(newCustomer.getId())
+				.toUri();
 		return ResponseEntity.created(location).build();
 	}
 

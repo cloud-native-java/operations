@@ -21,7 +21,7 @@ import java.util.Map;
 public class MessageClient {
 
 	@Bean
-	RestTemplate restTemplate (){
+	RestTemplate restTemplate() {
 		return new RestTemplate();
 	}
 
@@ -47,11 +47,10 @@ class MessageClientRestController {
 	@RequestMapping("/")
 	Map<String, String> message() {
 
-		ParameterizedTypeReference<Map<String, String>> ptr =
-				new ParameterizedTypeReference<Map<String, String>>() {
-				};
+		ParameterizedTypeReference<Map<String, String>> ptr = new ParameterizedTypeReference<Map<String, String>>() {
+		};
 
-		return this.restTemplate.exchange(
-				this.host, HttpMethod.GET, null, ptr).getBody();
+		return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr)
+				.getBody();
 	}
 }

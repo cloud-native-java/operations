@@ -9,8 +9,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SpringBootAdminClientApplication {
 
-	@RequestMapping ("/hi")
-	String hi (){
+	@RequestMapping("/hi")
+	String hi() {
 		return "Hi";
 	}
 

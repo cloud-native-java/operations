@@ -19,4 +19,6 @@
         <module>spring-boot-admin-server</module>
         <module>spring-boot-admin-client</module>
     </modules>
+
+
 </project>

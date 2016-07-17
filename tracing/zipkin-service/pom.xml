@@ -20,8 +20,8 @@
             <artifactId>h2</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.zipkin</groupId>
-            <artifactId>zipkin-ui</artifactId>
+            <groupId>io.zipkin.java</groupId>
+            <artifactId>zipkin-autoconfigure-ui</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>

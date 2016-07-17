@@ -11,7 +11,7 @@ public class MeterCustomerRestController extends CustomerRestController {
 
 	@Autowired
 	MeterCustomerRestController(CustomerRepository repository,
-	                            CounterService counterService) {
+			CounterService counterService) {
 		super(repository, counterService);
 	}
 

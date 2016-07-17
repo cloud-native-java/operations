@@ -16,7 +16,8 @@ import java.net.URI;
 import java.util.Random;
 
 @SpringBootApplication
-@EnableCircuitBreaker // <1>
+@EnableCircuitBreaker
+// <1>
 public class HystrixCircuitBreakerApplication {
 
 	@Bean

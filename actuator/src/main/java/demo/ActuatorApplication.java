@@ -16,16 +16,24 @@ public class ActuatorApplication {
 
 	@PostConstruct
 	public void begin() throws Exception {
-		// prevent DNS caching because HostedGraphite nodes may move
+		// prevent DNS caching because HostedGraphite
+		// nodes may move
 		java.security.Security.setProperty("networkaddress.cache.ttl", "60"); // <1>
 	}
 
 	@Bean
 	GraphiteReporter graphiteWriter(
-			@Value("${hostedGraphite.apiKey}") String apiKey, // NB: we're using the API KEY as a prefix
+			@Value("${hostedGraphite.apiKey}") String apiKey, // NB:
+																// we're
+																// using
+																// the
+																// API
+																// KEY
+																// as
+																// a
+																// prefix
 			@Value("${hostedGraphite.url}") String host,
-			@Value("${hostedGraphite.port}") int port,
-			MetricRegistry registry) {
+			@Value("${hostedGraphite.port}") int port, MetricRegistry registry) {
 
 		GraphiteReporter reporter = GraphiteReporter.forRegistry(registry)
 				.prefixedWith(apiKey) // <2>
@@ -34,9 +42,7 @@ public class ActuatorApplication {
 		return reporter;
 	}
 
-
 	public static void main(String[] args) {
 		SpringApplication.run(ActuatorApplication.class, args);
 	}
 }
-

@@ -1,6 +1,5 @@
 package cnj;
 
-
 import com.codahale.metrics.Meter;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -20,18 +19,20 @@ import org.springframework.context.annotation.Configuration;
 public class MetricsSpanReporterAutoConfiguration {
 
 	@Bean
-	public BeanPostProcessor metricSpanReportBeanPostProcessor(GaugeService gaugeService,
-                CounterService counterService) {
+	public BeanPostProcessor metricSpanReportBeanPostProcessor(
+			GaugeService gaugeService, CounterService counterService) {
 
 		return new BeanPostProcessor() {
 
 			@Override
-			public Object postProcessBeforeInitialization(Object o, String s) throws BeansException {
-				return o ;
+			public Object postProcessBeforeInitialization(Object o, String s)
+					throws BeansException {
+				return o;
 			}
 
 			@Override
-			public Object postProcessAfterInitialization(Object o, String s) throws BeansException {
+			public Object postProcessAfterInitialization(Object o, String s)
+					throws BeansException {
 				if (SpanReporter.class.isAssignableFrom(o.getClass())) {
 					return new MetricSpanReporter(SpanReporter.class.cast(o));
 				}
@@ -52,11 +53,11 @@ public class MetricsSpanReporterAutoConfiguration {
 					log.info("received: " + span.toString());
 					target.report(span);
 					counterService.increment("meter.spans." + span.getName());
-					gaugeService.submit("timer.spans." + span.getName(), span.getAccumulatedMillis());
+					gaugeService.submit("timer.spans." + span.getName(),
+							span.getAccumulatedMillis());
 				}
 			}
 		};
 	}
 
 }
-

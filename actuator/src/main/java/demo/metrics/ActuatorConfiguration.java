@@ -25,8 +25,7 @@ class ActuatorConfiguration {
 	GraphiteReporter graphiteWriter(
 			@Value("${hostedGraphite.apiKey}") String apiKey,
 			@Value("${hostedGraphite.url}") String host,
-			@Value("${hostedGraphite.port}") int port,
-			MetricRegistry registry) {
+			@Value("${hostedGraphite.port}") int port, MetricRegistry registry) {
 
 		GraphiteReporter reporter = GraphiteReporter.forRegistry(registry)
 				.prefixedWith(apiKey) // <2>
@@ -34,6 +33,5 @@ class ActuatorConfiguration {
 		reporter.start(1, TimeUnit.SECONDS);
 		return reporter;
 	}
-
 
 }

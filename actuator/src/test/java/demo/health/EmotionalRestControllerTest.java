@@ -27,37 +27,48 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebAppConfiguration
 public class EmotionalRestControllerTest {
 
-    @Autowired
-    public void configureTimeToLive(HealthEndpoint endpoint) {
-        endpoint.setTimeToLive(0);
-    }
+	@Autowired
+	public void configureTimeToLive(HealthEndpoint endpoint) {
+		endpoint.setTimeToLive(0);
+	}
 
-    @Autowired
-    private WebApplicationContext webApplicationContext;
+	@Autowired
+	private WebApplicationContext webApplicationContext;
 
-    private Log log = LogFactory.getLog(getClass());
+	private Log log = LogFactory.getLog(getClass());
 
-    private MockMvc mockMvc;
+	private MockMvc mockMvc;
 
-    @Before
-    public void begin() {
-        this.mockMvc = MockMvcBuilders.webAppContextSetup(this.webApplicationContext).build();
-    }
+	@Before
+	public void begin() {
+		this.mockMvc = MockMvcBuilders.webAppContextSetup(
+				this.webApplicationContext).build();
+	}
 
-    @Test
-    public void events() throws Exception {
-        this.mockMvc.perform(get("/event/happy")).andExpect(MockMvcResultMatchers.status().isOk());
-        this.confirmHealthEndpointStatus("UP", HappyEvent.class, status().isOk());
-        this.mockMvc.perform(get("/event/sad")).andExpect(MockMvcResultMatchers.status().isOk());
-        this.confirmHealthEndpointStatus("DOWN", SadEvent.class, status().is(503));
-    }
+	@Test
+	public void events() throws Exception {
+		this.mockMvc.perform(get("/event/happy")).andExpect(
+				MockMvcResultMatchers.status().isOk());
+		this.confirmHealthEndpointStatus("UP", HappyEvent.class, status()
+				.isOk());
+		this.mockMvc.perform(get("/event/sad")).andExpect(
+				MockMvcResultMatchers.status().isOk());
+		this.confirmHealthEndpointStatus("DOWN", SadEvent.class,
+				status().is(503));
+	}
 
-    private void confirmHealthEndpointStatus(String status, Class<? extends EmotionalEvent> ec, ResultMatcher rm) throws Exception {
-        this.mockMvc.perform(get("/health"))
-                .andDo(mvcResult -> log.info(mvcResult.getResponse().getContentAsString()))
-                .andExpect(jsonPath("$.emotional.status", containsString(status)))
-                .andExpect(jsonPath("$.emotional.class", containsString(ec.getName())))
-                .andExpect(rm);
-    }
+	private void confirmHealthEndpointStatus(String status,
+			Class<? extends EmotionalEvent> ec, ResultMatcher rm)
+			throws Exception {
+		this.mockMvc
+				.perform(get("/health"))
+				.andDo(mvcResult -> log.info(mvcResult.getResponse()
+						.getContentAsString()))
+				.andExpect(
+						jsonPath("$.emotional.status", containsString(status)))
+				.andExpect(
+						jsonPath("$.emotional.class",
+								containsString(ec.getName()))).andExpect(rm);
+	}
 
 }

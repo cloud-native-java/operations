@@ -35,8 +35,7 @@ class MessageServiceRestController {
 	Map<String, String> message(HttpServletRequest httpRequest) {
 
 		List<String> traceHeaders = Collections
-				.list(httpRequest.getHeaderNames())
-				.stream()
+				.list(httpRequest.getHeaderNames()).stream()
 				.filter(h -> h.toLowerCase().startsWith("x-"))
 				.collect(Collectors.toList());
 
