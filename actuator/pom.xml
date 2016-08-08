@@ -37,10 +37,12 @@
             <groupId>io.dropwizard.metrics</groupId>
             <artifactId>metrics-graphite</artifactId>
         </dependency>
-        <!--    <dependency>
+        <!--
+            <dependency>
                 <groupId>com.timgroup</groupId>
                 <artifactId>java-statsd-client</artifactId>
-            </dependency>-->
+            </dependency>
+        -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>

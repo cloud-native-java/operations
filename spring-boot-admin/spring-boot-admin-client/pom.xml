@@ -11,9 +11,6 @@
         <artifactId>spring-boot-admin</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-    <properties>
-
-    </properties>
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -42,11 +39,6 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>cnj</groupId>
-            <artifactId>spring-boot-admin-client</artifactId>
-            <version>${project.version}</version>
-            <scope>test</scope>
-        </dependency>
+
     </dependencies>
 </project>

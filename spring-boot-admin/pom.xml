@@ -15,7 +15,7 @@
         <spring-boot-admin.version>1.3.5</spring-boot-admin.version>
     </properties>
     <modules>
-        <module>spring-boot-admin-server</module>
         <module>spring-boot-admin-client</module>
+        <module>spring-boot-admin-server</module>
     </modules>
 </project>
