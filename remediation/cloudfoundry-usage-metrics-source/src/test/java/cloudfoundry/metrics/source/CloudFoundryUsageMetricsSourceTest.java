@@ -79,6 +79,4 @@ public class CloudFoundryUsageMetricsSourceTest {
 		assertTrue(payload.keySet().contains("CPU"));
 		log.info("received: " + message.toString());
 	}
-
-
 }
