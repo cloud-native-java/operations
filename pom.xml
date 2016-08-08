@@ -38,6 +38,7 @@
         </dependencies>
     </dependencyManagement>
     <modules>
+        <module>operational-eureka-service</module>
         <module>actuator</module>
         <module>hystrix-dashboard</module>
         <module>tracing</module>
