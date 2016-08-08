@@ -8,7 +8,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
  *
  * @author Josh Long
  */
-@ConfigurationProperties(prefix = "nurse.scaling.cloudfoundry")
+@ConfigurationProperties(prefix = "cloudfoundry.autoscaler.sink")
 public class AutoScalerSinkProperties {
 
     private String applicationName, metricHeaderKey;

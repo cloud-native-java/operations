@@ -1,13 +1,14 @@
-package nurse.scaler.cloudfoundry;
+package cloudfoundry.autoscaler.sink;
 
-import cloudfoundry.autoscaler.sink.AutoScalerSinkApplication;
 import org.cloudfoundry.client.lib.CloudFoundryClient;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
+import org.springframework.cloud.stream.app.test.PropertiesInitializer;
 import org.springframework.cloud.stream.messaging.Sink;
 import org.springframework.integration.support.MessageBuilder;
+import org.springframework.messaging.SubscribableChannel;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
@@ -17,9 +18,10 @@ import static org.junit.Assert.assertEquals;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = AutoScalerSinkApplication.class )
+@SpringApplicationConfiguration(classes = AutoScalerSinkApplication.class, initializers = PropertiesInitializer.class)
 @DirtiesContext
 public class AutoscalerSinkTest {
+
 
     private static String APP_NAME = "configuration-client";
 
@@ -48,13 +50,14 @@ public class AutoscalerSinkTest {
         env(properties, prefix, "password", System.getenv("CF_PASSWORD"));
 
         // auto-scaler properties
-        prefix = "nurse.scaling.cloudfoundry";
+        prefix = "cloudfoundry.autoscaler.sink";
         env(properties, prefix, "applicationName", APP_NAME);
         env(properties, prefix, "thresholdMaximum", Integer.toString(MAX));
         env(properties, prefix, "thresholdMinimum", Integer.toString(MIN));
         env(properties, prefix, "instanceCountMaximum", Integer.toString(MAX_AIS));
 
-      //  PropertiesInitializer.PROPERTIES = properties;
+        PropertiesInitializer.PROPERTIES = properties;
+
     }
 
     @Before
@@ -67,13 +70,16 @@ public class AutoscalerSinkTest {
         reset();
     }
 
-    void reset() {
+    protected void reset() {
+        input = this.sink.input();
         this.client.updateApplicationInstances(APP_NAME, 1);
     }
 
     int instances() {
         return this.client.getApplication(APP_NAME).getInstances();
     }
+
+    private SubscribableChannel input;
 
     @Test
     public void upAndDownWithinBounds() throws Exception {
@@ -82,15 +88,16 @@ public class AutoscalerSinkTest {
         this.client.updateApplicationInstances(APP_NAME, start);
         Assert.assertEquals(start, instances());
 
-        this.sink.input().send(MessageBuilder.withPayload(MAX + 1).build());
+
+        input.send(MessageBuilder.withPayload(MAX + 1).build());
         Assert.assertEquals(start + 1, instances());
 
-        this.sink.input().send(MessageBuilder.withPayload(MAX + 1).build());
+        input.send(MessageBuilder.withPayload(MAX + 1).build());
         Assert.assertEquals(start + 2, instances());
 
         // we know that this should kick off another
         // step raise but we've capped it so it shouldn't go any further
-        this.sink.input().send(MessageBuilder.withPayload(MAX + 1).build());
+        input.send(MessageBuilder.withPayload(MAX + 1).build());
         Assert.assertEquals(start + 2, instances());
 
     }

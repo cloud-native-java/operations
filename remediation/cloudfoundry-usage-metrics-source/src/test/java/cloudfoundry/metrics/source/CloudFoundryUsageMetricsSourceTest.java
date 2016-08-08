@@ -68,7 +68,7 @@ public class CloudFoundryUsageMetricsSourceTest {
 		String uri = String.format("http://%s/project-name", cloudApplication.getUris().iterator().next());
 
 		assertTrue(
-				this.restTemplate.getForEntity(uri, String.class).getStatusCode().is2xxSuccessful());
+			this.restTemplate.getForEntity(uri, String.class).getStatusCode().is2xxSuccessful());
 
 		Message<?> message = messageBlockingQueue.poll(1000 * 100, TimeUnit.MILLISECONDS);
 		assertNotNull(message);

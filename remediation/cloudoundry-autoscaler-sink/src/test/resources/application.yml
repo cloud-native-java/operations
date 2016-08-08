@@ -1,8 +1,6 @@
-nurse:
-  logging:
-    cloudfoundry:
-      api: ${CF_API}
-      password: ${CF_PASSWORD}
+cloudfoundry:
+  autoscaler:
+    sink:
       application-name: configuration-client
-      user: ${CF_USER}
-
+#      threshold-maximum: 90
+#      threshold-minimum: 30
