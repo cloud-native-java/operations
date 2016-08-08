@@ -1,12 +1,12 @@
 package nurse.scaler.cloudfoundry;
 
+import cloudfoundry.autoscaler.sink.AutoScalerSinkApplication;
 import org.cloudfoundry.client.lib.CloudFoundryClient;
 import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.SpringApplicationConfiguration;
 import org.springframework.cloud.stream.messaging.Sink;
-import org.springframework.cloud.stream.modules.test.PropertiesInitializer;
 import org.springframework.integration.support.MessageBuilder;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
@@ -17,8 +17,7 @@ import static org.junit.Assert.assertEquals;
 
 
 @RunWith(SpringJUnit4ClassRunner.class)
-@SpringApplicationConfiguration(classes = AutoScalerSinkApplication.class,
-        initializers = PropertiesInitializer.class)
+@SpringApplicationConfiguration(classes = AutoScalerSinkApplication.class )
 @DirtiesContext
 public class AutoscalerSinkTest {
 
@@ -55,7 +54,7 @@ public class AutoscalerSinkTest {
         env(properties, prefix, "thresholdMinimum", Integer.toString(MIN));
         env(properties, prefix, "instanceCountMaximum", Integer.toString(MAX_AIS));
 
-        PropertiesInitializer.PROPERTIES = properties;
+      //  PropertiesInitializer.PROPERTIES = properties;
     }
 
     @Before

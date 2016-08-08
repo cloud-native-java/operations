@@ -1,6 +1,0 @@
-// dataflow 1.2.0.M1 log opened at 2016-02-05 15:41:13
-module list
-module register --name dumb-time-source --coordinates com.example:dumb-time-source:0.0.1-SNAPSHOT --type source
-module list
-stream create --name dumb-time-stream --definition "dumb-time-source |  log " 
-stream deploy --name dumb-time-stream

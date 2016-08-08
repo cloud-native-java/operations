@@ -5,59 +5,26 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>cloudoundry-autoscaler-sink</artifactId>
-
     <packaging>jar</packaging>
-
     <parent>
         <groupId>cnj</groupId>
         <artifactId>remediation</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
-
     <dependencies>
-        <dependency>
-            <groupId>cnj</groupId>
-            <artifactId>nurse-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
         </dependency>
-
-        <!-- Common -->
         <dependency>
-            <groupId>org.cloudfoundry</groupId>
-            <artifactId>cloudfoundry-client-lib</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.integration</groupId>
-            <artifactId>spring-integration-java-dsl</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-cloud-connectors</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.cloud.stream.module</groupId>
-            <artifactId>spring-cloud-stream-modules-common-configuration</artifactId>
+            <groupId>cnj</groupId>
+            <artifactId>cloudfoundry-client-starter</artifactId>
+            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-integration</artifactId>
-        </dependency>
-
-        <!-- Test -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-stream-test-support</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.integration</groupId>
-            <artifactId>spring-integration-test</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -65,13 +32,13 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>org.springframework.cloud.stream.module</groupId>
-            <artifactId>spring-cloud-stream-modules-test-support</artifactId>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-stream-binder-rabbit</artifactId>
+        </dependency>
+        <dependency>
+            <artifactId>spring-cloud-stream-test-support</artifactId>
+            <groupId>org.springframework.cloud</groupId>
             <scope>test</scope>
         </dependency>
-
-
     </dependencies>
-
-
 </project>

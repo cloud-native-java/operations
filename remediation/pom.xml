@@ -14,17 +14,13 @@
     </parent>
 
     <modules>
-<!--
+
         <module>cloudfoundry-client-starter</module>
         <module>cloudfoundry-usage-metrics-source</module>
+        <module>cloudoundry-autoscaler-sink</module>
         <module>dataflow-server</module>
         <module>dataflow-shell</module>
--->
-        <!-- <module>loggregator-source</module> -->
-        <!--
-                <module>nurse-common</module>
-        -->
-        <!-- <module>cloudoundry-autoscaler-sink</module> -->
+
     </modules>
 
 </project>

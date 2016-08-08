@@ -1,4 +1,4 @@
-package nurse.scaler.cloudfoundry;
+package cloudfoundry.autoscaler.sink;
 
 import org.cloudfoundry.client.lib.CloudFoundryClient;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;

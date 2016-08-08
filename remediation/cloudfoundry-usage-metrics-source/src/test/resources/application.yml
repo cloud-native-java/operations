@@ -1,9 +1,8 @@
 
 cloudfoundry:
-
   metrics:
     source:
-      application-name: configuration-client
+      application-name: ab-a
 
   client:
     api-endpoint: ${CF_API}

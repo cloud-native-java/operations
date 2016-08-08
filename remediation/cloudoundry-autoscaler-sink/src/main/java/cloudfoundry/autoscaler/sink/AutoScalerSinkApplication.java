@@ -1,8 +1,7 @@
-package nurse.scaler.cloudfoundry;
+package cloudfoundry.autoscaler.sink;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.retry.ExhaustedRetryException;
 
 @SpringBootApplication
 public class AutoScalerSinkApplication {

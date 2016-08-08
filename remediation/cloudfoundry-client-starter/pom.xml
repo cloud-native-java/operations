@@ -5,7 +5,6 @@
 
 
     <artifactId>cloudfoundry-client-starter</artifactId>
-    <packaging>jar</packaging>
     <parent>
         <groupId>cnj</groupId>
         <artifactId>remediation</artifactId>

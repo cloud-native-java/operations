@@ -1,4 +1,4 @@
-package nurse.scaler.cloudfoundry;
+package cloudfoundry.autoscaler.sink;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;

@@ -5,8 +5,9 @@ import org.cloudfoundry.client.lib.domain.InstanceStats;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
+import org.springframework.cloud.stream.app.trigger.TriggerConfiguration;
+import org.springframework.cloud.stream.app.trigger.TriggerPropertiesMaxMessagesDefaultUnlimited;
 import org.springframework.cloud.stream.messaging.Source;
-import org.springframework.cloud.stream.module.trigger.TriggerConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
 import org.springframework.integration.core.MessageSource;
@@ -31,7 +32,8 @@ import java.util.stream.Collectors;
  */
 @EnableBinding(Source.class)
 @Import(TriggerConfiguration.class)
-@EnableConfigurationProperties(CloudFoundryUsageMetricsSourceProperties.class)
+@EnableConfigurationProperties( {CloudFoundryUsageMetricsSourceProperties.class ,
+		TriggerPropertiesMaxMessagesDefaultUnlimited.class})
 public class CloudFoundryUsageMetricsSource {
 
 	@Autowired
