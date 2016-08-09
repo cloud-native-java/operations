@@ -4,7 +4,7 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>cloudoundry-autoscaler-sink</artifactId>
+    <artifactId>cloudfoundry-autoscaler-sink</artifactId>
     <packaging>jar</packaging>
     <parent>
         <groupId>cnj</groupId>
