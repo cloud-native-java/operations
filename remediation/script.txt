@@ -1,11 +1,6 @@
-# import existing components for RabbitMQ
+
+# --logging.level.org.springframework.integration=DEBUG
+
 app import --uri http://bit.ly/stream-applications-rabbit-maven
-
-# register our custom components
 app register --type source --name cloudfoundry-metrics --uri file:///Users/jlong/.m2/repository/cnj/cloudfoundry-usage-metrics-source/1.0.0-SNAPSHOT/cloudfoundry-usage-metrics-source-1.0.0-SNAPSHOT.jar
-
-stream create --name metrics-to-log --definition "cloudfoundry-metrics --cloudfoundry.client.space=joshlong --cloudfoundry.client.username=USERNAME!!! --cloudfoundry.client.password=PASSWORD!!! --cloudfoundry.client.organization=platform-eng --cloudfoundry.client.apiEndpoint=http://api.run.pivotal.io --cloudfoundry.metrics.source.applicationName=configuration-service  --cloudfoundry.metrics.source.applicationName=configuration-service | log"  --deploy
-
-
-
-
+stream create --name metrics-to-log --definition "cloudfoundry-metrics --cloudfoundry.client.space=joshlong --cloudfoundry.client.username=EMAIL --cloudfoundry.client.password=PASSWORD --cloudfoundry.client.organization=platform-eng --cloudfoundry.client.apiEndpoint=http://api.run.pivotal.io --cloudfoundry.metrics.source.applicationName=configuration-service  --cloudfoundry.metrics.source.applicationName=configuration-service | scriptable-transform --scriptable-transformer.language=ruby --scriptable-transformer.script=\"return payload['CPU']\" | log "  --deploy
