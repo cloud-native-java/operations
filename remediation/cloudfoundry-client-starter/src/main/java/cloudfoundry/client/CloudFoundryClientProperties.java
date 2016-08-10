@@ -9,9 +9,9 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class CloudFoundryClientProperties {
 
 
+    private String apiEndpoint = "http://api.run.pivotal.io"; // naturally.
     private String organization;
     private String space;
-    private String apiEndpoint;
     private String username;
     private String password;
 

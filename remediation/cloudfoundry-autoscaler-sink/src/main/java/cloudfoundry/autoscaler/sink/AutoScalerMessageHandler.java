@@ -55,20 +55,26 @@ public class AutoScalerMessageHandler implements MessageHandler {
         double max = maxNumber.doubleValue();
         double min = minNumber.doubleValue();
 
+        log.info("incoming value: " + v);
+        log.info("max: " + max);
+        log.info("min: " + min);
 
         // suppose the CPU is 90% and the max tolerable threshold is 70%, then we need to add more capacity, step up
-        if (v > max) {
+        if ( v > max) {
+            log.info("v > max");
             scale(this.applicationName, 1);
         }
 
         // suppose the CPU is 10% and the min tolerable threshold is 20%, then we have too much capacity, step down
         if (v < min) {
+            log.info("v < max");
             scale(this.applicationName, -1);
         }
     }
 
     protected void scale(String appName, int delta) throws MessagingException {
         CloudApplication application = client.getApplication(appName);
+        log.info("inclined to scale " + delta);
         log.info("applicationName: " + appName);
         int currentInstances = application.getInstances();
         log.info("currentInstances: " + currentInstances);
@@ -87,8 +93,9 @@ public class AutoScalerMessageHandler implements MessageHandler {
             baseline = this.icMin.intValue();
         }
 
-        if (this.icMax != null && !this.icMax.equals(0))
+        if (this.icMax != null && !this.icMax.equals(0)) {
             roof = this.icMax.intValue();
+        }
 
         boolean ltBaseline = (newSum < baseline);
         // if the roof is 0, the default, then it's fine to keep going up
