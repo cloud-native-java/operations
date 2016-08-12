@@ -59,13 +59,13 @@ public class AutoScalerMessageHandler implements MessageHandler {
         log.info("max: " + max);
         log.info("min: " + min);
 
-        // suppose the CPU is 90% and the max tolerable threshold is 70%, then we need to add more capacity, step up
+        // suppose the CPU is 90% and the max tolerable threshold is 70%, then we need to add more capacity, step up.
         if ( v > max) {
             log.info("v > max");
             scale(this.applicationName, 1);
         }
 
-        // suppose the CPU is 10% and the min tolerable threshold is 20%, then we have too much capacity, step down
+        // suppose the CPU is 10% and the min tolerable threshold is 20%, then we have too much capacity, step down.
         if (v < min) {
             log.info("v < max");
             scale(this.applicationName, -1);
