@@ -4,9 +4,6 @@ import com.codahale.metrics.MetricRegistry;
 import com.codahale.metrics.graphite.Graphite;
 import com.codahale.metrics.graphite.GraphiteReporter;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.actuate.autoconfigure.ExportMetricWriter;
-import org.springframework.boot.actuate.metrics.statsd.StatsdMetricWriter;
-import org.springframework.boot.actuate.metrics.writer.MetricWriter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -22,8 +19,7 @@ class ActuatorConfiguration {
 	}
 
 	@Bean
-	GraphiteReporter graphiteWriter(
-			@Value("${hostedGraphite.apiKey}") String apiKey,
+	GraphiteReporter graphiteWriter(@Value("${hostedGraphite.apiKey}") String apiKey,
 			@Value("${hostedGraphite.url}") String host,
 			@Value("${hostedGraphite.port}") int port, MetricRegistry registry) {
 

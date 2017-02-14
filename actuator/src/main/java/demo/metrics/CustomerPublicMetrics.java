@@ -27,8 +27,7 @@ class CustomerPublicMetrics implements PublicMetrics {
 		long count = this.customerRepository.count();
 
 		// <1>
-		Metric<Number> customersCountMetric = new Metric<>("customers.count",
-				count);
+		Metric<Number> customersCountMetric = new Metric<>("customers.count", count);
 		metrics.add(customersCountMetric);
 		return metrics;
 	}

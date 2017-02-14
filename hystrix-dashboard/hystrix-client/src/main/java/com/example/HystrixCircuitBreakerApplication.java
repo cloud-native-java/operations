@@ -20,13 +20,13 @@ import java.util.Random;
 // <1>
 public class HystrixCircuitBreakerApplication {
 
+	public static void main(String[] args) {
+		SpringApplication.run(HystrixCircuitBreakerApplication.class, args);
+	}
+
 	@Bean
 	RestTemplate restTemplate() {
 		return new RestTemplate();
-	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(HystrixCircuitBreakerApplication.class, args);
 	}
 }
 
@@ -60,11 +60,10 @@ class ShakyRestController {
 			throw new RuntimeException("tripping circuit breaker!");
 		}
 
-		ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(
-				url, String.class);
+		ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(url,
+				String.class);
 
-		return ResponseEntity.ok()
-				.contentType(responseEntity.getHeaders().getContentType())
+		return ResponseEntity.ok().contentType(responseEntity.getHeaders().getContentType())
 				.body(responseEntity.getBody());
 	}
 

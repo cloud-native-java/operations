@@ -14,6 +14,10 @@ import java.util.concurrent.TimeUnit;
 @SpringBootApplication
 public class ActuatorApplication {
 
+	public static void main(String[] args) {
+		SpringApplication.run(ActuatorApplication.class, args);
+	}
+
 	@PostConstruct
 	public void begin() throws Exception {
 		// prevent DNS caching because HostedGraphite
@@ -24,14 +28,14 @@ public class ActuatorApplication {
 	@Bean
 	GraphiteReporter graphiteWriter(
 			@Value("${hostedGraphite.apiKey}") String apiKey, // NB:
-																// we're
-																// using
-																// the
-																// API
-																// KEY
-																// as
-																// a
-																// prefix
+			// we're
+			// using
+			// the
+			// API
+			// KEY
+			// as
+			// a
+			// prefix
 			@Value("${hostedGraphite.url}") String host,
 			@Value("${hostedGraphite.port}") int port, MetricRegistry registry) {
 
@@ -40,9 +44,5 @@ public class ActuatorApplication {
 				.build(new Graphite(host, port));
 		reporter.start(2, TimeUnit.SECONDS);
 		return reporter;
-	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(ActuatorApplication.class, args);
 	}
 }

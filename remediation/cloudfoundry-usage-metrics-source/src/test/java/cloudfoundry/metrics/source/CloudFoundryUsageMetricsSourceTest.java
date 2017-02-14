@@ -46,29 +46,21 @@ public class CloudFoundryUsageMetricsSourceTest {
 	@Autowired
 	private CloudFoundryUsageMetricsSourceProperties properties;
 
-	@Configuration
-	public static class RestTemplateConfiguration {
-
-		@Bean
-		public RestTemplate restTemplate() {
-			return new RestTemplate();
-		}
-	}
-
 	@Test
 	public void testMetricsRead() throws Exception {
-		BlockingQueue<Message<?>> messageBlockingQueue =
-				this.messageCollector.forChannel(this.channels.output());
+		BlockingQueue<Message<?>> messageBlockingQueue = this.messageCollector
+				.forChannel(this.channels.output());
 
 		String appName = this.properties.getApplicationName();
 		CloudApplication cloudApplication = this.cloudFoundryClient.getApplication(appName);
 
 		assertNotNull("cloudApplication is not null", cloudApplication);
 
-		String uri = String.format("http://%s/project-name", cloudApplication.getUris().iterator().next());
+		String uri = String.format("http://%s/project-name", cloudApplication.getUris()
+				.iterator().next());
 
-		assertTrue(
-			this.restTemplate.getForEntity(uri, String.class).getStatusCode().is2xxSuccessful());
+		assertTrue(this.restTemplate.getForEntity(uri, String.class).getStatusCode()
+				.is2xxSuccessful());
 
 		Message<?> message = messageBlockingQueue.poll(1000 * 100, TimeUnit.MILLISECONDS);
 		assertNotNull(message);
@@ -78,5 +70,14 @@ public class CloudFoundryUsageMetricsSourceTest {
 		assertTrue(payload.keySet().contains("DISK"));
 		assertTrue(payload.keySet().contains("CPU"));
 		log.info("received: " + message.toString());
+	}
+
+	@Configuration
+	public static class RestTemplateConfiguration {
+
+		@Bean
+		public RestTemplate restTemplate() {
+			return new RestTemplate();
+		}
 	}
 }

@@ -25,7 +25,8 @@ public class TimedRestController {
 		try {
 			Thread.sleep((long) (Math.random() * 60) * 1000);
 			return ResponseEntity.ok("Hi, " + System.currentTimeMillis());
-		} finally {
+		}
+		finally {
 			sw.stop();
 			this.gaugeService.submit("timer.hello", sw.getLastTaskTimeMillis());
 		}

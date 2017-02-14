@@ -25,18 +25,16 @@ class EmotionalHealthIndicator extends AbstractHealthIndicator {
 	@Override
 	protected void doHealthCheck(Health.Builder builder) throws Exception {
 
-		Optional.ofNullable(this.event)
+		Optional
+				.ofNullable(this.event)
 				.ifPresent(
 						evt -> {
-							Class<? extends EmotionalEvent> eventClass = this.event
-									.getClass();
-							Health.Builder healthBuilder = eventClass
-									.isAssignableFrom(SadEvent.class) ? builder
+							Class<? extends EmotionalEvent> eventClass = this.event.getClass();
+							Health.Builder healthBuilder = eventClass.isAssignableFrom(SadEvent.class) ? builder
 									.down() : builder.up();
-							String eventTimeAsString = this.when.toInstant()
-									.toString();
-							healthBuilder.withDetail("class", eventClass)
-									.withDetail("when", eventTimeAsString);
+							String eventTimeAsString = this.when.toInstant().toString();
+							healthBuilder.withDetail("class", eventClass).withDetail("when",
+									eventTimeAsString);
 						});
 
 	}

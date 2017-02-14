@@ -21,7 +21,7 @@ public class SampleCustomerCommandLineRunner implements CommandLineRunner {
 	public void run(String... args) throws Exception {
 		Stream.of("Kenny", "Josh", "Phil", "Dave", "Spencer", "Andrew")
 				.forEach(
-						x -> this.customerRepository.save(new Customer(x
-								.toLowerCase() + "@email.com", x)));
+						x -> this.customerRepository.save(new Customer(
+								x.toLowerCase() + "@email.com", x)));
 	}
 }

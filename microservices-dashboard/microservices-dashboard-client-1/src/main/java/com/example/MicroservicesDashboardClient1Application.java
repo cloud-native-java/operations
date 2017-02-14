@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class MicroservicesDashboardClient1Application {
 
-	@RequestMapping ("/client-1")
-	String hi (){
-		return "Client 1" ;
-	}
-
 	public static void main(String[] args) {
 		SpringApplication.run(MicroservicesDashboardClient1Application.class, args);
+	}
+
+	@RequestMapping("/client-1")
+	String hi() {
+		return "Client 1";
 	}
 }

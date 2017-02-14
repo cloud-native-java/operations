@@ -14,9 +14,8 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/histogram/uploads")
 public class HistogramFileUploadRestController {
 
-	private Log log = LogFactory.getLog(getClass());
-
 	private final GaugeService gaugeService;
+	private Log log = LogFactory.getLog(getClass());
 
 	@Autowired
 	HistogramFileUploadRestController(GaugeService gaugeService) {

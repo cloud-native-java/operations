@@ -15,12 +15,12 @@ import org.springframework.context.annotation.Configuration;
 
 // TODO talk about this in the book?
 @Configuration
-@ConditionalOnClass({Meter.class, SpanReporter.class})
+@ConditionalOnClass({ Meter.class, SpanReporter.class })
 public class MetricsSpanReporterAutoConfiguration {
 
 	@Bean
-	public BeanPostProcessor metricSpanReportBeanPostProcessor(
-			GaugeService gaugeService, CounterService counterService) {
+	public BeanPostProcessor metricSpanReportBeanPostProcessor(GaugeService gaugeService,
+			CounterService counterService) {
 
 		return new BeanPostProcessor() {
 
@@ -41,8 +41,8 @@ public class MetricsSpanReporterAutoConfiguration {
 
 			class MetricSpanReporter implements SpanReporter {
 
-				private Log log = LogFactory.getLog(getClass());
 				private final SpanReporter target;
+				private Log log = LogFactory.getLog(getClass());
 
 				public MetricSpanReporter(SpanReporter target) {
 					this.target = target;

@@ -10,8 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class MeterCustomerRestController extends CustomerRestController {
 
 	@Autowired
-	MeterCustomerRestController(CustomerRepository repository,
-			CounterService counterService) {
+	MeterCustomerRestController(CustomerRepository repository, CounterService counterService) {
 		super(repository, counterService);
 	}
 

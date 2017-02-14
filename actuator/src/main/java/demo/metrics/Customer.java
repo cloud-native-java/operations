@@ -16,6 +16,11 @@ public class Customer {
 	Customer() {
 	}
 
+	public Customer(String email, String name) {
+		this.email = email;
+		this.name = name;
+	}
+
 	public Long getId() {
 		return id;
 	}
@@ -26,10 +31,5 @@ public class Customer {
 
 	public String getName() {
 		return name;
-	}
-
-	public Customer(String email, String name) {
-		this.email = email;
-		this.name = name;
 	}
 }

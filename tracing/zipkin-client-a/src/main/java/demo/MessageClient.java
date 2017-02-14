@@ -20,6 +20,10 @@ import java.util.Map;
 @SpringBootApplication
 public class MessageClient {
 
+	public static void main(String[] args) {
+		SpringApplication.run(MessageClient.class, args);
+	}
+
 	@Bean
 	RestTemplate restTemplate() {
 		return new RestTemplate();
@@ -28,10 +32,6 @@ public class MessageClient {
 	@Bean
 	Sampler sampler() {
 		return new AlwaysSampler();
-	}
-
-	public static void main(String[] args) {
-		SpringApplication.run(MessageClient.class, args);
 	}
 }
 
@@ -50,7 +50,6 @@ class MessageClientRestController {
 		ParameterizedTypeReference<Map<String, String>> ptr = new ParameterizedTypeReference<Map<String, String>>() {
 		};
 
-		return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr)
-				.getBody();
+		return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr).getBody();
 	}
 }

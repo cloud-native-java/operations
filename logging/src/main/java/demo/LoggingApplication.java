@@ -9,11 +9,11 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 @SpringBootApplication
 public class LoggingApplication implements CommandLineRunner {
 
+	private Log log = LogFactory.getLog(getClass());
+
 	public static void main(String args[]) {
 		SpringApplication.run(LoggingApplication.class, args);
 	}
-
-	private Log log = LogFactory.getLog(getClass());
 
 	@Override
 	public void run(String... args) throws Exception {

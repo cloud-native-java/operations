@@ -1,6 +1,5 @@
 package demo;
 
-
 import junit.framework.AssertionFailedError;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -45,10 +44,12 @@ public class OperationsIntegrationTest {
 		String actuatorURL = this.urlForApp("actuator");
 		log.info("the actuator endpoint is at " + actuatorURL);
 
-		assertTrue(this.restTemplate.getForEntity(actuatorURL + "/event/happy", String.class).getStatusCode().is2xxSuccessful());
+		assertTrue(this.restTemplate.getForEntity(actuatorURL + "/event/happy", String.class)
+				.getStatusCode().is2xxSuccessful());
 		confirmHealth(actuatorURL, "UP", HttpStatus.OK);
 
-		assertTrue(this.restTemplate.getForEntity(actuatorURL + "/event/sad", String.class).getStatusCode().is2xxSuccessful());
+		assertTrue(this.restTemplate.getForEntity(actuatorURL + "/event/sad", String.class)
+				.getStatusCode().is2xxSuccessful());
 		confirmHealth(actuatorURL, "DOWN", HttpStatus.SERVICE_UNAVAILABLE);
 	}
 
@@ -57,31 +58,31 @@ public class OperationsIntegrationTest {
 
 		String zcBName = "zipkin-client-b";
 		String zcAName = "zipkin-client-a";
-		String client = this.urlForApp(zcAName),
-				service = this.urlForApp(zcBName);
+		String client = this.urlForApp(zcAName), service = this.urlForApp(zcBName);
 
-		ParameterizedTypeReference<Map<String, String>> ptr =
-				new ParameterizedTypeReference<Map<String, String>>() {
-				};
+		ParameterizedTypeReference<Map<String, String>> ptr = new ParameterizedTypeReference<Map<String, String>>() {
+		};
 
-		ResponseEntity<Map<String, String>> serviceGreeting =
-				this.restTemplate.exchange(service, HttpMethod.GET, null, ptr);
-		serviceGreeting.getBody().entrySet().forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
+		ResponseEntity<Map<String, String>> serviceGreeting = this.restTemplate.exchange(
+				service, HttpMethod.GET, null, ptr);
+		serviceGreeting.getBody().entrySet()
+				.forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
 		assertFalse(serviceGreeting.getBody().containsKey("x-b3-traceid"));
 
-		ResponseEntity<Map<String, String>> clientGreeting =
-				this.restTemplate.exchange(client, HttpMethod.GET, null, ptr);
-		clientGreeting.getBody().entrySet().forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
+		ResponseEntity<Map<String, String>> clientGreeting = this.restTemplate.exchange(
+				client, HttpMethod.GET, null, ptr);
+		clientGreeting.getBody().entrySet()
+				.forEach(e -> this.log.info(e.getKey() + '=' + e.getValue()));
 		assertTrue(clientGreeting.getBody().containsKey("x-b3-traceid"));
 	}
 
 	private void confirmHealth(String actuatorURL, String upOrDown, HttpStatus status) {
 		try {
-			ParameterizedTypeReference<Map<String, Object>> ptr =
-					new ParameterizedTypeReference<Map<String, Object>>() {
-					};
+			ParameterizedTypeReference<Map<String, Object>> ptr = new ParameterizedTypeReference<Map<String, Object>>() {
+			};
 
-			ResponseEntity<Map<String, Object>> responseEntity = this.restTemplate.exchange(actuatorURL + "/admin/health", HttpMethod.GET, null, ptr);
+			ResponseEntity<Map<String, Object>> responseEntity = this.restTemplate.exchange(
+					actuatorURL + "/admin/health", HttpMethod.GET, null, ptr);
 			Map<String, Object> body = responseEntity.getBody();
 			log.info(body.toString());
 			HttpStatus httpStatus = responseEntity.getStatusCode();
@@ -92,20 +93,17 @@ public class OperationsIntegrationTest {
 				assertEquals(upOrDown, statusFromResults);
 				log.info(healthResults.toString());
 			}
-		} catch (HttpStatusCodeException e) {
+		}
+		catch (HttpStatusCodeException e) {
 			Assert.assertEquals(e.getStatusCode(), status);
 		}
 	}
 
 	private String urlForApp(String appName) {
-		String url = this.cloudFoundryClient
-				.getApplications()
-				.stream()
+		String url = this.cloudFoundryClient.getApplications().stream()
 				.filter(ca -> ca.getName().equals(appName))
-				.map(ca -> ca.getUris().stream().findFirst())
-				.findFirst()
-				.orElseThrow(AssertionFailedError::new)
-				.get();
+				.map(ca -> ca.getUris().stream().findFirst()).findFirst()
+				.orElseThrow(AssertionFailedError::new).get();
 		if (!url.toLowerCase().startsWith("http"))
 			url = "http://" + url;
 		return url;
@@ -116,13 +114,14 @@ public class OperationsIntegrationTest {
 class CloudFoundryClientConfiguration {
 
 	@Bean
-	CloudCredentials cloudCredentials(
-			@Value("${cf.user}") String email, @Value("${cf.password}") String pw) {
+	CloudCredentials cloudCredentials(@Value("${cf.user}") String email,
+			@Value("${cf.password}") String pw) {
 		return new CloudCredentials(email, pw);
 	}
 
 	@Bean
-	CloudFoundryClient cloudFoundryClient(@Value("${cf.api}") String url, CloudCredentials cc) throws MalformedURLException {
+	CloudFoundryClient cloudFoundryClient(@Value("${cf.api}") String url,
+			CloudCredentials cc) throws MalformedURLException {
 		URI uri = URI.create(url);
 		CloudFoundryClient cloudFoundryClient = new CloudFoundryClient(cc, uri.toURL());
 		cloudFoundryClient.login();

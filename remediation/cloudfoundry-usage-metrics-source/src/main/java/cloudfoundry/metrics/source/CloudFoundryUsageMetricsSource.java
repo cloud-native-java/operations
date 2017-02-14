@@ -25,15 +25,17 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * This metrics source emits averages of a given Cloud Foundry
- * application's aggregate resource (CPU, memory, disk) usage.
+ * This metrics source emits averages of a given
+ * Cloud Foundry application's aggregate resource
+ * (CPU, memory, disk) usage.
  *
- * @author <a href="http://josh@joshlong.com">Josh Long</a>
+ * @author <a href="http://josh@joshlong.com">Josh
+ * Long</a>
  */
 @EnableBinding(Source.class)
 @Import(TriggerConfiguration.class)
-@EnableConfigurationProperties( {CloudFoundryUsageMetricsSourceProperties.class ,
-		TriggerPropertiesMaxMessagesDefaultUnlimited.class})
+@EnableConfigurationProperties({ CloudFoundryUsageMetricsSourceProperties.class,
+		TriggerPropertiesMaxMessagesDefaultUnlimited.class })
 public class CloudFoundryUsageMetricsSource {
 
 	@Autowired
@@ -50,31 +52,31 @@ public class CloudFoundryUsageMetricsSource {
 	@Bean
 	public CloudFoundryUsageMetricsMessageSource cloudFoundryUsageMetricsMessageSource(
 			CloudFoundryUsageMetricsSourceProperties properties, CloudFoundryClient client) {
-		return new CloudFoundryUsageMetricsMessageSource(properties.getApplicationName(), client);
+		return new CloudFoundryUsageMetricsMessageSource(properties.getApplicationName(),
+				client);
 	}
 
 	@Bean
-	public IntegrationFlow cloudFoundryUsageMetricsSourceFlow(CloudFoundryUsageMetricsMessageSource msgSrc) {
-		return IntegrationFlows
-				.from(msgSrc, pollerSpec -> pollerSpec.poller(poller()))
-				.channel(this.source.output())
-				.get();
+	public IntegrationFlow cloudFoundryUsageMetricsSourceFlow(
+			CloudFoundryUsageMetricsMessageSource msgSrc) {
+		return IntegrationFlows.from(msgSrc, pollerSpec -> pollerSpec.poller(poller()))
+				.channel(this.source.output()).get();
 	}
 }
 
 /**
- * calculates the average of key metrics in Cloud Foundry like application
- * CPU, disk-usage, and memory. You can funnel these metrics into something interesting
- * like a remediation flow.
+ * calculates the average of key metrics in Cloud
+ * Foundry like application CPU, disk-usage, and
+ * memory. You can funnel these metrics into
+ * something interesting like a remediation flow.
  */
-class CloudFoundryUsageMetricsMessageSource
-		implements MessageSource<Map<String, Double>> {
+class CloudFoundryUsageMetricsMessageSource implements MessageSource<Map<String, Double>> {
 
 	private final String applicationName;
 	private final CloudFoundryClient cloudFoundryClient;
 
 	CloudFoundryUsageMetricsMessageSource(String applicationName,
-	                                      CloudFoundryClient cloudFoundryClient) {
+			CloudFoundryClient cloudFoundryClient) {
 		this.applicationName = applicationName;
 		this.cloudFoundryClient = cloudFoundryClient;
 	}
@@ -83,11 +85,8 @@ class CloudFoundryUsageMetricsMessageSource
 	public Message<Map<String, Double>> receive() {
 
 		List<Map<String, Double>> collect = this.cloudFoundryClient
-				.getApplicationStats(this.applicationName)
-				.getRecords()
-				.stream()
-				.map(this::instanceStatsMapFrom)
-				.collect(Collectors.toList());
+				.getApplicationStats(this.applicationName).getRecords().stream()
+				.map(this::instanceStatsMapFrom).collect(Collectors.toList());
 
 		Map<String, Double> avgs = new HashMap<>();
 		avg(collect, avgs, UsageHeaders.CPU);
@@ -105,11 +104,10 @@ class CloudFoundryUsageMetricsMessageSource
 		return m;
 	}
 
-	private void avg(List<Map<String, Double>> collection, Map<String, Double> avgs, UsageHeaders h) {
+	private void avg(List<Map<String, Double>> collection, Map<String, Double> avgs,
+			UsageHeaders h) {
 		String key = h.toString();
-		Double avgDouble = collection
-				.stream()
-				.map(m -> m.get(key))
+		Double avgDouble = collection.stream().map(m -> m.get(key))
 				.collect(Collectors.averagingDouble(a -> a));
 		avgs.put(key, avgDouble);
 	}
@@ -118,4 +116,3 @@ class CloudFoundryUsageMetricsMessageSource
 		CPU, DISK, MEM
 	}
 }
-

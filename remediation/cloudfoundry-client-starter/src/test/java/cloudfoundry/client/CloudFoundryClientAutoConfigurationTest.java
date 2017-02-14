@@ -17,15 +17,12 @@ import java.util.Map;
 import static org.junit.Assert.assertNotNull;
 
 /**
- * @author <a href="mailto:josh@joshlong.com">Josh Long</a>
+ * @author <a href="mailto:josh@joshlong.com">Josh
+ * Long</a>
  */
 public class CloudFoundryClientAutoConfigurationTest {
 
 	private Map<String, Object> properties;
-
-	@SpringBootApplication
-	public static class SimpleBootApp {
-	}
 
 	@Before
 	public void before() throws Exception {
@@ -43,10 +40,8 @@ public class CloudFoundryClientAutoConfigurationTest {
 	@Test
 	public void testAutoConfiguration() throws Throwable {
 
-		ApplicationContext run = new SpringApplicationBuilder()
-				.properties(this.properties)
-				.sources(SimpleBootApp.class)
-				.run();
+		ApplicationContext run = new SpringApplicationBuilder().properties(this.properties)
+				.sources(SimpleBootApp.class).run();
 
 		CloudFoundryClient client = run.getBean(CloudFoundryClient.class);
 		CloudCredentials credentials = run.getBean(CloudCredentials.class);
@@ -74,5 +69,9 @@ public class CloudFoundryClientAutoConfigurationTest {
 	private void validate(CloudCredentials cc, CloudFoundryClient client) throws Throwable {
 		assertNotNull("no definition for " + CloudFoundryClient.class.getName() + ".", client);
 		assertNotNull("no definition for " + CloudCredentials.class.getName() + ".", cc);
+	}
+
+	@SpringBootApplication
+	public static class SimpleBootApp {
 	}
 }
