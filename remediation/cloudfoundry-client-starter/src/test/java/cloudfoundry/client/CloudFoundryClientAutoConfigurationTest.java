@@ -22,56 +22,56 @@ import static org.junit.Assert.assertNotNull;
  */
 public class CloudFoundryClientAutoConfigurationTest {
 
-	private Map<String, Object> properties;
+ private Map<String, Object> properties;
 
-	@Before
-	public void before() throws Exception {
+ @Before
+ public void before() throws Exception {
 
-		String prefix = "cloudfoundry.client";
+  String prefix = "cloudfoundry.client";
 
-		this.properties = new HashMap<>();
-		this.properties.put(prefix + ".org", System.getenv("CF_ORG"));
-		this.properties.put(prefix + ".space", System.getenv("CF_ORG"));
-		this.properties.put(prefix + ".apiEndpoint", System.getenv("CF_API"));
-		this.properties.put(prefix + ".username", System.getenv("CF_USER"));
-		this.properties.put(prefix + ".password", System.getenv("CF_PASSWORD"));
-	}
+  this.properties = new HashMap<>();
+  this.properties.put(prefix + ".org", System.getenv("CF_ORG"));
+  this.properties.put(prefix + ".space", System.getenv("CF_ORG"));
+  this.properties.put(prefix + ".apiEndpoint", System.getenv("CF_API"));
+  this.properties.put(prefix + ".username", System.getenv("CF_USER"));
+  this.properties.put(prefix + ".password", System.getenv("CF_PASSWORD"));
+ }
 
-	@Test
-	public void testAutoConfiguration() throws Throwable {
+ @Test
+ public void testAutoConfiguration() throws Throwable {
 
-		ApplicationContext run = new SpringApplicationBuilder().properties(this.properties)
-				.sources(SimpleBootApp.class).run();
+  ApplicationContext run = new SpringApplicationBuilder().properties(this.properties)
+    .sources(SimpleBootApp.class).run();
 
-		CloudFoundryClient client = run.getBean(CloudFoundryClient.class);
-		CloudCredentials credentials = run.getBean(CloudCredentials.class);
-		this.validate(credentials, client);
-	}
+  CloudFoundryClient client = run.getBean(CloudFoundryClient.class);
+  CloudCredentials credentials = run.getBean(CloudCredentials.class);
+  this.validate(credentials, client);
+ }
 
-	@Test
-	public void testContextLoads() throws Throwable {
+ @Test
+ public void testContextLoads() throws Throwable {
 
-		MapPropertySource mapPropertySource = new MapPropertySource("test", this.properties);
+  MapPropertySource mapPropertySource = new MapPropertySource("test", this.properties);
 
-		AnnotationConfigApplicationContext run = new AnnotationConfigApplicationContext();
+  AnnotationConfigApplicationContext run = new AnnotationConfigApplicationContext();
 
-		ConfigurableEnvironment environment = run.getEnvironment();
-		environment.getPropertySources().addLast(mapPropertySource);
+  ConfigurableEnvironment environment = run.getEnvironment();
+  environment.getPropertySources().addLast(mapPropertySource);
 
-		run.register(CloudFoundryClientAutoConfiguration.class);
-		run.refresh();
+  run.register(CloudFoundryClientAutoConfiguration.class);
+  run.refresh();
 
-		CloudFoundryClient client = run.getBean(CloudFoundryClient.class);
-		CloudCredentials credentials = run.getBean(CloudCredentials.class);
-		this.validate(credentials, client);
-	}
+  CloudFoundryClient client = run.getBean(CloudFoundryClient.class);
+  CloudCredentials credentials = run.getBean(CloudCredentials.class);
+  this.validate(credentials, client);
+ }
 
-	private void validate(CloudCredentials cc, CloudFoundryClient client) throws Throwable {
-		assertNotNull("no definition for " + CloudFoundryClient.class.getName() + ".", client);
-		assertNotNull("no definition for " + CloudCredentials.class.getName() + ".", cc);
-	}
+ private void validate(CloudCredentials cc, CloudFoundryClient client) throws Throwable {
+  assertNotNull("no definition for " + CloudFoundryClient.class.getName() + ".", client);
+  assertNotNull("no definition for " + CloudCredentials.class.getName() + ".", cc);
+ }
 
-	@SpringBootApplication
-	public static class SimpleBootApp {
-	}
+ @SpringBootApplication
+ public static class SimpleBootApp {
+ }
 }

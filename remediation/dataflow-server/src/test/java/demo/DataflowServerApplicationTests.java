@@ -6,8 +6,8 @@ import org.junit.Test;
 //@SpringApplicationConfiguration(classes = DataflowServerApplication.class)
 public class DataflowServerApplicationTests {
 
-	@Test
-	public void contextLoads() {
-	}
+ @Test
+ public void contextLoads() {
+ }
 
 }

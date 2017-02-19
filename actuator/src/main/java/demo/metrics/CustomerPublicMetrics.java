@@ -12,23 +12,23 @@ import java.util.Set;
 @Component
 class CustomerPublicMetrics implements PublicMetrics {
 
-	private final CustomerRepository customerRepository;
+ private final CustomerRepository customerRepository;
 
-	@Autowired
-	public CustomerPublicMetrics(CustomerRepository customerRepository) {
-		this.customerRepository = customerRepository;
-	}
+ @Autowired
+ public CustomerPublicMetrics(CustomerRepository customerRepository) {
+  this.customerRepository = customerRepository;
+ }
 
-	@Override
-	public Collection<Metric<?>> metrics() {
+ @Override
+ public Collection<Metric<?>> metrics() {
 
-		Set<Metric<?>> metrics = new HashSet<>();
+  Set<Metric<?>> metrics = new HashSet<>();
 
-		long count = this.customerRepository.count();
+  long count = this.customerRepository.count();
 
-		// <1>
-		Metric<Number> customersCountMetric = new Metric<>("customers.count", count);
-		metrics.add(customersCountMetric);
-		return metrics;
-	}
+  // <1>
+  Metric<Number> customersCountMetric = new Metric<>("customers.count", count);
+  metrics.add(customersCountMetric);
+  return metrics;
+ }
 }

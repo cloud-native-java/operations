@@ -11,12 +11,12 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class SpringBootAdminClientApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(SpringBootAdminClientApplication.class, args);
-	}
+ public static void main(String[] args) {
+  SpringApplication.run(SpringBootAdminClientApplication.class, args);
+ }
 
-	@RequestMapping("/hi")
-	String hi() {
-		return "Hi";
-	}
+ @RequestMapping("/hi")
+ String hi() {
+  return "Hi";
+ }
 }

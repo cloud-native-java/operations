@@ -21,15 +21,15 @@ import org.springframework.integration.dsl.IntegrationFlows;
 @EnableConfigurationProperties({ AutoScalerSinkProperties.class })
 public class AutoScalerSink {
 
-	@Bean
-	public IntegrationFlow inboundMetricFlow(CloudFoundryClient client,
-			AutoScalerSinkProperties properties) throws Exception {
+ @Bean
+ public IntegrationFlow inboundMetricFlow(CloudFoundryClient client,
+   AutoScalerSinkProperties properties) throws Exception {
 
-		AutoScalerMessageHandler messageHandler = new AutoScalerMessageHandler(client,
-				properties.getThresholdMinimum(), properties.getThresholdMaximum(),
-				properties.getInstanceCountMinimum(), properties.getInstanceCountMaximum(),
-				properties.getMetricHeaderKey(), properties.getApplicationName());
+  AutoScalerMessageHandler messageHandler = new AutoScalerMessageHandler(client,
+    properties.getThresholdMinimum(), properties.getThresholdMaximum(),
+    properties.getInstanceCountMinimum(), properties.getInstanceCountMaximum(),
+    properties.getMetricHeaderKey(), properties.getApplicationName());
 
-		return IntegrationFlows.from(Sink.INPUT).handle(messageHandler).get();
-	}
+  return IntegrationFlows.from(Sink.INPUT).handle(messageHandler).get();
+ }
 }

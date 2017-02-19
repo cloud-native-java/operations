@@ -29,55 +29,55 @@ import static org.junit.Assert.assertTrue;
 @SpringApplicationConfiguration(classes = CloudFoundryUsageMetricsSourceApplication.class)
 public class CloudFoundryUsageMetricsSourceTest {
 
-	private Log log = LogFactory.getLog(getClass());
+ private Log log = LogFactory.getLog(getClass());
 
-	@Autowired
-	private Source channels;
+ @Autowired
+ private Source channels;
 
-	@Autowired
-	private MessageCollector messageCollector;
+ @Autowired
+ private MessageCollector messageCollector;
 
-	@Autowired
-	private CloudFoundryClient cloudFoundryClient;
+ @Autowired
+ private CloudFoundryClient cloudFoundryClient;
 
-	@Autowired
-	private RestTemplate restTemplate;
+ @Autowired
+ private RestTemplate restTemplate;
 
-	@Autowired
-	private CloudFoundryUsageMetricsSourceProperties properties;
+ @Autowired
+ private CloudFoundryUsageMetricsSourceProperties properties;
 
-	@Test
-	public void testMetricsRead() throws Exception {
-		BlockingQueue<Message<?>> messageBlockingQueue = this.messageCollector
-				.forChannel(this.channels.output());
+ @Test
+ public void testMetricsRead() throws Exception {
+  BlockingQueue<Message<?>> messageBlockingQueue = this.messageCollector
+    .forChannel(this.channels.output());
 
-		String appName = this.properties.getApplicationName();
-		CloudApplication cloudApplication = this.cloudFoundryClient.getApplication(appName);
+  String appName = this.properties.getApplicationName();
+  CloudApplication cloudApplication = this.cloudFoundryClient.getApplication(appName);
 
-		assertNotNull("cloudApplication is not null", cloudApplication);
+  assertNotNull("cloudApplication is not null", cloudApplication);
 
-		String uri = String.format("http://%s/project-name", cloudApplication.getUris()
-				.iterator().next());
+  String uri = String.format("http://%s/project-name", cloudApplication.getUris()
+    .iterator().next());
 
-		assertTrue(this.restTemplate.getForEntity(uri, String.class).getStatusCode()
-				.is2xxSuccessful());
+  assertTrue(this.restTemplate.getForEntity(uri, String.class).getStatusCode()
+    .is2xxSuccessful());
 
-		Message<?> message = messageBlockingQueue.poll(1000 * 100, TimeUnit.MILLISECONDS);
-		assertNotNull(message);
-		assertTrue(Map.class.isAssignableFrom(message.getPayload().getClass()));
-		Map payload = Map.class.cast(message.getPayload());
-		assertTrue(payload.keySet().contains("MEM"));
-		assertTrue(payload.keySet().contains("DISK"));
-		assertTrue(payload.keySet().contains("CPU"));
-		log.info("received: " + message.toString());
-	}
+  Message<?> message = messageBlockingQueue.poll(1000 * 100, TimeUnit.MILLISECONDS);
+  assertNotNull(message);
+  assertTrue(Map.class.isAssignableFrom(message.getPayload().getClass()));
+  Map payload = Map.class.cast(message.getPayload());
+  assertTrue(payload.keySet().contains("MEM"));
+  assertTrue(payload.keySet().contains("DISK"));
+  assertTrue(payload.keySet().contains("CPU"));
+  log.info("received: " + message.toString());
+ }
 
-	@Configuration
-	public static class RestTemplateConfiguration {
+ @Configuration
+ public static class RestTemplateConfiguration {
 
-		@Bean
-		public RestTemplate restTemplate() {
-			return new RestTemplate();
-		}
-	}
+  @Bean
+  public RestTemplate restTemplate() {
+   return new RestTemplate();
+  }
+ }
 }

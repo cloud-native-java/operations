@@ -18,46 +18,46 @@ import org.springframework.context.annotation.Configuration;
 @ConditionalOnClass({ Meter.class, SpanReporter.class })
 public class MetricsSpanReporterAutoConfiguration {
 
-	@Bean
-	public BeanPostProcessor metricSpanReportBeanPostProcessor(GaugeService gaugeService,
-			CounterService counterService) {
+ @Bean
+ public BeanPostProcessor metricSpanReportBeanPostProcessor(GaugeService gaugeService,
+   CounterService counterService) {
 
-		return new BeanPostProcessor() {
+  return new BeanPostProcessor() {
 
-			@Override
-			public Object postProcessBeforeInitialization(Object o, String s)
-					throws BeansException {
-				return o;
-			}
+   @Override
+   public Object postProcessBeforeInitialization(Object o, String s)
+     throws BeansException {
+    return o;
+   }
 
-			@Override
-			public Object postProcessAfterInitialization(Object o, String s)
-					throws BeansException {
-				if (SpanReporter.class.isAssignableFrom(o.getClass())) {
-					return new MetricSpanReporter(SpanReporter.class.cast(o));
-				}
-				return o;
-			}
+   @Override
+   public Object postProcessAfterInitialization(Object o, String s)
+     throws BeansException {
+    if (SpanReporter.class.isAssignableFrom(o.getClass())) {
+     return new MetricSpanReporter(SpanReporter.class.cast(o));
+    }
+    return o;
+   }
 
-			class MetricSpanReporter implements SpanReporter {
+   class MetricSpanReporter implements SpanReporter {
 
-				private final SpanReporter target;
-				private Log log = LogFactory.getLog(getClass());
+    private final SpanReporter target;
+    private Log log = LogFactory.getLog(getClass());
 
-				public MetricSpanReporter(SpanReporter target) {
-					this.target = target;
-				}
+    public MetricSpanReporter(SpanReporter target) {
+     this.target = target;
+    }
 
-				@Override
-				public void report(Span span) {
-					log.info("received: " + span.toString());
-					target.report(span);
-					counterService.increment("meter.spans." + span.getName());
-					gaugeService.submit("timer.spans." + span.getName(),
-							span.getAccumulatedMillis());
-				}
-			}
-		};
-	}
+    @Override
+    public void report(Span span) {
+     log.info("received: " + span.toString());
+     target.report(span);
+     counterService.increment("meter.spans." + span.getName());
+     gaugeService.submit("timer.spans." + span.getName(),
+       span.getAccumulatedMillis());
+    }
+   }
+  };
+ }
 
 }

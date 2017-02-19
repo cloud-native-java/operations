@@ -11,25 +11,25 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 public class TimedRestController {
 
-	private final GaugeService gaugeService;
+ private final GaugeService gaugeService;
 
-	@Autowired
-	public TimedRestController(GaugeService gaugeService) {
-		this.gaugeService = gaugeService;
-	}
+ @Autowired
+ public TimedRestController(GaugeService gaugeService) {
+  this.gaugeService = gaugeService;
+ }
 
-	@RequestMapping(method = RequestMethod.GET, value = "/timer/hello")
-	ResponseEntity<?> hello() throws Exception {
-		StopWatch sw = new StopWatch(); // <1>
-		sw.start();
-		try {
-			Thread.sleep((long) (Math.random() * 60) * 1000);
-			return ResponseEntity.ok("Hi, " + System.currentTimeMillis());
-		}
-		finally {
-			sw.stop();
-			this.gaugeService.submit("timer.hello", sw.getLastTaskTimeMillis());
-		}
-	}
+ @RequestMapping(method = RequestMethod.GET, value = "/timer/hello")
+ ResponseEntity<?> hello() throws Exception {
+  StopWatch sw = new StopWatch(); // <1>
+  sw.start();
+  try {
+   Thread.sleep((long) (Math.random() * 60) * 1000);
+   return ResponseEntity.ok("Hi, " + System.currentTimeMillis());
+  }
+  finally {
+   sw.stop();
+   this.gaugeService.submit("timer.hello", sw.getLastTaskTimeMillis());
+  }
+ }
 
 }

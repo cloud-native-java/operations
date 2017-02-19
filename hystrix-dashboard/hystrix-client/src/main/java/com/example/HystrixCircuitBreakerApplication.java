@@ -20,51 +20,51 @@ import java.util.Random;
 // <1>
 public class HystrixCircuitBreakerApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(HystrixCircuitBreakerApplication.class, args);
-	}
+ public static void main(String[] args) {
+  SpringApplication.run(HystrixCircuitBreakerApplication.class, args);
+ }
 
-	@Bean
-	RestTemplate restTemplate() {
-		return new RestTemplate();
-	}
+ @Bean
+ RestTemplate restTemplate() {
+  return new RestTemplate();
+ }
 }
 
 @RestController
 class ShakyRestController {
 
-	@Autowired
-	private RestTemplate restTemplate;
+ @Autowired
+ private RestTemplate restTemplate;
 
-	// <2>
-	public ResponseEntity<String> fallback() {
-		return ResponseEntity.ok("ONOES");
-	}
+ // <2>
+ public ResponseEntity<String> fallback() {
+  return ResponseEntity.ok("ONOES");
+ }
 
-	// <3>
-	@HystrixCommand(fallbackMethod = "fallback")
-	@RequestMapping(method = RequestMethod.GET, value = "/google")
-	public ResponseEntity<String> google() {
-		return this.proxy(URI.create("http://www.google.com/"));
-	}
+ // <3>
+ @HystrixCommand(fallbackMethod = "fallback")
+ @RequestMapping(method = RequestMethod.GET, value = "/google")
+ public ResponseEntity<String> google() {
+  return this.proxy(URI.create("http://www.google.com/"));
+ }
 
-	@HystrixCommand(fallbackMethod = "fallback")
-	@RequestMapping(method = RequestMethod.GET, value = "/yahoo")
-	public ResponseEntity<String> yahoo() {
-		return this.proxy(URI.create("http://www.yahoo.com"));
-	}
+ @HystrixCommand(fallbackMethod = "fallback")
+ @RequestMapping(method = RequestMethod.GET, value = "/yahoo")
+ public ResponseEntity<String> yahoo() {
+  return this.proxy(URI.create("http://www.yahoo.com"));
+ }
 
-	private ResponseEntity<String> proxy(URI url) {
+ private ResponseEntity<String> proxy(URI url) {
 
-		if (new Random().nextInt(100) > 50) {
-			throw new RuntimeException("tripping circuit breaker!");
-		}
+  if (new Random().nextInt(100) > 50) {
+   throw new RuntimeException("tripping circuit breaker!");
+  }
 
-		ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(url,
-				String.class);
+  ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(url,
+    String.class);
 
-		return ResponseEntity.ok().contentType(responseEntity.getHeaders().getContentType())
-				.body(responseEntity.getBody());
-	}
+  return ResponseEntity.ok().contentType(responseEntity.getHeaders().getContentType())
+    .body(responseEntity.getBody());
+ }
 
 }

@@ -9,13 +9,13 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/metered/customers")
 public class MeterCustomerRestController extends CustomerRestController {
 
-	@Autowired
-	MeterCustomerRestController(CustomerRepository repository, CounterService counterService) {
-		super(repository, counterService);
-	}
+ @Autowired
+ MeterCustomerRestController(CustomerRepository repository, CounterService counterService) {
+  super(repository, counterService);
+ }
 
-	@Override
-	protected String metricPrefix(String k) {
-		return "meter." + k; // <1>
-	}
+ @Override
+ protected String metricPrefix(String k) {
+  return "meter." + k; // <1>
+ }
 }

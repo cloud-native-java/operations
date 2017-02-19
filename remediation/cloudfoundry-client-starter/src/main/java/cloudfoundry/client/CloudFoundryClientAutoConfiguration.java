@@ -27,20 +27,20 @@ import java.net.URI;
 @EnableConfigurationProperties(CloudFoundryClientProperties.class)
 public class CloudFoundryClientAutoConfiguration {
 
-	@Bean
-	@ConditionalOnMissingBean(CloudCredentials.class)
-	public CloudCredentials cloudCredentials(CloudFoundryClientProperties clientProperties) {
-		return new CloudCredentials(clientProperties.getUsername(),
-				clientProperties.getPassword());
-	}
+ @Bean
+ @ConditionalOnMissingBean(CloudCredentials.class)
+ public CloudCredentials cloudCredentials(CloudFoundryClientProperties clientProperties) {
+  return new CloudCredentials(clientProperties.getUsername(),
+    clientProperties.getPassword());
+ }
 
-	@Bean(initMethod = "login")
-	@ConditionalOnMissingBean(CloudFoundryClient.class)
-	public CloudFoundryClient cloudFoundryClient(CloudCredentials cc,
-			CloudFoundryClientProperties clientProperties) throws MalformedURLException {
-		URI uri = URI.create(clientProperties.getApiEndpoint());
-		CloudFoundryClient cloudFoundryClient = new CloudFoundryClient(cc, uri.toURL());
-		return cloudFoundryClient;
-	}
+ @Bean(initMethod = "login")
+ @ConditionalOnMissingBean(CloudFoundryClient.class)
+ public CloudFoundryClient cloudFoundryClient(CloudCredentials cc,
+   CloudFoundryClientProperties clientProperties) throws MalformedURLException {
+  URI uri = URI.create(clientProperties.getApiEndpoint());
+  CloudFoundryClient cloudFoundryClient = new CloudFoundryClient(cc, uri.toURL());
+  return cloudFoundryClient;
+ }
 
 }

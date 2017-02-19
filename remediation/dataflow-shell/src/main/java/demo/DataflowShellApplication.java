@@ -9,8 +9,8 @@ import org.springframework.cloud.dataflow.shell.EnableDataFlowShell;
 @EnableDataFlowShell
 public class DataflowShellApplication {
 
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(DataflowShellApplication.class).bannerMode(
-				Banner.Mode.OFF).run(args);
-	}
+ public static void main(String[] args) {
+  new SpringApplicationBuilder(DataflowShellApplication.class).bannerMode(
+    Banner.Mode.OFF).run(args);
+ }
 }

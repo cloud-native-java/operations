@@ -35,33 +35,33 @@ import java.util.stream.Collectors;
 @EnableBinding(Source.class)
 @Import(TriggerConfiguration.class)
 @EnableConfigurationProperties({ CloudFoundryUsageMetricsSourceProperties.class,
-		TriggerPropertiesMaxMessagesDefaultUnlimited.class })
+  TriggerPropertiesMaxMessagesDefaultUnlimited.class })
 public class CloudFoundryUsageMetricsSource {
 
-	@Autowired
-	private Source source;
+ @Autowired
+ private Source source;
 
-	@Autowired
-	private Trigger trigger;
+ @Autowired
+ private Trigger trigger;
 
-	@Bean
-	public PollerMetadata poller() {
-		return Pollers.trigger(trigger).get();
-	}
+ @Bean
+ public PollerMetadata poller() {
+  return Pollers.trigger(trigger).get();
+ }
 
-	@Bean
-	public CloudFoundryUsageMetricsMessageSource cloudFoundryUsageMetricsMessageSource(
-			CloudFoundryUsageMetricsSourceProperties properties, CloudFoundryClient client) {
-		return new CloudFoundryUsageMetricsMessageSource(properties.getApplicationName(),
-				client);
-	}
+ @Bean
+ public CloudFoundryUsageMetricsMessageSource cloudFoundryUsageMetricsMessageSource(
+   CloudFoundryUsageMetricsSourceProperties properties, CloudFoundryClient client) {
+  return new CloudFoundryUsageMetricsMessageSource(properties.getApplicationName(),
+    client);
+ }
 
-	@Bean
-	public IntegrationFlow cloudFoundryUsageMetricsSourceFlow(
-			CloudFoundryUsageMetricsMessageSource msgSrc) {
-		return IntegrationFlows.from(msgSrc, pollerSpec -> pollerSpec.poller(poller()))
-				.channel(this.source.output()).get();
-	}
+ @Bean
+ public IntegrationFlow cloudFoundryUsageMetricsSourceFlow(
+   CloudFoundryUsageMetricsMessageSource msgSrc) {
+  return IntegrationFlows.from(msgSrc, pollerSpec -> pollerSpec.poller(poller()))
+    .channel(this.source.output()).get();
+ }
 }
 
 /**
@@ -72,47 +72,47 @@ public class CloudFoundryUsageMetricsSource {
  */
 class CloudFoundryUsageMetricsMessageSource implements MessageSource<Map<String, Double>> {
 
-	private final String applicationName;
-	private final CloudFoundryClient cloudFoundryClient;
+ private final String applicationName;
+ private final CloudFoundryClient cloudFoundryClient;
 
-	CloudFoundryUsageMetricsMessageSource(String applicationName,
-			CloudFoundryClient cloudFoundryClient) {
-		this.applicationName = applicationName;
-		this.cloudFoundryClient = cloudFoundryClient;
-	}
+ CloudFoundryUsageMetricsMessageSource(String applicationName,
+   CloudFoundryClient cloudFoundryClient) {
+  this.applicationName = applicationName;
+  this.cloudFoundryClient = cloudFoundryClient;
+ }
 
-	@Override
-	public Message<Map<String, Double>> receive() {
+ @Override
+ public Message<Map<String, Double>> receive() {
 
-		List<Map<String, Double>> collect = this.cloudFoundryClient
-				.getApplicationStats(this.applicationName).getRecords().stream()
-				.map(this::instanceStatsMapFrom).collect(Collectors.toList());
+  List<Map<String, Double>> collect = this.cloudFoundryClient
+    .getApplicationStats(this.applicationName).getRecords().stream()
+    .map(this::instanceStatsMapFrom).collect(Collectors.toList());
 
-		Map<String, Double> avgs = new HashMap<>();
-		avg(collect, avgs, UsageHeaders.CPU);
-		avg(collect, avgs, UsageHeaders.DISK);
-		avg(collect, avgs, UsageHeaders.MEM);
-		return MessageBuilder.withPayload(avgs).build();
-	}
+  Map<String, Double> avgs = new HashMap<>();
+  avg(collect, avgs, UsageHeaders.CPU);
+  avg(collect, avgs, UsageHeaders.DISK);
+  avg(collect, avgs, UsageHeaders.MEM);
+  return MessageBuilder.withPayload(avgs).build();
+ }
 
-	private Map<String, Double> instanceStatsMapFrom(InstanceStats i) {
-		Map<String, Double> m = new HashMap<>();
-		InstanceStats.Usage usage = i.getUsage();
-		m.put(UsageHeaders.CPU.toString(), usage.getCpu());
-		m.put(UsageHeaders.DISK.toString(), Number.class.cast(usage.getDisk()).doubleValue());
-		m.put(UsageHeaders.MEM.toString(), Number.class.cast(usage.getMem()).doubleValue());
-		return m;
-	}
+ private Map<String, Double> instanceStatsMapFrom(InstanceStats i) {
+  Map<String, Double> m = new HashMap<>();
+  InstanceStats.Usage usage = i.getUsage();
+  m.put(UsageHeaders.CPU.toString(), usage.getCpu());
+  m.put(UsageHeaders.DISK.toString(), Number.class.cast(usage.getDisk()).doubleValue());
+  m.put(UsageHeaders.MEM.toString(), Number.class.cast(usage.getMem()).doubleValue());
+  return m;
+ }
 
-	private void avg(List<Map<String, Double>> collection, Map<String, Double> avgs,
-			UsageHeaders h) {
-		String key = h.toString();
-		Double avgDouble = collection.stream().map(m -> m.get(key))
-				.collect(Collectors.averagingDouble(a -> a));
-		avgs.put(key, avgDouble);
-	}
+ private void avg(List<Map<String, Double>> collection, Map<String, Double> avgs,
+   UsageHeaders h) {
+  String key = h.toString();
+  Double avgDouble = collection.stream().map(m -> m.get(key))
+    .collect(Collectors.averagingDouble(a -> a));
+  avgs.put(key, avgDouble);
+ }
 
-	enum UsageHeaders {
-		CPU, DISK, MEM
-	}
+ enum UsageHeaders {
+  CPU, DISK, MEM
+ }
 }

@@ -14,19 +14,19 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/histogram/uploads")
 public class HistogramFileUploadRestController {
 
-	private final GaugeService gaugeService;
-	private Log log = LogFactory.getLog(getClass());
+ private final GaugeService gaugeService;
+ private Log log = LogFactory.getLog(getClass());
 
-	@Autowired
-	HistogramFileUploadRestController(GaugeService gaugeService) {
-		this.gaugeService = gaugeService;
-	}
+ @Autowired
+ HistogramFileUploadRestController(GaugeService gaugeService) {
+  this.gaugeService = gaugeService;
+ }
 
-	@RequestMapping(method = RequestMethod.POST)
-	void upload(@RequestParam MultipartFile file) {
-		long size = file.getSize();
-		this.log.info(String.format("received %s with file size %s",
-				file.getOriginalFilename(), size));
-		this.gaugeService.submit("histogram.file-uploads.size", size); // <1>
-	}
+ @RequestMapping(method = RequestMethod.POST)
+ void upload(@RequestParam MultipartFile file) {
+  long size = file.getSize();
+  this.log.info(String.format("received %s with file size %s",
+    file.getOriginalFilename(), size));
+  this.gaugeService.submit("histogram.file-uploads.size", size); // <1>
+ }
 }

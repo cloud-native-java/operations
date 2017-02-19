@@ -9,7 +9,7 @@ import org.springframework.cloud.netflix.turbine.stream.EnableTurbineStream;
 // <1>
 public class TurbineApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(TurbineApplication.class, args);
-	}
+ public static void main(String[] args) {
+  SpringApplication.run(TurbineApplication.class, args);
+ }
 }

@@ -14,35 +14,35 @@ import java.util.concurrent.TimeUnit;
 @SpringBootApplication
 public class ActuatorApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(ActuatorApplication.class, args);
-	}
+ public static void main(String[] args) {
+  SpringApplication.run(ActuatorApplication.class, args);
+ }
 
-	@PostConstruct
-	public void begin() throws Exception {
-		// prevent DNS caching because HostedGraphite
-		// nodes may move
-		java.security.Security.setProperty("networkaddress.cache.ttl", "60"); // <1>
-	}
+ @PostConstruct
+ public void begin() throws Exception {
+  // prevent DNS caching because HostedGraphite
+  // nodes may move
+  java.security.Security.setProperty("networkaddress.cache.ttl", "60"); // <1>
+ }
 
-	@Bean
-	GraphiteReporter graphiteWriter(
-			@Value("${hostedGraphite.apiKey}") String apiKey, // NB:
-			// we're
-			// using
-			// the
-			// API
-			// KEY
-			// as
-			// a
-			// prefix
-			@Value("${hostedGraphite.url}") String host,
-			@Value("${hostedGraphite.port}") int port, MetricRegistry registry) {
+ @Bean
+ GraphiteReporter graphiteWriter(
+   @Value("${hostedGraphite.apiKey}") String apiKey, // NB:
+   // we're
+   // using
+   // the
+   // API
+   // KEY
+   // as
+   // a
+   // prefix
+   @Value("${hostedGraphite.url}") String host,
+   @Value("${hostedGraphite.port}") int port, MetricRegistry registry) {
 
-		GraphiteReporter reporter = GraphiteReporter.forRegistry(registry)
-				.prefixedWith(apiKey) // <2>
-				.build(new Graphite(host, port));
-		reporter.start(2, TimeUnit.SECONDS);
-		return reporter;
-	}
+  GraphiteReporter reporter = GraphiteReporter.forRegistry(registry)
+    .prefixedWith(apiKey) // <2>
+    .build(new Graphite(host, port));
+  reporter.start(2, TimeUnit.SECONDS);
+  return reporter;
+ }
 }

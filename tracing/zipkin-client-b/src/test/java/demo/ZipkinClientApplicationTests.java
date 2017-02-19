@@ -9,8 +9,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringApplicationConfiguration(classes = MessageService.class)
 public class ZipkinClientApplicationTests {
 
-	@Test
-	public void contextLoads() {
-	}
+ @Test
+ public void contextLoads() {
+ }
 
 }

@@ -9,8 +9,8 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 @SpringApplicationConfiguration(classes = ZipkinApplication.class)
 public class ZipkinQueryApplicationTests {
 
-	@Test
-	public void contextLoads() {
-	}
+ @Test
+ public void contextLoads() {
+ }
 
 }
