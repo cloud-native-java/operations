@@ -17,7 +17,9 @@
     <modules>
 
         <module>cloudfoundry-client-starter</module>
+<!--
         <module>cloudfoundry-usage-metrics-source</module>
+-->
         <module>cloudfoundry-autoscaler-sink</module>
         <module>dataflow-server</module>
         <module>dataflow-shell</module>

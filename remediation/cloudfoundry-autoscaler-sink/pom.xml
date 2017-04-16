@@ -12,6 +12,10 @@
     </parent>
     <dependencies>
         <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-configuration-processor</artifactId>
             <optional>true</optional>
@@ -38,6 +42,10 @@
             <groupId>org.springframework.cloud.stream.app</groupId>
             <artifactId>app-starters-test-support</artifactId>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>cnj</groupId>
+            <artifactId>it-support</artifactId>
         </dependency>
         <dependency>
             <artifactId>spring-cloud-stream-test-support</artifactId>

@@ -18,7 +18,7 @@
         <module>hystrix-dashboard</module>
         <module>tracing</module>
         <module>spring-boot-admin</module>
-        <!-- <module>remediation</module> -->
+        <module>remediation</module>
         <module>logging</module>
     </modules>
     <build>

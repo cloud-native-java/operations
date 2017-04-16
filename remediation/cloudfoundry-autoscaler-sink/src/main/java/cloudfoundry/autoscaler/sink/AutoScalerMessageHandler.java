@@ -2,103 +2,136 @@ package cloudfoundry.autoscaler.sink;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.cloudfoundry.client.lib.CloudFoundryClient;
-import org.cloudfoundry.client.lib.domain.CloudApplication;
+import org.cloudfoundry.operations.CloudFoundryOperations;
+import org.cloudfoundry.operations.applications.ApplicationDetail;
+import org.cloudfoundry.operations.applications.GetApplicationRequest;
+import org.cloudfoundry.operations.applications.ScaleApplicationRequest;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageHandler;
 import org.springframework.messaging.MessagingException;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
-/**
- * @author Josh Long
- */
+
 public class AutoScalerMessageHandler implements MessageHandler {
 
- private final Number icMin, icMax, maxNumber, minNumber;
- private final String applicationName, metricHeaderKey;
- private final CloudFoundryClient client;
- private Log log = LogFactory.getLog(getClass());
+    private final Number icMin, icMax, maxNumber, minNumber;
+    private final String applicationName, metricHeaderKey;
+    private final CloudFoundryOperations client;
+    private Log log = LogFactory.getLog(getClass());
 
- public AutoScalerMessageHandler(CloudFoundryClient client, Number minNumber,
-   Number maxNumber, Number icMin, Number icMax, String metricHeaderKey, String appName) {
+    private RetryTemplate retryTemplate = new RetryTemplate();
 
-  this.client = client;
-  this.icMax = icMax;
-  this.icMin = icMin;
-  this.maxNumber = maxNumber;
-  this.minNumber = minNumber;
-  this.applicationName = appName;
-  this.metricHeaderKey = metricHeaderKey;
- }
+    public AutoScalerMessageHandler(CloudFoundryOperations client, Number minNumber,
+                                    Number maxNumber, Number icMin, Number icMax, String metricHeaderKey,
+                                    String appName, RetryTemplate retryTemplate) {
+        this(client, minNumber, maxNumber, icMin, icMax, metricHeaderKey, appName);
+        this.retryTemplate = retryTemplate;
+    }
 
- @Override
- public void handleMessage(Message<?> message) throws MessagingException {
+    public AutoScalerMessageHandler(CloudFoundryOperations client, Number minNumber,
+                                    Number maxNumber, Number icMin, Number icMax, String metricHeaderKey,
+                                    String appName) {
 
-  String key = this.metricHeaderKey;
+        this.client = client;
+        this.icMax = icMax;
+        this.icMin = icMin;
+        this.maxNumber = maxNumber == null ? 0 : maxNumber;
+        this.minNumber = minNumber == null ? 0 : minNumber;
+        this.applicationName = appName;
+        this.metricHeaderKey = metricHeaderKey;
+    }
 
-  Object incomingValue = (StringUtils.hasText(key) && message.getHeaders().containsKey(
-    key)) ? message.getHeaders().get(key) : message.getPayload();
+    @Override
+    public void handleMessage(Message<?> message) throws MessagingException {
 
-  Assert.isTrue(Number.class.isAssignableFrom(incomingValue.getClass()));
-  Number incomingNumber = Number.class.cast(incomingValue);
+        String key = this.metricHeaderKey;
 
-  // two simple cases
-  double v = incomingNumber.doubleValue();
-  double max = maxNumber.doubleValue();
-  double min = minNumber.doubleValue();
+        Object incomingValue = (StringUtils.hasText(key) && message.getHeaders().containsKey(
+                key)) ? message.getHeaders().get(key) : message.getPayload();
 
-  log.info("incoming value: " + v);
-  log.info("max: " + max);
-  log.info("min: " + min);
+        Assert.isTrue(Number.class.isAssignableFrom(incomingValue.getClass()));
+        Number incomingNumber = Number.class.cast(incomingValue);
 
-  // suppose the CPU is 90% and the max
-  // tolerable threshold is 70%, then we need to
-  // add more capacity, step up.
-  if (v > max) {
-   log.info("v > max");
-   scale(this.applicationName, 1);
-  }
+        // two simple cases
+        double v = incomingNumber.doubleValue();
+        double max = maxNumber.doubleValue();
+        double min = minNumber.doubleValue();
 
-  // suppose the CPU is 10% and the min
-  // tolerable threshold is 20%, then we have
-  // too much capacity, step down.
-  if (v < min) {
-   log.info("v < max");
-   scale(this.applicationName, -1);
-  }
- }
+        log.info("incoming value: " + v);
+        log.info("max: " + max);
+        log.info("min: " + min);
 
- protected void scale(String appName, int delta) throws MessagingException {
-  CloudApplication application = client.getApplication(appName);
-  log.info("inclined to scale " + delta);
-  log.info("applicationName: " + appName);
-  int currentInstances = application.getInstances();
-  log.info("currentInstances: " + currentInstances);
-  int newSum = currentInstances + delta;
-  if (isWithinBounds(newSum)) {
-   client.updateApplicationInstances(appName, newSum);
-   log.info(String.format("updating application instances for %s to %s", appName,
-     newSum));
-  }
- }
+        // suppose the CPU is 90% and the max
+        // tolerable threshold is 70%, then we need to
+        // add more capacity, step up.
+        if (v > max) {
+            log.info("v > max");
+            scale(this.applicationName, 1);
+        }
 
- protected boolean isWithinBounds(int newSum) {
+        // suppose the CPU is 10% and the min
+        // tolerable threshold is 20%, then we have
+        // too much capacity, step down.
+        if (v < min) {
+            log.info("v < max");
+            scale(this.applicationName, -1);
+        }
+    }
 
-  int baseline = 1, roof = 0;
+    private int instances(String appName) {
 
-  if (this.icMin != null && !this.icMin.equals(0)) {
-   baseline = this.icMin.intValue();
-  }
+        ApplicationDetail details = this.client
+                .applications()
+                .get(GetApplicationRequest
+                        .builder()
+                        .name(appName)
+                        .build())
+                .block();
+        return details.getInstances();
+    }
 
-  if (this.icMax != null && !this.icMax.equals(0)) {
-   roof = this.icMax.intValue();
-  }
+    protected void scale(String appName, int delta) throws MessagingException {
+        int currentCount = this.instances(appName);
+        this.log.info("count before scale: " + currentCount);
+        int newSum = currentCount + delta;
+        if (isWithinBounds(newSum)) {
+            this.scaleAppInstance(appName, newSum);
+            log.info(String.format("updating application %s " +
+                    "instances %s", appName, newSum));
+        }
+    }
 
-  boolean ltBaseline = (newSum < baseline);
-  // if the roof is 0, the default, then it's
-  // fine to keep going up
-  boolean gtCeiling = roof == 0 ? false : newSum > roof;
-  return !ltBaseline && !gtCeiling;
- }
+    private void scaleAppInstance(String appName, int count) {
+        this.retryTemplate.execute(ctx -> {
+            client.applications()
+                    .scale(ScaleApplicationRequest
+                            .builder()
+                            .name(appName)
+                            .instances(count)
+                            .build())
+                    .block();
+            return null ;
+        });
+    }
+
+    protected boolean isWithinBounds(int newSum) {
+
+        int baseline = 1, roof = 0;
+
+        if (this.icMin != null && !this.icMin.equals(0)) {
+            baseline = this.icMin.intValue();
+        }
+
+        if (this.icMax != null && !this.icMax.equals(0)) {
+            roof = this.icMax.intValue();
+        }
+
+        boolean ltBaseline = (newSum < baseline);
+        // if the roof is 0, the default, then it's
+        // fine to keep going up
+        boolean gtCeiling = roof != 0 && newSum > roof;
+        return !ltBaseline && !gtCeiling;
+    }
 }

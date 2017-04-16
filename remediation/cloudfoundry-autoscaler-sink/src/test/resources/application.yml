@@ -1,6 +1,8 @@
 cloudfoundry:
   autoscaler:
     sink:
-      application-name: configuration-client
-#      threshold-maximum: 90
-#      threshold-minimum: 30
+      application-name: auto-scaler-sink-application
+      threshold-maximum: 90
+      threshold-minimum: 30
+      instance-count-maximum: 7
+      instance-count-minimum: 1

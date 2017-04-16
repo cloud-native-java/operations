@@ -1,7 +1,5 @@
 package cloudfoundry.metrics.source;
 
-import org.cloudfoundry.client.lib.CloudFoundryClient;
-import org.cloudfoundry.client.lib.domain.InstanceStats;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 import org.springframework.cloud.stream.annotation.EnableBinding;
@@ -24,14 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-/**
- * This metrics source emits averages of a given
- * Cloud Foundry application's aggregate resource
- * (CPU, memory, disk) usage.
- *
- * @author <a href="http://josh@joshlong.com">Josh
- * Long</a>
- */
+
 @EnableBinding(Source.class)
 @Import(TriggerConfiguration.class)
 @EnableConfigurationProperties({ CloudFoundryUsageMetricsSourceProperties.class,
