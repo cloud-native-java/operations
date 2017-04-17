@@ -1,8 +1,14 @@
 package cloudfoundry.autoscaler.sink;
 
+import cnj.CloudFoundryService;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.operations.CloudFoundryOperations;
 import org.cloudfoundry.operations.applications.GetApplicationRequest;
 import org.cloudfoundry.operations.applications.ScaleApplicationRequest;
+import org.cloudfoundry.operations.applications.StartApplicationRequest;
+import org.cloudfoundry.operations.applications.StopApplicationRequest;
+import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -11,14 +17,21 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.cloud.stream.messaging.Sink;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.messaging.SubscribableChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.retry.support.RetryTemplate;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StreamUtils;
+
+import java.io.*;
+import java.nio.file.Files;
 
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = ScaleSinkTest.Application.class)
-public class ScaleSinkTest {
+@SpringBootTest(classes = ScaleSinkIT.Application.class)
+public class ScaleSinkIT {
 
     private static int MAX = 90;
     private static int MIN = 30;
@@ -36,9 +49,79 @@ public class ScaleSinkTest {
     @Autowired
     private AutoScalerSinkProperties props;
 
+    private String applicationName;
+
+    @Autowired
+    private CloudFoundryService cloudFoundryService;
+
+    private Log log = LogFactory.getLog(getClass());
+    private File tempRootForStaging;
+    private File manifestFile;
+    private File jarFile;
+
+    public ScaleSinkIT() throws IOException {
+
+        this.tempRootForStaging = Files.createTempDirectory("staging").toFile();
+        this.tempRootForStaging.deleteOnExit();
+        this.manifestFile = new File(tempRootForStaging, "manifest.yml");
+        this.jarFile = new File(tempRootForStaging, "hi.jar");
+    }
+
+    @After
+    public void after() throws Throwable {
+        if (tempRootForStaging.exists()) {
+            tempRootForStaging.delete();
+        }
+        if (cloudFoundryService.applicationExists(this.applicationName)) {
+            this.ops.applications()
+                    .stop(StopApplicationRequest.builder().name(applicationName).build()).block();
+        }
+
+    }
+
     @Before
     public void before() throws Throwable {
-        scale(this.props.getApplicationName(), 1);
+        this.deploySampleApp();
+        if (cloudFoundryService.applicationExists(this.applicationName)) {
+            this.ops.applications()
+                    .start(StartApplicationRequest.builder().name(this.applicationName).build()).block();
+        }
+        scale(this.applicationName, 1);
+    }
+
+
+    private void stage() throws Throwable {
+        Assert.assertTrue(tempRootForStaging.exists() || tempRootForStaging.mkdirs());
+        Resource manifest = new ClassPathResource("/manifest.yml");
+        Resource jar = new FileSystemResource(new File("./src/integration-test/resources/hi.jar"));
+        try (InputStream mi = manifest.getInputStream();
+             InputStream ji = jar.getInputStream();
+             OutputStream mo = new FileOutputStream(manifestFile);
+             OutputStream jo = new FileOutputStream(jarFile)) {
+            StreamUtils.copy(mi, mo);
+            StreamUtils.copy(ji, jo);
+        }
+        log.info("staging application at " + tempRootForStaging.getAbsolutePath());
+
+        Assert.assertTrue("the hi.jar should exist at " + this.jarFile.getAbsolutePath(),
+                this.jarFile.exists());
+
+        Assert.assertTrue("the manifest.yml should exist at " + this.manifestFile.getAbsolutePath(),
+                this.manifestFile.exists());
+    }
+
+    private void deploySampleApp() throws Throwable {
+        this.stage();
+
+        this.applicationName = this.cloudFoundryService.applicationManifestFrom(this.manifestFile)
+                .entrySet()
+                .stream()
+                .map(e -> e.getValue().getName())
+                .findAny()
+                .orElse(null);
+        if (!this.cloudFoundryService.applicationExists(this.applicationName)) {
+            this.cloudFoundryService.pushApplicationUsingManifest(this.manifestFile);
+        }
     }
 
     @Test

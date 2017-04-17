@@ -1,0 +1,11 @@
+---
+applications:
+- name: auto-scaler-sink-application
+  memory: 512M
+  instances: 1
+  host: asa-${random-word}
+  path:  hi.jar
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    debug: "true"
