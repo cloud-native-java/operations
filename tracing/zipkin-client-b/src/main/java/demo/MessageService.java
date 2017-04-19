@@ -34,8 +34,9 @@ class MessageServiceRestController {
  @RequestMapping("/")
  Map<String, String> message(HttpServletRequest httpRequest) {
 
-  List<String> traceHeaders = Collections.list(httpRequest.getHeaderNames()).stream()
-    .filter(h -> h.toLowerCase().startsWith("x-")).collect(Collectors.toList());
+  List<String> traceHeaders = Collections.list(httpRequest.getHeaderNames())
+   .stream().filter(h -> h.toLowerCase().startsWith("x-"))
+   .collect(Collectors.toList());
 
   Map<String, String> response = new HashMap<>();
   response.put("message", "Hi, " + System.currentTimeMillis());

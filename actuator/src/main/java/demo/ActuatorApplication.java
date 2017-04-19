@@ -18,31 +18,19 @@ public class ActuatorApplication {
   SpringApplication.run(ActuatorApplication.class, args);
  }
 
- @PostConstruct
- public void begin() throws Exception {
-  // prevent DNS caching because HostedGraphite
-  // nodes may move
-  java.security.Security.setProperty("networkaddress.cache.ttl", "60"); // <1>
- }
-
  @Bean
  GraphiteReporter graphiteWriter(
-   @Value("${hostedGraphite.apiKey}") String apiKey, // NB:
-   // we're
-   // using
-   // the
-   // API
-   // KEY
-   // as
-   // a
-   // prefix
-   @Value("${hostedGraphite.url}") String host,
-   @Value("${hostedGraphite.port}") int port, MetricRegistry registry) {
+  @Value("${hostedGraphite.apiKey}") String apiKey, // NB:
+  @Value("${hostedGraphite.url}") String host,
+  @Value("${hostedGraphite.port}") int port,
+  @Value("${graphite.reporter.period:2}") int period, MetricRegistry registry) {
+
+  java.security.Security.setProperty("networkaddress.cache.ttl", "60"); // <1>
 
   GraphiteReporter reporter = GraphiteReporter.forRegistry(registry)
-    .prefixedWith(apiKey) // <2>
-    .build(new Graphite(host, port));
-  reporter.start(2, TimeUnit.SECONDS);
+   .prefixedWith(apiKey) // <2>
+   .build(new Graphite(host, port));
+  reporter.start(period, TimeUnit.SECONDS);
   return reporter;
  }
 }

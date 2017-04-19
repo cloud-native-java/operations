@@ -19,20 +19,20 @@ import org.springframework.context.annotation.Configuration;
 public class MetricsSpanReporterAutoConfiguration {
 
  @Bean
- public BeanPostProcessor metricSpanReportBeanPostProcessor(GaugeService gaugeService,
-   CounterService counterService) {
+ public BeanPostProcessor metricSpanReportBeanPostProcessor(
+  GaugeService gaugeService, CounterService counterService) {
 
   return new BeanPostProcessor() {
 
    @Override
    public Object postProcessBeforeInitialization(Object o, String s)
-     throws BeansException {
+    throws BeansException {
     return o;
    }
 
    @Override
    public Object postProcessAfterInitialization(Object o, String s)
-     throws BeansException {
+    throws BeansException {
     if (SpanReporter.class.isAssignableFrom(o.getClass())) {
      return new MetricSpanReporter(SpanReporter.class.cast(o));
     }
@@ -42,6 +42,7 @@ public class MetricsSpanReporterAutoConfiguration {
    class MetricSpanReporter implements SpanReporter {
 
     private final SpanReporter target;
+
     private Log log = LogFactory.getLog(getClass());
 
     public MetricSpanReporter(SpanReporter target) {
@@ -54,7 +55,7 @@ public class MetricsSpanReporterAutoConfiguration {
      target.report(span);
      counterService.increment("meter.spans." + span.getName());
      gaugeService.submit("timer.spans." + span.getName(),
-       span.getAccumulatedMillis());
+      span.getAccumulatedMillis());
     }
    }
   };

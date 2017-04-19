@@ -19,13 +19,14 @@ class ActuatorConfiguration {
  }
 
  @Bean
- GraphiteReporter graphiteWriter(@Value("${hostedGraphite.apiKey}") String apiKey,
-   @Value("${hostedGraphite.url}") String host,
-   @Value("${hostedGraphite.port}") int port, MetricRegistry registry) {
+ GraphiteReporter graphiteWriter(
+  @Value("${hostedGraphite.apiKey}") String apiKey,
+  @Value("${hostedGraphite.url}") String host,
+  @Value("${hostedGraphite.port}") int port, MetricRegistry registry) {
 
   GraphiteReporter reporter = GraphiteReporter.forRegistry(registry)
-    .prefixedWith(apiKey) // <2>
-    .build(new Graphite(host, port));
+   .prefixedWith(apiKey) // <2>
+   .build(new Graphite(host, port));
   reporter.start(1, TimeUnit.SECONDS);
   return reporter;
  }

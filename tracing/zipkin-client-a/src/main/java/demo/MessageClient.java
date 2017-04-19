@@ -50,6 +50,7 @@ class MessageClientRestController {
   ParameterizedTypeReference<Map<String, String>> ptr = new ParameterizedTypeReference<Map<String, String>>() {
   };
 
-  return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr).getBody();
+  return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr)
+   .getBody();
  }
 }

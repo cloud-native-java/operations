@@ -1,6 +1,5 @@
 package demo.metrics;
 
-import demo.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.actuate.metrics.CounterService;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +13,12 @@ import java.net.URI;
 public class CustomerRestController {
 
  private final CounterService counterService; // <1>
+
  private final CustomerRepository customerRepository;
 
  @Autowired
- CustomerRestController(CustomerRepository repository, CounterService counterService) {
+ CustomerRestController(CustomerRepository repository,
+  CounterService counterService) {
   this.customerRepository = repository;
   this.counterService = counterService;
  }
@@ -27,18 +28,19 @@ public class CustomerRestController {
   return this.customerRepository.findById(id).map(customer -> {
    String metricName = metricPrefix("customers.read.found");
    this.counterService.increment(metricName); // <2>
-    return ResponseEntity.ok(customer);
-   }).orElseGet(() -> {
+   return ResponseEntity.ok(customer);
+  }).orElseGet(() -> {
    String metricName = metricPrefix("customers.read.not-found");
    this.counterService.increment(metricName); // <3>
-    return ResponseEntity.class.cast(ResponseEntity.notFound().build());
-   });
+   return ResponseEntity.class.cast(ResponseEntity.notFound().build());
+  });
  }
 
  @RequestMapping(method = RequestMethod.POST)
  ResponseEntity<?> add(@RequestBody Customer newCustomer) {
   this.customerRepository.save(newCustomer);
-  ServletUriComponentsBuilder url = ServletUriComponentsBuilder.fromCurrentRequest();
+  ServletUriComponentsBuilder url = ServletUriComponentsBuilder
+   .fromCurrentRequest();
   URI location = url.path("/{id}").buildAndExpand(newCustomer.getId()).toUri();
   return ResponseEntity.created(location).build();
  }

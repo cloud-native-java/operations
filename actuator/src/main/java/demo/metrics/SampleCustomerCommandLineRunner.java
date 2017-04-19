@@ -1,6 +1,5 @@
 package demo.metrics;
 
-import demo.Customer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
@@ -19,9 +18,8 @@ public class SampleCustomerCommandLineRunner implements CommandLineRunner {
 
  @Override
  public void run(String... args) throws Exception {
-  Stream.of("Kenny", "Josh", "Phil", "Dave", "Spencer", "Andrew")
-    .forEach(
-      x -> this.customerRepository.save(new Customer(
-        x.toLowerCase() + "@email.com", x)));
+  Stream.of("Kenny", "Josh", "Phil", "Dave", "Spencer", "Andrew").forEach(
+   x -> this.customerRepository.save(new Customer(x.toLowerCase()
+    + "@email.com", x)));
  }
 }

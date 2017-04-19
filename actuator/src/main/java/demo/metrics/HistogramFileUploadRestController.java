@@ -15,6 +15,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class HistogramFileUploadRestController {
 
  private final GaugeService gaugeService;
+
  private Log log = LogFactory.getLog(getClass());
 
  @Autowired
@@ -26,7 +27,7 @@ public class HistogramFileUploadRestController {
  void upload(@RequestParam MultipartFile file) {
   long size = file.getSize();
   this.log.info(String.format("received %s with file size %s",
-    file.getOriginalFilename(), size));
+   file.getOriginalFilename(), size));
   this.gaugeService.submit("histogram.file-uploads.size", size); // <1>
  }
 }

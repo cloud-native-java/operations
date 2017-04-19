@@ -33,176 +33,186 @@ import java.nio.file.Files;
 @SpringBootTest(classes = ScaleSinkIT.Application.class)
 public class ScaleSinkIT {
 
-    private static int MAX = 90;
-    private static int MIN = 30;
+ private static int MAX = 90;
 
-    private static int MAX_AIS = 7;
+ private static int MIN = 30;
 
-    private RetryTemplate retryTemplate = new RetryTemplate();
+ private static int MAX_AIS = 7;
 
-    @Autowired
-    private Sink sink;
+ private RetryTemplate retryTemplate = new RetryTemplate();
 
-    @Autowired
-    private CloudFoundryOperations ops;
+ @Autowired
+ private Sink sink;
 
-    @Autowired
-    private AutoScalerSinkProperties props;
+ @Autowired
+ private CloudFoundryOperations ops;
 
-    private String applicationName;
+ @Autowired
+ private AutoScalerSinkProperties props;
 
-    @Autowired
-    private CloudFoundryService cloudFoundryService;
+ private String applicationName;
 
-    private Log log = LogFactory.getLog(getClass());
-    private File tempRootForStaging;
-    private File manifestFile;
-    private File jarFile;
+ @Autowired
+ private CloudFoundryService cloudFoundryService;
 
-    public ScaleSinkIT() throws IOException {
+ private Log log = LogFactory.getLog(getClass());
 
-        this.tempRootForStaging = Files.createTempDirectory("staging").toFile();
-        this.tempRootForStaging.deleteOnExit();
-        this.manifestFile = new File(tempRootForStaging, "manifest.yml");
-        this.jarFile = new File(tempRootForStaging, "hi.jar");
-    }
+ private File tempRootForStaging;
 
-    @After
-    public void after() throws Throwable {
-        if (tempRootForStaging.exists()) {
-            tempRootForStaging.delete();
-        }
-        if (cloudFoundryService.applicationExists(this.applicationName)) {
-            this.ops.applications()
-                    .stop(StopApplicationRequest.builder().name(applicationName).build()).block();
-        }
+ private File manifestFile;
 
-    }
+ private File jarFile;
 
-    @Before
-    public void before() throws Throwable {
-        this.deploySampleApp();
-        if (cloudFoundryService.applicationExists(this.applicationName)) {
-            this.ops.applications()
-                    .start(StartApplicationRequest.builder().name(this.applicationName).build()).block();
-        }
-        scale(this.applicationName, 1);
-    }
+ public ScaleSinkIT() throws IOException {
 
+  this.tempRootForStaging = Files.createTempDirectory("staging").toFile();
+  this.tempRootForStaging.deleteOnExit();
+  this.manifestFile = new File(tempRootForStaging, "manifest.yml");
+  this.jarFile = new File(tempRootForStaging, "hi.jar");
+ }
 
-    private void stage() throws Throwable {
-        Assert.assertTrue(tempRootForStaging.exists() || tempRootForStaging.mkdirs());
-        Resource manifest = new ClassPathResource("/manifest.yml");
-        Resource jar = new FileSystemResource(new File("./src/integration-test/resources/hi.jar"));
-        try (InputStream mi = manifest.getInputStream();
-             InputStream ji = jar.getInputStream();
-             OutputStream mo = new FileOutputStream(manifestFile);
-             OutputStream jo = new FileOutputStream(jarFile)) {
-            StreamUtils.copy(mi, mo);
-            StreamUtils.copy(ji, jo);
-        }
-        log.info("staging application at " + tempRootForStaging.getAbsolutePath());
+ @After
+ public void after() throws Throwable {
+  if (tempRootForStaging.exists()) {
+   tempRootForStaging.delete();
+  }
+  if (cloudFoundryService.applicationExists(this.applicationName)) {
+   this.ops.applications()
+    .stop(StopApplicationRequest.builder().name(applicationName).build())
+    .block();
+  }
 
-        Assert.assertTrue("the hi.jar should exist at " + this.jarFile.getAbsolutePath(),
-                this.jarFile.exists());
+ }
 
-        Assert.assertTrue("the manifest.yml should exist at " + this.manifestFile.getAbsolutePath(),
-                this.manifestFile.exists());
-    }
+ @Before
+ public void before() throws Throwable {
+  this.deploySampleApp();
+  if (cloudFoundryService.applicationExists(this.applicationName)) {
+   this.ops
+    .applications()
+    .start(StartApplicationRequest.builder().name(this.applicationName).build())
+    .block();
+  }
+  scale(this.applicationName, 1);
+ }
 
-    private void deploySampleApp() throws Throwable {
-        this.stage();
+ private void stage() throws Throwable {
+  Assert.assertTrue(tempRootForStaging.exists() || tempRootForStaging.mkdirs());
+  Resource manifest = new ClassPathResource("/manifest.yml");
+  Resource jar = new FileSystemResource(new File(
+   "./src/integration-test/resources/hi.jar"));
+  try (InputStream mi = manifest.getInputStream();
+   InputStream ji = jar.getInputStream();
+   OutputStream mo = new FileOutputStream(manifestFile);
+   OutputStream jo = new FileOutputStream(jarFile)) {
+   StreamUtils.copy(mi, mo);
+   StreamUtils.copy(ji, jo);
+  }
+  log.info("staging application at " + tempRootForStaging.getAbsolutePath());
 
-        this.applicationName = this.cloudFoundryService.applicationManifestFrom(this.manifestFile)
-                .entrySet()
-                .stream()
-                .map(e -> e.getValue().getName())
-                .findAny()
-                .orElse(null);
-        if (!this.cloudFoundryService.applicationExists(this.applicationName)) {
-            this.cloudFoundryService.pushApplicationUsingManifest(this.manifestFile);
-        }
-    }
+  Assert.assertTrue(
+   "the hi.jar should exist at " + this.jarFile.getAbsolutePath(),
+   this.jarFile.exists());
 
-    @Test
-    public void upAndDown() throws Exception {
+  Assert.assertTrue(
+   "the manifest.yml should exist at " + this.manifestFile.getAbsolutePath(),
+   this.manifestFile.exists());
+ }
 
-        // what we're testing:
-        // this simulates a metric publishing
-        // fictional CPU %.
-        // we'll send that we're at just 1% over the
-        // threshold
-        // and once we've confirmed that the
-        // auto-scaler has started 5
-        // instances trying to lower the instance
-        // count, we'll let it off the hook by publishing a metric
-        // 1% below the threshold.
+ private void deploySampleApp() throws Throwable {
+  this.stage();
 
-        // this should publish stepping messages,
-        // stepping instances counts from 1->2, 2->3,
-        // 3->4
+  this.applicationName = this.cloudFoundryService
+   .applicationManifestFrom(this.manifestFile).entrySet().stream()
+   .map(e -> e.getValue().getName()).findAny().orElse(null);
+  if (!this.cloudFoundryService.applicationExists(this.applicationName)) {
+   this.cloudFoundryService.pushApplicationUsingManifest(this.manifestFile);
+  }
+ }
 
-        int desiredInstanceCount = 4;
-        while (instances() < desiredInstanceCount) {
-            this.sink.input().send(MessageBuilder.withPayload(MAX + 1).build());
-        }
-        Assert.assertEquals(instances(), desiredInstanceCount);
+ @Test
+ public void upAndDown() throws Exception {
 
-        // this should publish stepping messages,
-        // stepping instances counts from 4->3, 3->2, 2->1
-        desiredInstanceCount = 1;
-        while (instances() > desiredInstanceCount) {
-            this.sink.input().send(MessageBuilder.withPayload(MIN - 1).build());
-        }
-        Assert.assertEquals(instances(), desiredInstanceCount);
-    }
+  // what we're testing:
+  // this simulates a metric publishing
+  // fictional CPU %.
+  // we'll send that we're at just 1%
+  // over the
+  // threshold
+  // and once we've confirmed that the
+  // auto-scaler has started 5
+  // instances trying to lower the
+  // instance
+  // count, we'll let it off the hook by
+  // publishing a metric
+  // 1% below the threshold.
 
-    @Test
-    public void upAndDownWithinBounds() throws Exception {
-        SubscribableChannel input = this.sink.input();
-        int start = MAX_AIS - 2;
+  // this should publish stepping
+  // messages,
+  // stepping instances counts from
+  // 1->2, 2->3,
+  // 3->4
 
-        scale(this.props.getApplicationName(), start);
-        Assert.assertEquals(start, instances());
+  int desiredInstanceCount = 4;
+  while (instances() < desiredInstanceCount) {
+   this.sink.input().send(MessageBuilder.withPayload(MAX + 1).build());
+  }
+  Assert.assertEquals(instances(), desiredInstanceCount);
 
-        input.send(MessageBuilder.withPayload(MAX + 1).build());
-        Assert.assertEquals(start + 1, instances());
+  // this should publish stepping
+  // messages,
+  // stepping instances counts from
+  // 4->3, 3->2, 2->1
+  desiredInstanceCount = 1;
+  while (instances() > desiredInstanceCount) {
+   this.sink.input().send(MessageBuilder.withPayload(MIN - 1).build());
+  }
+  Assert.assertEquals(instances(), desiredInstanceCount);
+ }
 
-        input.send(MessageBuilder.withPayload(MAX + 1).build());
-        Assert.assertEquals(start + 2, instances());
+ @Test
+ public void upAndDownWithinBounds() throws Exception {
+  SubscribableChannel input = this.sink.input();
+  int start = MAX_AIS - 2;
 
-        // we know that this should kick off another
-        // step raise but we've capped it so it
-        // shouldn't go any further
-        input.send(MessageBuilder.withPayload(MAX + 1).build());
-        Assert.assertEquals(start + 2, instances());
+  scale(this.props.getApplicationName(), start);
+  Assert.assertEquals(start, instances());
 
-    }
+  input.send(MessageBuilder.withPayload(MAX + 1).build());
+  Assert.assertEquals(start + 1, instances());
 
-    private int instances() {
-        String appName = this.props.getApplicationName();
-        return this.ops.applications()
-                .get(GetApplicationRequest.builder()
-                        .name(appName)
-                        .build())
-                .block()
-                .getInstances();
-    }
+  input.send(MessageBuilder.withPayload(MAX + 1).build());
+  Assert.assertEquals(start + 2, instances());
 
-    private void scale(String appName, int count) {
-        retryTemplate.execute(ctx -> {
-            this.ops.applications()
-                    .scale(ScaleApplicationRequest
-                            .builder()
-                            .name(appName)
-                            .instances(count)
-                            .build())
-                    .block();
-            return null;
-        });
-    }
+  // we know that this should kick off
+  // another
+  // step raise but we've capped it so
+  // it
+  // shouldn't go any further
+  input.send(MessageBuilder.withPayload(MAX + 1).build());
+  Assert.assertEquals(start + 2, instances());
 
-    @SpringBootApplication
-    public static class Application {
-    }
+ }
+
+ private int instances() {
+  String appName = this.props.getApplicationName();
+  return this.ops.applications()
+   .get(GetApplicationRequest.builder().name(appName).build()).block()
+   .getInstances();
+ }
+
+ private void scale(String appName, int count) {
+  retryTemplate.execute(ctx -> {
+   this.ops
+    .applications()
+    .scale(
+     ScaleApplicationRequest.builder().name(appName).instances(count).build())
+    .block();
+   return null;
+  });
+ }
+
+ @SpringBootApplication
+ public static class Application {
+ }
 }

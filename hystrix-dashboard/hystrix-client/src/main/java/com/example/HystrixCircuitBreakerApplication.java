@@ -61,10 +61,11 @@ class ShakyRestController {
   }
 
   ResponseEntity<String> responseEntity = this.restTemplate.getForEntity(url,
-    String.class);
+   String.class);
 
-  return ResponseEntity.ok().contentType(responseEntity.getHeaders().getContentType())
-    .body(responseEntity.getBody());
+  return ResponseEntity.ok()
+   .contentType(responseEntity.getHeaders().getContentType())
+   .body(responseEntity.getBody());
  }
 
 }

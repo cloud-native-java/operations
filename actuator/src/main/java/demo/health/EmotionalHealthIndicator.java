@@ -12,6 +12,7 @@ import java.util.Optional;
 class EmotionalHealthIndicator extends AbstractHealthIndicator {
 
  private EmotionalEvent event;
+
  private Date when;
 
  // <1>
@@ -26,16 +27,16 @@ class EmotionalHealthIndicator extends AbstractHealthIndicator {
  protected void doHealthCheck(Health.Builder builder) throws Exception {
 
   Optional
-    .ofNullable(this.event)
-    .ifPresent(
-      evt -> {
-       Class<? extends EmotionalEvent> eventClass = this.event.getClass();
-       Health.Builder healthBuilder = eventClass.isAssignableFrom(SadEvent.class) ? builder
-         .down() : builder.up();
-       String eventTimeAsString = this.when.toInstant().toString();
-       healthBuilder.withDetail("class", eventClass).withDetail("when",
-         eventTimeAsString);
-      });
+   .ofNullable(this.event)
+   .ifPresent(
+    evt -> {
+     Class<? extends EmotionalEvent> eventClass = this.event.getClass();
+     Health.Builder healthBuilder = eventClass.isAssignableFrom(SadEvent.class) ? builder
+      .down() : builder.up();
+     String eventTimeAsString = this.when.toInstant().toString();
+     healthBuilder.withDetail("class", eventClass).withDetail("when",
+      eventTimeAsString);
+    });
 
  }
 

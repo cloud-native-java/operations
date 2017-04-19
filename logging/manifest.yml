@@ -1,0 +1,11 @@
+---
+applications:
+- name: logging
+  memory: 512M
+  instances: 1
+  host: logging-${random-word}
+  path: target/logging.jar
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
+    DEBUG: "true"
+    debug: "true"

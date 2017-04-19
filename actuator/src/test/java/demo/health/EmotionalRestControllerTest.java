@@ -25,6 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 public class EmotionalRestControllerTest {
 
  private Log log = LogFactory.getLog(getClass());
+
  @Autowired
  private MockMvc mockMvc;
 
@@ -36,20 +37,20 @@ public class EmotionalRestControllerTest {
  @Test
  public void events() throws Exception {
   this.mockMvc.perform(get("/event/happy")).andExpect(
-    MockMvcResultMatchers.status().isOk());
+   MockMvcResultMatchers.status().isOk());
   this.confirmHealthEndpointStatus("UP", HappyEvent.class, status().isOk());
   this.mockMvc.perform(get("/event/sad")).andExpect(
-    MockMvcResultMatchers.status().isOk());
+   MockMvcResultMatchers.status().isOk());
   this.confirmHealthEndpointStatus("DOWN", SadEvent.class, status().is(503));
  }
 
  private void confirmHealthEndpointStatus(String status,
-   Class<? extends EmotionalEvent> ec, ResultMatcher rm) throws Exception {
+  Class<? extends EmotionalEvent> ec, ResultMatcher rm) throws Exception {
   this.mockMvc.perform(get("/health"))
-    .andDo(mvcResult -> log.info(mvcResult.getResponse().getContentAsString()))
-    .andExpect(jsonPath("$.emotional.status", containsString(status)))
-    .andExpect(jsonPath("$.emotional.class", containsString(ec.getName())))
-    .andExpect(rm);
+   .andDo(mvcResult -> log.info(mvcResult.getResponse().getContentAsString()))
+   .andExpect(jsonPath("$.emotional.status", containsString(status)))
+   .andExpect(jsonPath("$.emotional.class", containsString(ec.getName())))
+   .andExpect(rm);
  }
 
 }

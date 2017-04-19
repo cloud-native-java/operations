@@ -1,9 +1,14 @@
-package demo;
+package demo.metrics;
+
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 
+@Data
+@NoArgsConstructor
 @Entity
 public class Customer {
 
@@ -13,23 +18,8 @@ public class Customer {
 
  private String email, name;
 
- Customer() {
- }
-
- public Customer(String email, String name) {
-  this.email = email;
-  this.name = name;
- }
-
- public Long getId() {
-  return id;
- }
-
- public String getEmail() {
-  return email;
- }
-
- public String getName() {
-  return name;
+ Customer(String e, String n) {
+  this.email = e;
+  this.name = n;
  }
 }
