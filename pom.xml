@@ -15,6 +15,7 @@
         <module>operational-eureka-service</module>
         <module>microservices-dashboard</module>
         <module>actuator</module>
+        <module>auditevents</module>
         <module>hystrix-dashboard</module>
         <module>tracing</module>
         <module>spring-boot-admin</module>
