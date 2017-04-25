@@ -1,8 +1,5 @@
 package com.example;
 
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,31 +7,27 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.Map;
+import java.util.Arrays;
 import java.util.Optional;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.stream.Stream;
+import java.util.Set;
+import java.util.concurrent.ConcurrentSkipListSet;
 
 @Service
 class SimpleUserDetailsService implements UserDetailsService {
 
- private final Map<String, UserDetails> details = new ConcurrentHashMap<>();
-
- private final Log log = LogFactory.getLog(getClass());
+ private final Set<String> users = new ConcurrentSkipListSet<>();
 
  SimpleUserDetailsService() {
-  Stream
-   .of("pwebb", "dsyer", "mbhave", "snicoll", "awilkinson")
-   .map(n -> new User(n, "pw", AuthorityUtils.createAuthorityList("ROLE_USER")))
-   .forEach(u -> this.details.put(u.getUsername(), u));
-
-  this.details.forEach((k, v) -> log.info(k + '=' + v));
+  this.users.addAll(Arrays.asList("pwebb", "dsyer", "mbhave", "snicoll",
+   "awilkinson"));
  }
 
  @Override
  public UserDetails loadUserByUsername(String s)
   throws UsernameNotFoundException {
-  return Optional.ofNullable(this.details.get(s)).orElseThrow(
-   () -> new UsernameNotFoundException("couldn't find " + s + "!"));
+  return Optional
+   .ofNullable(this.users.contains(s) ? s : null)
+   .map(x -> new User(x, "pw", AuthorityUtils.createAuthorityList("ROLE_USER")))
+   .orElseThrow(() -> new UsernameNotFoundException("couldn't find " + s + "!"));
  }
 }
