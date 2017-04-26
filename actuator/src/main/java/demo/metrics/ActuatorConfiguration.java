@@ -13,8 +13,7 @@ import java.util.concurrent.TimeUnit;
 @Configuration
 class ActuatorConfiguration {
 
- @PostConstruct
- public void begin() throws Exception {
+ ActuatorConfiguration() {
   java.security.Security.setProperty("networkaddress.cache.ttl", "60"); // <1>
  }
 

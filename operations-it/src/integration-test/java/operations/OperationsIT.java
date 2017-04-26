@@ -15,31 +15,31 @@ import java.util.stream.Stream;
 @SpringBootTest(classes = OperationsIT.Config.class)
 public class OperationsIT {
 
-    @SpringBootApplication
-    public static class Config {
-    }
+ @SpringBootApplication
+ public static class Config {
+ }
 
-    private File root;
+ private File root;
 
-    private File loggingManifest;
+ private File loggingManifest;
 
-    private void exists(File f) {
-        Assert.assertTrue(f.getAbsolutePath() + " does not exist!", f.exists());
-    }
+ private void exists(File f) {
+  Assert.assertTrue(f.getAbsolutePath() + " does not exist!", f.exists());
+ }
 
-    @Before
-    public void before() throws Throwable {
-        this.root = new File(".");
+ @Before
+ public void before() throws Throwable {
+  this.root = new File(".");
 
-        this.loggingManifest = new File(this.root, "../logging/manifest.yml");
+  this.loggingManifest = new File(this.root, "../logging/manifest.yml");
 
-        Stream.of(this.loggingManifest).forEach(this::exists);
-    }
+  Stream.of(this.loggingManifest).forEach(this::exists);
+ }
 
-    @Test
-    public void logging() {
+ @Test
+ public void logging() {
 
-    }
+ }
 }
 
 /*

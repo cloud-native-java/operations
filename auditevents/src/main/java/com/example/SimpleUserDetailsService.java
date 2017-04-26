@@ -18,6 +18,7 @@ class SimpleUserDetailsService implements UserDetailsService {
  private final Set<String> users = new ConcurrentSkipListSet<>();
 
  SimpleUserDetailsService() {
+  // <1>
   this.users.addAll(Arrays.asList("pwebb", "dsyer", "mbhave", "snicoll",
    "awilkinson"));
  }
@@ -25,6 +26,7 @@ class SimpleUserDetailsService implements UserDetailsService {
  @Override
  public UserDetails loadUserByUsername(String s)
   throws UsernameNotFoundException {
+  // <2>
   return Optional
    .ofNullable(this.users.contains(s) ? s : null)
    .map(x -> new User(x, "pw", AuthorityUtils.createAuthorityList("ROLE_USER")))
