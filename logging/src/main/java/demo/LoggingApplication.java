@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import javax.annotation.PostConstruct;
 import java.util.Optional;
 
 @SpringBootApplication
@@ -22,11 +23,16 @@ public class LoggingApplication {
   SpringApplication.run(LoggingApplication.class, args);
  }
 
- @PostMapping("/log")
+ LoggingApplication(){
+  triggerLog(Optional.empty());
+ }
+
+ @GetMapping("/log")
  public void triggerLog(@RequestParam Optional<String> name) {
-  String greeting = "Hello, world!";
-  this.log.info("INFO: " + greeting);
+  String greeting = "Hello, " +name.orElse("World") +"!";
   this.log.warn("WARN: " + greeting); // <1>
+  this.log.info("INFO: " + greeting);
   this.log.debug("DEBUG: " + greeting);
+  this.log.error("ERROR: " + greeting);
  }
 }
