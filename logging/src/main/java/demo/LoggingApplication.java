@@ -23,13 +23,13 @@ public class LoggingApplication {
   SpringApplication.run(LoggingApplication.class, args);
  }
 
- LoggingApplication(){
+ LoggingApplication() {
   triggerLog(Optional.empty());
  }
 
  @GetMapping("/log")
  public void triggerLog(@RequestParam Optional<String> name) {
-  String greeting = "Hello, " +name.orElse("World") +"!";
+  String greeting = "Hello, " + name.orElse("World") + "!";
   this.log.warn("WARN: " + greeting); // <1>
   this.log.info("INFO: " + greeting);
   this.log.debug("DEBUG: " + greeting);

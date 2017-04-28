@@ -45,7 +45,7 @@ public class MetricsSpanReporterAutoConfiguration {
 
     private Log log = LogFactory.getLog(getClass());
 
-    public MetricSpanReporter(SpanReporter target) {
+    MetricSpanReporter(SpanReporter target) {
      this.target = target;
     }
 
@@ -55,7 +55,7 @@ public class MetricsSpanReporterAutoConfiguration {
      target.report(span);
      counterService.increment("meter.spans." + span.getName());
      gaugeService.submit("timer.spans." + span.getName(),
-      span.getAccumulatedMillis());
+      span.getAccumulatedMicros());
     }
    }
   };

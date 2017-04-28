@@ -16,7 +16,7 @@ import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
 
-@EnableAspectJAutoProxy(proxyTargetClass = true)
+//@EnableAspectJAutoProxy(proxyTargetClass = true)
 @SpringBootApplication
 public class MessageClient {
 
@@ -27,30 +27,5 @@ public class MessageClient {
  @Bean
  RestTemplate restTemplate() {
   return new RestTemplate();
- }
-
- @Bean
- Sampler sampler() {
-  return new AlwaysSampler();
- }
-}
-
-@RestController
-class MessageClientRestController {
-
- @Autowired
- private RestTemplate restTemplate;
-
- @Value("${message-service}")
- private String host;
-
- @RequestMapping("/")
- Map<String, String> message() {
-
-  ParameterizedTypeReference<Map<String, String>> ptr = new ParameterizedTypeReference<Map<String, String>>() {
-  };
-
-  return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr)
-   .getBody();
  }
 }
