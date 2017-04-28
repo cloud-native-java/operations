@@ -6,7 +6,7 @@ applications:
   host: zipkin-client-b-${random-word}
   path: target/zipkin-client-b.jar
   services:
-    - cnj-rabbitmq
+    - cnj-trace-rabbitmq
   env:
     SPRING_PROFILES_ACTIVE: cloud
     DEBUG: "true"
