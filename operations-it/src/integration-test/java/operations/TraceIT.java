@@ -68,15 +68,14 @@ cf s | grep $mysql  || cf cs o-mysql 100mb cnj-trace-mysql
         // then deploy zipkin-client-b  as app AND a service
         // then deploy zipkin-client-a and have it bind to b
 
+        this.cloudFoundryService
+            .pushApplicationAndCreateUserDefinedServiceUsingManifest(this.zipkinServiceManifest);
 
         this.cloudFoundryService
-                .pushApplicationAndCreateUserDefinedServiceUsingManifest(this.zipkinServiceManifest);
+            .pushApplicationAndCreateUserDefinedServiceUsingManifest(this.clientBManifest);
 
         this.cloudFoundryService
-                .pushApplicationAndCreateUserDefinedServiceUsingManifest(this.clientBManifest);
-
-        this.cloudFoundryService
-                .pushApplicationUsingManifest(this.clientAManifest);
+            .pushApplicationUsingManifest(this.clientAManifest);
 
         ResponseEntity<String> entity = this.restTemplate.getForEntity(URI.create(
                 cloudFoundryService.urlForApplication("zipkin-client-a")), String.class);
