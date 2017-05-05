@@ -1,6 +1,6 @@
 ---
 applications:
-- name: logging
+- name: logging-application
   memory: 512M
   instances: 1
   host: logging-${random-word}
