@@ -3,9 +3,9 @@ cloudfoundry:
 
   metrics:
     source:
-      application-name: configuration-client
+      application-name: edge-service
 
-  client:
-    api-endpoint: ${CF_API}
-    username: ${CF_USER}
-    password: ${CF_PASSWORD}
+#  client:
+#    api-endpoint: ${CF_API}
+#    username: ${CF_USER}
+#    password: ${CF_PASSWORD}
