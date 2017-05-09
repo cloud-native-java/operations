@@ -17,6 +17,7 @@
     <modules>
 
         <module>cloudfoundry-client-starter</module>
+        <module>rabbitmq-metrics-source</module>
 
         <module>cloudfoundry-usage-metrics-source</module>
 
