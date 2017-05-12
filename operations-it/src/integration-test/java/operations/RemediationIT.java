@@ -165,10 +165,13 @@ public class RemediationIT {
     }
 
     private String serverJarUrl() {
-        String serverJarVersion = "1.2.0.RC2";
+      /*  String serverJarVersion = "1.2.0.RC2";
         String url = "http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-cloudfoundry/" +
                 serverJarVersion + "/spring-cloud-dataflow-server-cloudfoundry-" +
                 serverJarVersion + ".jar";
+      */
+        String url = "http://repo.spring.io/libs-snapshot/" +
+                "org/springframework/cloud/spring-cloud-dataflow-server-cloudfoundry/1.2.0.RC1/spring-cloud-dataflow-server-cloudfoundry-1.2.0.RC1.jar";
         log.info("server .jar URL: " + url);
         return url;
     }
@@ -204,10 +207,10 @@ public class RemediationIT {
                 java.nio.file.Files.copy(inputStream, targetFile,
                         StandardCopyOption.REPLACE_EXISTING);
             }
-            this.log.info("downloaded Data Flow server to "
+            this.log.info("..downloaded Data Flow server .jar to "
                     + targetFile.toFile().getAbsolutePath() + ".");
         }
-        log.info("Data Flow Server jar lives at " + cfdfJar.getAbsolutePath());
+        log.info("Data Flow server .jar lives at " + cfdfJar.getAbsolutePath());
 
         int twoG = 1024 * 2;
         this.cloudFoundryOperations
@@ -215,7 +218,7 @@ public class RemediationIT {
                 .push(
                         PushApplicationRequest.builder().application(targetFile)
                                 .buildpack("https://github.com/cloudfoundry/java-buildpack.git")
-                                .noStart(true).name( this.baseCfDfAppName).host("cfdf-" + UUID.randomUUID().toString())
+                                .noStart(true).name(this.baseCfDfAppName).host("cfdf-" + UUID.randomUUID().toString())
                                 .memory(twoG).diskQuota(twoG).build()).block();
         log.info("pushed (but didn't start) the Data Flow server");
 
