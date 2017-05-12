@@ -1,0 +1,9 @@
+---
+applications:
+- name: remediation-app-definitions
+  memory: 256MB
+  instances: 1
+  host: remediation-apps-${random-word}
+  path: target/remediation-app-definitions.jar
+  env:
+    SPRING_PROFILES_ACTIVE: cloud
