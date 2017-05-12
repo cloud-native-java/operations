@@ -4,7 +4,7 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-
+    <name>operations/remediation/cloudfoundry-client-starter</name>
     <artifactId>cloudfoundry-client-starter</artifactId>
     <parent>
         <groupId>cnj</groupId>
@@ -31,19 +31,19 @@
         <dependency>
             <groupId>org.cloudfoundry</groupId>
             <artifactId>cloudfoundry-client-reactor</artifactId>
-         </dependency>
+        </dependency>
         <dependency>
             <groupId>org.cloudfoundry</groupId>
             <artifactId>cloudfoundry-operations</artifactId>
-         </dependency>
+        </dependency>
         <dependency>
             <groupId>io.projectreactor</groupId>
             <artifactId>reactor-core</artifactId>
-         </dependency>
+        </dependency>
         <dependency>
             <groupId>io.projectreactor.ipc</groupId>
             <artifactId>reactor-netty</artifactId>
-         </dependency>
+        </dependency>
 
     </dependencies>
 </project>

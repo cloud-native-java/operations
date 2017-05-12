@@ -13,6 +13,7 @@
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
+    <name>operations/remediation/dataflow-shell</name>
 
     <dependencies>
         <dependency>

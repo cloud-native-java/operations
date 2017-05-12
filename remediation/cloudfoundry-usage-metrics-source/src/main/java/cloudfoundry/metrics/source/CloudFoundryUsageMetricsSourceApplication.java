@@ -13,6 +13,7 @@ public class CloudFoundryUsageMetricsSourceApplication {
  RestTemplate restTemplate (){
   return new RestTemplateBuilder() .build() ;
  }
+
  public static void main(String[] args) {
   SpringApplication.run(CloudFoundryUsageMetricsSourceApplication.class, args);
  }

@@ -10,7 +10,7 @@ public class QueueMonitor {
 
     private final RabbitOperations rabbitOperations;
 
-    QueueMonitor (RabbitOperations rabbitOperations) {
+    public QueueMonitor (RabbitOperations rabbitOperations) {
         this.rabbitOperations = rabbitOperations;
     }
 
@@ -23,9 +23,3 @@ public class QueueMonitor {
     }
 }
 
-@Data
-@AllArgsConstructor
-class QueueStatistics {
-    private final String queue;
-    private final int size, consumers;
-}

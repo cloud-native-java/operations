@@ -1,12 +1,17 @@
 package demo;
 
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
 
 @Data
-@ConfigurationProperties(value = "rabbitmq.metrics.source")
+@AllArgsConstructor
+@NoArgsConstructor
+@ConfigurationProperties(value = "rabbitmq.metrics")
 public class QueueMonitorProperties {
 
-    private final String queueName ;
+    private String queueName;
 }
 

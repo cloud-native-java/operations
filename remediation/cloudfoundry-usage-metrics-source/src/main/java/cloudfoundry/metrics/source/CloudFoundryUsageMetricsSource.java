@@ -62,7 +62,7 @@ public class CloudFoundryUsageMetricsSource {
 
 /**
  * calculates the average of key metrics in Cloud
- * Foundry like application CPU, disk-usage, and
+ * Foundry like application disk-usage and
  * memory. You can funnel these metrics into
  * something interesting like a remediation flow.
  */

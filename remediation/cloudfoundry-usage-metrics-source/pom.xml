@@ -5,6 +5,8 @@
     <modelVersion>4.0.0</modelVersion>
     <artifactId>cloudfoundry-usage-metrics-source</artifactId>
     <packaging>jar</packaging>
+
+    <name>operations/remediation/cloudfoundry-usage-metrics-source</name>
     <parent>
         <groupId>cnj</groupId>
         <artifactId>remediation</artifactId>

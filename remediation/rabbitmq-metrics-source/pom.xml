@@ -3,39 +3,21 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-     <artifactId>rabbitmq-metrics-source</artifactId>
-    <name>operations/rabbitmq-metrics-source</name>
-    <packaging>pom</packaging>
+    <artifactId>rabbitmq-metrics-source</artifactId>
+    <name>operations/remediation/rabbitmq-metrics-source</name>
+    <packaging>jar</packaging>
     <parent>
         <groupId>cnj</groupId>
-        <artifactId>operations</artifactId>
+        <artifactId>remediation</artifactId>
         <version>1.0.0-SNAPSHOT</version>
     </parent>
 
 
     <dependencies>
-     <!--   <dependency>
-            <groupId>org.projectlombok</groupId>
-            <artifactId>lombok</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.integration</groupId>
-            <artifactId>spring-integration-amqp</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-integration</artifactId>
-        </dependency>
         <dependency>
             <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-stream-rabbit</artifactId>
+            <artifactId>spring-cloud-dataflow-rest-client</artifactId>
         </dependency>
-
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>-->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-integration</artifactId>
@@ -69,17 +51,6 @@
 
     </dependencies>
 
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>org.springframework.cloud</groupId>
-                <artifactId>spring-cloud-dependencies</artifactId>
-                <version>${spring-cloud.version}</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>
