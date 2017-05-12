@@ -44,7 +44,7 @@ public class DataFlowInitializer {
         prs.put(propertyPrefix + "password", rmqPw);
         StringBuffer sb = new StringBuffer();
         prs.forEach((key, value) -> sb.append("--").append(key).append('=').append(value).append(' '));
-        String rmqProps = sb.toString() ;
+        String rmqProps = sb.toString().trim() ;
 
         log.info(rmqProps);
 //        String definition = "rabbit-queue-metrics --rabbitmq.metrics.queueName=testq.testq-group |   log";

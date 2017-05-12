@@ -27,15 +27,17 @@ import java.net.URI;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.Duration;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Stream;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = RemediationIT.Config.class)
 public class RemediationIT {
+
+    private final Object monitor = new Object();
+
+    private DataFlowTemplate dataFlowTemplate;
 
     private String baseCfDfAppName = "remediation-cfdf";
 
@@ -47,8 +49,8 @@ public class RemediationIT {
 
     private final Log log = LogFactory.getLog(getClass());
 
-    private File remediationProducerManifest, remediationConsumerManifest;
-    private File remediationAppDefinitionsManifest;
+    private File remediationProducerManifest, remediationConsumerManifest, remediationAppDefinitionsManifest;
+
 
     @Before
     public void before() throws Throwable {
@@ -56,13 +58,18 @@ public class RemediationIT {
         this.remediationConsumerManifest = new File(root, "../remediation/remediation-rabbitmq-consumer/manifest.yml");
         this.remediationProducerManifest = new File(root, "../remediation/remediation-rabbitmq-producer/manifest.yml");
         this.remediationAppDefinitionsManifest = new File(root, "../remediation/remediation-app-definitions/manifest.yml");
-        Stream.of(this.remediationAppDefinitionsManifest, remediationConsumerManifest, remediationProducerManifest)
+        Stream.of(this.remediationAppDefinitionsManifest, this.remediationConsumerManifest, this.remediationProducerManifest)
                 .forEach(m -> Assert.assertTrue(m.exists()));
 
         deployDemoPreRequisites();
         deployDemoProducer();
         deployDemoConsumer();
         deployRemediationAppDefinitions();
+//        URI uri = applicationDefinitionPropertiesURI();
+//        log.info("property file:  " + uri.toASCIIString());
+
+        deployDataFlowServer();
+        deployAppDefinitionsToDataFlowServer();
     }
 
     private boolean appExists(File f) {
@@ -74,6 +81,16 @@ public class RemediationIT {
         if (!appExists(f)) {
             cloudFoundryService.pushApplicationUsingManifest(f);
         }
+    }
+
+    private URI applicationDefinitionPropertiesURI() {
+        String appName = applicationNameFromManifest(this.remediationAppDefinitionsManifest);
+        String urlForAppDefinitions =
+                cloudFoundryService.urlForApplication(appName);
+        if (!urlForAppDefinitions.endsWith("/")) {
+            urlForAppDefinitions = urlForAppDefinitions + "/";
+        }
+        return URI.create(urlForAppDefinitions + "remediation-apps.properties");
     }
 
     private void deployRemediationAppDefinitions() {
@@ -103,6 +120,28 @@ public class RemediationIT {
         pushIfDoesNotExist(this.remediationConsumerManifest);
     }
 
+
+    private DataFlowTemplate lazyDataFlowTemplate() {
+        synchronized (this.monitor) {
+            if (null == this.dataFlowTemplate) {
+                this.dataFlowTemplate = dataFlowTemplate(this.baseCfDfAppName);
+                this.log.info("created new " + DataFlowTemplate.class.getName());
+            }
+            return this.dataFlowTemplate;
+        }
+    }
+
+    private void deployAppDefinitionsToDataFlowServer() {
+        List<String> apps = new ArrayList<>();
+        apps.add("http://repo.spring.io/libs-release-local/org/springframework/cloud/task/app/spring-cloud-task-app-descriptor/Addison.RELEASE/spring-cloud-task-app-descriptor-Addison.RELEASE.task-apps-maven");
+        apps.add("http://repo.spring.io/libs-release/org/springframework/cloud/stream/app/spring-cloud-stream-app-descriptor/Avogadro.SR1/spring-cloud-stream-app-descriptor-Avogadro.SR1.stream-apps-rabbit-maven");
+//   TODO     apps.add(this.applicationDefinitionPropertiesURI().toString());
+        apps
+                .parallelStream()
+                .forEach(s -> this.lazyDataFlowTemplate()
+                        .appRegistryOperations().importFromResource(s, true));
+    }
+
     @Test
     public void test() {
 
@@ -116,8 +155,7 @@ public class RemediationIT {
     }
 
 
-    private DataFlowTemplate dataFlowTemplate(String cfDfServerName)
-            throws Exception {
+    private DataFlowTemplate dataFlowTemplate(String cfDfServerName) {
         String urlForApplication = this.cloudFoundryService.urlForApplication(cfDfServerName);
         log.info("attempting to create a DataFlowTemplate using the following API endpoint " + urlForApplication);
         return Optional
@@ -127,32 +165,35 @@ public class RemediationIT {
     }
 
     private String serverJarUrl() {
-        String serverJarVersion = "1.2.0.M2";
-        String serverJarUrl = "http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-cloudfoundry/1.2.0.M2/spring-cloud-dataflow-server-cloudfoundry-1.2.0.M2.jar";
-        String prefix = serverJarVersion.toUpperCase().contains("RELEASE") ? "release" : "snapshot";
-        return serverJarUrl.replace("${server_jar_url_prefix}", prefix).replace(
-                "${server_jar_version}", serverJarVersion);
+        String serverJarVersion = "1.2.0.RC2";
+        String url = "http://repo.spring.io/milestone/org/springframework/cloud/spring-cloud-dataflow-server-cloudfoundry/" +
+                serverJarVersion + "/spring-cloud-dataflow-server-cloudfoundry-" +
+                serverJarVersion + ".jar";
+        log.info("server .jar URL: " + url);
+        return url;
     }
-
 
     private void deployDataFlowServer() throws Throwable {
 
+
+        //TODO
+
+        cloudFoundryService.destroyApplicationIfExists(this.baseCfDfAppName);
+
+        if (this.cloudFoundryService.applicationExists(this.baseCfDfAppName)) {
+            return;
+        }
         // deploy the DF server
         String serverRedis = baseCfDfAppName + "-redis",
                 serverMysql = baseCfDfAppName + "-mysql",
                 serverRabbit = baseCfDfAppName + "-rabbit";
-        Stream
-                .of("rediscloud 100mb " + serverRedis,
-                        "cloudamqp lemur " + serverRabbit,
-                        "p-mysql 100mb " + serverMysql)
+        Stream.of("rediscloud 100mb " + serverRedis, "cloudamqp lemur " + serverRabbit, "p-mysql 100mb " + serverMysql)
                 .parallel()
                 .map(x -> x.split(" "))
-                .forEach(
-                        tpl -> this.cloudFoundryService.createServiceIfMissing(tpl[0], tpl[1],
-                                tpl[2]));
+                .forEach(tpl -> this.cloudFoundryService.createServiceIfMissing(tpl[0], tpl[1], tpl[2]));
 
         String urlForServerJarDistribution = this.serverJarUrl();
-        File cfdfJar = new File(System.getProperty("user.home"), "cfdf.jar");
+        File cfdfJar = new File(System.getProperty("user.home"), baseCfDfAppName + ".jar");
         Assert.assertTrue(cfdfJar.getParentFile().exists()
                 || cfdfJar.getParentFile().mkdirs());
 
@@ -174,7 +215,7 @@ public class RemediationIT {
                 .push(
                         PushApplicationRequest.builder().application(targetFile)
                                 .buildpack("https://github.com/cloudfoundry/java-buildpack.git")
-                                .noStart(true).name(baseCfDfAppName).host("cfdf-" + UUID.randomUUID().toString())
+                                .noStart(true).name( this.baseCfDfAppName).host("cfdf-" + UUID.randomUUID().toString())
                                 .memory(twoG).diskQuota(twoG).build()).block();
         log.info("pushed (but didn't start) the Data Flow server");
 
@@ -223,12 +264,11 @@ public class RemediationIT {
         // bind the relevant services to DF
         Stream.of(serverMysql, serverRedis).forEach(
                 svc -> {
-
+                    log.info("binding " + svc + " to " + this.baseCfDfAppName);
                     this.cloudFoundryOperations
                             .services()
-                            .bind(
-                                    BindServiceInstanceRequest.builder().applicationName(baseCfDfAppName)
-                                            .serviceInstanceName(svc).build()).block();
+                            .bind(BindServiceInstanceRequest.builder().applicationName(baseCfDfAppName)
+                                    .serviceInstanceName(svc).build()).block();
                     log.info("binding " + svc + " to " + baseCfDfAppName);
                 });
 
