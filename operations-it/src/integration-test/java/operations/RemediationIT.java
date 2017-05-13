@@ -39,20 +39,19 @@ public class RemediationIT {
 
     private final Object monitor = new Object();
 
+    private final Log log = LogFactory.getLog(getClass());
+
     private String demoRabbitMqServiceName = "remediation-rmq";
 
-    private DataFlowTemplate dataFlowTemplate;
-
     private String baseCfDfAppName = "remediation-cfdf";
+
+    private DataFlowTemplate dataFlowTemplate;
 
     @Autowired
     private CloudFoundryOperations cloudFoundryOperations;
 
     @Autowired
     private CloudFoundryService cloudFoundryService;
-
-    private final Log log = LogFactory.getLog(getClass());
-
 
     private File remediationProducerManifest, remediationConsumerManifest, remediationAppDefinitionsManifest;
 
@@ -91,6 +90,13 @@ public class RemediationIT {
         String rmqMetricsLog = "rmq-metrics-log";
         DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
         StreamOperations streamOperations = dataFlowTemplate.streamOperations();
+
+        if (streamOperations.list().getContent()
+                .stream()
+                .anyMatch(sdr -> sdr.getName().equalsIgnoreCase(rmqMetricsLog))) {
+            streamOperations.destroyAll();
+        }
+
         streamOperations.createStream(rmqMetricsLog, definition1, false);
         streamOperations.deploy(rmqMetricsLog, Collections.singletonMap("deployer.rabbit-queue-metrics.cloudfoundry.services", demoRabbitMqServiceName));
 

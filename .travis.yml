@@ -1,20 +1,34 @@
 language: java
 
+sudo: required
+
 jdk:
   - oraclejdk8
-
-services:
-  - redis-server
-  - rabbitmq
 
 cache:
   directories:
     - $HOME/.m2/repository/
 
-install:
-  - git clone https://github.com/cloud-native-java/build.git
-  - ./build/install.sh $CF_USER $CF_PASSWORD $CF_ORG $CF_SPACE
-
 script:
-  - ./build/script.sh $CF_USER $CF_PASSWORD $CF_ORG $CF_SPACE
+  -  mvn -e verify deploy
 
+#language: java
+#
+#jdk:
+#  - oraclejdk8
+#
+#services:
+#  - redis-server
+#  - rabbitmq
+#
+#cache:
+#  directories:
+#    - $HOME/.m2/repository/
+#
+#install:
+#  - git clone https://github.com/cloud-native-java/build.git
+#  - ./build/install.sh $CF_USER $CF_PASSWORD $CF_ORG $CF_SPACE
+#
+#script:
+#  - ./build/script.sh $CF_USER $CF_PASSWORD $CF_ORG $CF_SPACE
+#
