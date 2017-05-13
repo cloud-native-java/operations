@@ -9,7 +9,6 @@ import org.cloudfoundry.operations.applications.PushApplicationRequest;
 import org.cloudfoundry.operations.applications.SetEnvironmentVariableApplicationRequest;
 import org.cloudfoundry.operations.applications.StartApplicationRequest;
 import org.cloudfoundry.operations.services.BindServiceInstanceRequest;
-import org.cloudfoundry.operations.services.GetServiceInstanceRequest;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
@@ -45,6 +44,8 @@ public class RemediationIT {
 
     private String baseCfDfAppName = "remediation-cfdf";
 
+    private String rmqMetricsLogStreamName = "rmq-metrics-log";
+
     private DataFlowTemplate dataFlowTemplate;
 
     @Autowired
@@ -78,29 +79,37 @@ public class RemediationIT {
 
     }
 
+    private boolean dataFlowDefinitionsNeedsCleaning() {
+        DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
+        StreamOperations streamOperations = dataFlowTemplate.streamOperations();
+        return streamOperations.list().getContent()
+                .stream()
+                .anyMatch(sdr -> sdr.getName().equalsIgnoreCase(rmqMetricsLogStreamName));
+
+    }
+
     private void deployRemediationStream() {
 
-        String definition1 = "rabbit-queue-metrics --management.security.enabled=false --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group " +
+        String definition1 = "rabbit-queue-metrics --management.security.enabled=false --spring.rabbitmq.addresses=${vcap.services." +
+            this.demoRabbitMqServiceName + ".credentials.uri} --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group " +
                 "| transform --expression=payload.size  " +
                 "| log";
 
         log.info("stream definition: " + definition1);
 
         //--properties "deployer.jdbc.cloudfoundry.services=mysqlService"
-        String rmqMetricsLog = "rmq-metrics-log";
+
         DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
         StreamOperations streamOperations = dataFlowTemplate.streamOperations();
 
-        if (streamOperations.list().getContent()
-                .stream()
-                .anyMatch(sdr -> sdr.getName().equalsIgnoreCase(rmqMetricsLog))) {
+        if (this.dataFlowDefinitionsNeedsCleaning()) {
             streamOperations.destroyAll();
         }
 
-        streamOperations.createStream(rmqMetricsLog, definition1, false);
-        streamOperations.deploy(rmqMetricsLog, Collections.singletonMap("deployer.rabbit-queue-metrics.cloudfoundry.services", demoRabbitMqServiceName));
+        streamOperations.createStream(this.rmqMetricsLogStreamName, definition1, false);
+        streamOperations.deploy(this.rmqMetricsLogStreamName, Collections.singletonMap("deployer.rabbit-queue-metrics.cloudfoundry.services", demoRabbitMqServiceName));
 
-        log.info("deployed stream " + rmqMetricsLog);
+        log.info("deployed stream " + this.rmqMetricsLogStreamName);
 
     }
 
@@ -165,6 +174,8 @@ public class RemediationIT {
     }
 
     private void deployAppDefinitionsToDataFlowServer() {
+
+
         List<String> apps = new ArrayList<>();
         apps.add("http://repo.spring.io/libs-release-local/org/springframework/cloud/task/app/spring-cloud-task-app-descriptor/Addison.RELEASE/spring-cloud-task-app-descriptor-Addison.RELEASE.task-apps-maven");
         apps.add("http://repo.spring.io/libs-release/org/springframework/cloud/stream/app/spring-cloud-stream-app-descriptor/Avogadro.SR1/spring-cloud-stream-app-descriptor-Avogadro.SR1.stream-apps-rabbit-maven");

@@ -1,6 +1,8 @@
 package demo;
 
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.springframework.amqp.rabbit.core.RabbitOperations;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -52,7 +54,9 @@ public class QueueMetricsSourceApplication {
 
     @Bean
     IntegrationFlow rabbitMqStatisticsSource(PollerMetadata pollerMetadata,
-                                             QueueMonitor monitor, Source source) {
+                                             QueueMonitor monitor,
+                                             Source source) {
+        Log log = LogFactory.getLog(getClass());
         MessageChannel output = source.output();
         MessageSource<QueueStatistics> qms = () -> MessageBuilder
                 .withPayload(monitor.getQueueStatistics(this.queueName))
@@ -66,6 +70,7 @@ public class QueueMetricsSourceApplication {
                     statsMap.put("queue", statistics.getQueue());
                     statsMap.put("consumers", statistics.getConsumers());
                     statsMap.put("size", statistics.getSize());
+                    log.info("statsMap: " + statsMap.toString());
                     return MessageBuilder
                             .withPayload(statsMap)
                             .copyHeadersIfAbsent(message.getHeaders())
