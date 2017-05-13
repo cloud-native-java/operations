@@ -45,13 +45,6 @@ public class QueueMetricsSourceApplication {
         return new QueueMonitorProperties();
     }
 
-/*
-    @Bean
-    PollerMetadata poller(Trigger trigger) {
-        return Pollers.trigger(trigger).get();
-    }
-*/
-
     @Bean
     QueueMonitor monitor(RabbitOperations rabbitOperations) {
         return new QueueMonitor(rabbitOperations);
