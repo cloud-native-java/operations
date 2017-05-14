@@ -71,12 +71,15 @@ public class QueueMetricsSourceApplication {
                     statsMap.put("consumers", statistics.getConsumers());
                     statsMap.put("size", statistics.getSize());
                     log.info("statsMap: " + statsMap.toString());
-                    return MessageBuilder
-                        .withPayload(statistics.getQueue())
-                        .setHeader("queue-name", statistics.getQueue())
-                        .setHeader("queue-consumers", statistics.getConsumers())
-                        .setHeader("queue-size", statistics.getSize())
-                        .build();
+                    Message<String> msg = MessageBuilder
+                            .withPayload(statistics.getQueue())
+                            .copyHeadersIfAbsent(message.getHeaders())
+                            .setHeader("queue-name", statistics.getQueue())
+                            .setHeader("queue-consumers", statistics.getConsumers())
+                            .setHeader("queue-size", statistics.getSize())
+                            .build();
+                    log.info("..created stats message with 3 headers");
+                    return msg;
                 })
                 .channel(output)
                 .get();

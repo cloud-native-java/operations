@@ -93,7 +93,7 @@ public class RemediationIT {
         String streamDefinition = "rabbit-queue-metrics --management.security.enabled=false --spring.rabbitmq.addresses=${vcap.services." +
                 this.demoRabbitMqServiceName + ".credentials.uri} --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group " +
                // "| transform --expression=payload['consumers'] " +
-                "| log --expression=payload['queue'] --level=INFO";
+                "| log --expression=payload  ";
 
         log.info("stream definition: " + streamDefinition);
 
