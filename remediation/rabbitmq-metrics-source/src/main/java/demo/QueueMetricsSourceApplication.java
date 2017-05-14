@@ -72,9 +72,11 @@ public class QueueMetricsSourceApplication {
                     statsMap.put("size", statistics.getSize());
                     log.info("statsMap: " + statsMap.toString());
                     return MessageBuilder
-                            .withPayload(statsMap)
-                            .copyHeadersIfAbsent(message.getHeaders())
-                            .build();
+                        .withPayload(statistics.getQueue())
+                        .setHeader("queue-name", statistics.getQueue())
+                        .setHeader("queue-consumers", statistics.getConsumers())
+                        .setHeader("queue-size", statistics.getSize())
+                        .build();
                 })
                 .channel(output)
                 .get();

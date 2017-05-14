@@ -90,24 +90,25 @@ public class RemediationIT {
 
     private void deployRemediationStream() {
 
-        String definition1 = "rabbit-queue-metrics --management.security.enabled=false --spring.rabbitmq.addresses=${vcap.services." +
-            this.demoRabbitMqServiceName + ".credentials.uri} --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group " +
-                "| transform --expression=payload.size  " +
-                "| log";
+        String streamDefinition = "rabbit-queue-metrics --management.security.enabled=false --spring.rabbitmq.addresses=${vcap.services." +
+                this.demoRabbitMqServiceName + ".credentials.uri} --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group " +
+               // "| transform --expression=payload['consumers'] " +
+                "| log --expression=payload['queue'] --level=INFO";
 
-        log.info("stream definition: " + definition1);
-
-        //--properties "deployer.jdbc.cloudfoundry.services=mysqlService"
+        log.info("stream definition: " + streamDefinition);
 
         DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
         StreamOperations streamOperations = dataFlowTemplate.streamOperations();
 
         if (this.dataFlowDefinitionsNeedsCleaning()) {
+            log.info("calling destroyAll()");
             streamOperations.destroyAll();
+            log.info("there are " + streamOperations.list().getContent().size() + " streams now.");
         }
 
-        streamOperations.createStream(this.rmqMetricsLogStreamName, definition1, false);
-        streamOperations.deploy(this.rmqMetricsLogStreamName, Collections.singletonMap("deployer.rabbit-queue-metrics.cloudfoundry.services", demoRabbitMqServiceName));
+        streamOperations.createStream(this.rmqMetricsLogStreamName, streamDefinition, false);
+        streamOperations.deploy(this.rmqMetricsLogStreamName,
+                Collections.singletonMap("deployer.rabbit-queue-metrics.cloudfoundry.services", this.demoRabbitMqServiceName));
 
         log.info("deployed stream " + this.rmqMetricsLogStreamName);
 
