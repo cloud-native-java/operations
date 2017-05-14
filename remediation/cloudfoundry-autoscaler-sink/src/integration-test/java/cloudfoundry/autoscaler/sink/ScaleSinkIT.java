@@ -73,7 +73,9 @@ public class ScaleSinkIT {
 
     @After
     public void after() throws Throwable {
-        Assert.assertTrue(!tempRootForStaging.exists() || tempRootForStaging.delete());
+
+        if (null != tempRootForStaging && tempRootForStaging.exists())
+            tempRootForStaging.delete();
 
         if (cloudFoundryService.applicationExists(this.applicationName)) {
             this.ops.applications()
