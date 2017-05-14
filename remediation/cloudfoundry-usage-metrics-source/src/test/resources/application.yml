@@ -1,6 +1,5 @@
 
 cloudfoundry:
-
   metrics:
     source:
       application-name: edge-service

@@ -1,5 +1,6 @@
 package cloudfoundry.metrics.source;
 
+import cnj.CloudFoundryService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.operations.CloudFoundryOperations;
@@ -12,9 +13,11 @@ import org.springframework.cloud.stream.messaging.Source;
 import org.springframework.cloud.stream.test.binder.MessageCollector;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.messaging.Message;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit4.SpringRunner;
+import org.springframework.util.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.Map;
@@ -55,16 +58,29 @@ public class CloudFoundryUsageMetricsSourceTest {
                         .block());
     }
 
+    @Autowired
+    private Environment environment;
+
+    @Autowired
+    private CloudFoundryService cloudFoundryService;
+
     @Test
     public void testMetricsRead() throws Exception {
+        String key = "cloudfoundry.metrics.source.application-name";
+        String appName = this.properties.getApplicationName();
+        if (!StringUtils.hasText(appName)) {
+            this.log.warn("there is no " + key + " property specified. quitting test early.");
+            return;
+        }
+        if (!cloudFoundryService.applicationExists(appName)) {
+            this.log.warn("the specified application, '" + appName + "', does not exist. " +
+                    "quitting test early.");
+            return;
+        }
+
         BlockingQueue<Message<?>> messageBlockingQueue = this.messageCollector
                 .forChannel(this.channels.output());
-
-        String appName = this.properties.getApplicationName();
-
-
         String uri = urlFor(appName);
-
         assertTrue(this.restTemplate.getForEntity(uri, String.class).getStatusCode()
                 .is2xxSuccessful());
 
