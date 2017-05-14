@@ -16,7 +16,9 @@
     </parent>
 
     <modules>
+<!--
         <module>metric-span-reporter</module>
+-->
         <module>zipkin-service</module>
         <module>zipkin-client-a</module>
         <module>zipkin-client-b</module>
