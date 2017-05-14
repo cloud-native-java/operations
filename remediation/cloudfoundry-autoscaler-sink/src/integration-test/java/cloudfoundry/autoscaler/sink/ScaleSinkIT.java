@@ -63,7 +63,7 @@ public class ScaleSinkIT {
 
     private File jarFile;
 
-    public ScaleSinkIT() throws IOException {
+    private void init() throws Throwable {
 
         this.tempRootForStaging = Files.createTempDirectory("staging").toFile();
         this.tempRootForStaging.deleteOnExit();
@@ -85,6 +85,7 @@ public class ScaleSinkIT {
 
     @Before
     public void before() throws Throwable {
+        this.init();
         this.deploySampleApp();
         if (cloudFoundryService.applicationExists(this.applicationName)) {
             this.ops
@@ -92,7 +93,7 @@ public class ScaleSinkIT {
                     .start(StartApplicationRequest.builder().name(this.applicationName).build())
                     .block();
         }
-        scale(this.applicationName, 1);
+        this.scale(this.applicationName, 1);
     }
 
     private void stage() throws Throwable {
