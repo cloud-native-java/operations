@@ -29,6 +29,7 @@ import java.util.concurrent.CountDownLatch;
 
 import static org.junit.Assert.*;
 
+
 public class MetricsSpanReporterAutoConfigurationTest {
 
  private static final Map<String, Integer> contexts = new ConcurrentHashMap<>();

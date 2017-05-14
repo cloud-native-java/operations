@@ -8,10 +8,7 @@ import org.cloudfoundry.operations.applications.GetApplicationRequest;
 import org.cloudfoundry.operations.applications.ScaleApplicationRequest;
 import org.cloudfoundry.operations.applications.StartApplicationRequest;
 import org.cloudfoundry.operations.applications.StopApplicationRequest;
-import org.junit.After;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -28,7 +25,7 @@ import org.springframework.util.StreamUtils;
 
 import java.io.*;
 import java.nio.file.Files;
-
+@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ScaleSinkIT.Application.class)
 public class ScaleSinkIT {

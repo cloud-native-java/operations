@@ -7,6 +7,7 @@ import org.apache.commons.logging.LogFactory;
 import org.cloudfoundry.operations.CloudFoundryOperations;
 import org.junit.Assert;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,25 +22,14 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.net.URI;
 
+@Ignore
 @RunWith(SpringRunner.class)
-@SpringBootTest(classes = TraceIT .Config.class)
+@SpringBootTest(classes = TraceIT.Config.class)
 public class TraceIT {
 
 
     @Autowired
     private CloudFoundryService cloudFoundryService;
-
-    @Autowired
-    private CloudFoundryOperations cloudFoundryOperations;
-
-
-/*#!/bin/bash
-
-rmq=cnj-trace-rabbitmq
-mysql=cnj-trace-mysql
-cf s | grep $rmq    || cf cs cloudamqp lemur $rmq
-cf s | grep $mysql  || cf cs o-mysql 100mb cnj-trace-mysql
-*/
 
     private File root = new File(".");
     private File zipkinServiceManifest, clientAManifest, clientBManifest;
@@ -69,13 +59,13 @@ cf s | grep $mysql  || cf cs o-mysql 100mb cnj-trace-mysql
         // then deploy zipkin-client-a and have it bind to b
 
         this.cloudFoundryService
-            .pushApplicationAndCreateUserDefinedServiceUsingManifest(this.zipkinServiceManifest);
+                .pushApplicationAndCreateUserDefinedServiceUsingManifest(this.zipkinServiceManifest);
 
         this.cloudFoundryService
-            .pushApplicationAndCreateUserDefinedServiceUsingManifest(this.clientBManifest);
+                .pushApplicationAndCreateUserDefinedServiceUsingManifest(this.clientBManifest);
 
         this.cloudFoundryService
-            .pushApplicationUsingManifest(this.clientAManifest);
+                .pushApplicationUsingManifest(this.clientAManifest);
 
         ResponseEntity<String> entity = this.restTemplate.getForEntity(URI.create(
                 cloudFoundryService.urlForApplication("zipkin-client-a")), String.class);

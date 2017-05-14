@@ -1,6 +1,5 @@
 package operations;
 
-
 import cnj.CloudFoundryService;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
@@ -76,7 +75,6 @@ public class RemediationIT {
         deployDataFlowServer();
         deployAppDefinitionsToDataFlowServer();
         deployRemediationStream();
-
     }
 
     private boolean dataFlowDefinitionsNeedsCleaning() {
@@ -85,21 +83,16 @@ public class RemediationIT {
         return streamOperations.list().getContent()
                 .stream()
                 .anyMatch(sdr -> sdr.getName().equalsIgnoreCase(rmqMetricsLogStreamName));
-
     }
 
     private void deployRemediationStream() {
-
         String streamDefinition = "rabbit-queue-metrics --management.security.enabled=false --spring.rabbitmq.addresses=${vcap.services." +
                 this.demoRabbitMqServiceName + ".credentials.uri} --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group " +
-               // "| transform --expression=payload['consumers'] " +
+                // "| transform --expression=payload['consumers'] " +
                 "| log --expression=payload  ";
-
         log.info("stream definition: " + streamDefinition);
-
         DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
         StreamOperations streamOperations = dataFlowTemplate.streamOperations();
-
         if (this.dataFlowDefinitionsNeedsCleaning()) {
             log.info("calling destroyAll()");
             streamOperations.destroyAll();
