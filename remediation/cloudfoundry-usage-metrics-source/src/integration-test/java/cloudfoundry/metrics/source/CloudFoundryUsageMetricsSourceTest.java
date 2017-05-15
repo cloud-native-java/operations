@@ -39,9 +39,6 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
-@Ignore
-// TODO move this to the operations-it
-// module
 @DirtiesContext
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = CloudFoundryUsageMetricsSourceApplication.class)

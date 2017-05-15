@@ -24,7 +24,6 @@ import java.io.File;
 import java.net.URI;
 import java.util.stream.Stream;
 
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = LoggingIT.Config.class)
 public class LoggingIT {

@@ -26,7 +26,6 @@ import org.springframework.util.StreamUtils;
 import java.io.*;
 import java.nio.file.Files;
 
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = ScaleSinkIT.Application.class)
 public class ScaleSinkIT {

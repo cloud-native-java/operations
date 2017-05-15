@@ -36,363 +36,377 @@ import java.util.stream.Stream;
 @SpringBootTest(classes = RemediationIT.Config.class)
 public class RemediationIT {
 
-    private final Object monitor = new Object();
+ private final Object monitor = new Object();
 
-    private final Log log = LogFactory.getLog(getClass());
+ private final Log log = LogFactory.getLog(getClass());
 
-    private String demoRabbitMqServiceName = "remediation-cfdf-rabbit";
+ private String demoRabbitMqServiceName = "remediation-cfdf-rabbit";
 
-    // private String
-    // demoRabbitMqServiceName =
-    // "remediation-rmq";
+ // private String
+ // demoRabbitMqServiceName =
+ // "remediation-rmq";
 
-    private String baseCfDfAppName = "remediation-cfdf";
+ private String baseCfDfAppName = "remediation-cfdf";
 
-    private String rmqMetricsLogStreamName = "rmq-metrics-log";
+ private String rmqMetricsLogStreamName = "rmq-metrics-log";
 
-    private DataFlowTemplate dataFlowTemplate;
+ private DataFlowTemplate dataFlowTemplate;
 
-    @Autowired
-    private CloudFoundryOperations cloudFoundryOperations;
+ @Autowired
+ private CloudFoundryOperations cloudFoundryOperations;
 
-    private final RestTemplate restTemplate = new RestTemplate();
+ private final RestTemplate restTemplate = new RestTemplate();
 
-    @Autowired
-    private CloudFoundryService cloudFoundryService;
+ @Autowired
+ private CloudFoundryService cloudFoundryService;
 
-    private File remediationProducerManifest, remediationConsumerManifest,
-            remediationAppDefinitionsManifest;
+ private File remediationProducerManifest, remediationConsumerManifest,
+  remediationAppDefinitionsManifest;
 
-    @Before
-    public void before() throws Throwable {
-        File root = new File(".");
-        this.remediationConsumerManifest = new File(root,
-                "../remediation/remediation-rabbitmq-consumer/manifest.yml");
-        this.remediationProducerManifest = new File(root,
-                "../remediation/remediation-rabbitmq-producer/manifest.yml");
-        this.remediationAppDefinitionsManifest = new File(root,
-                "../remediation/remediation-app-definitions/manifest.yml");
+ @Before
+ public void before() throws Throwable {
+  File root = new File(".");
+  this.remediationConsumerManifest = new File(root,
+   "../remediation/remediation-rabbitmq-consumer/manifest.yml");
+  this.remediationProducerManifest = new File(root,
+   "../remediation/remediation-rabbitmq-producer/manifest.yml");
+  this.remediationAppDefinitionsManifest = new File(root,
+   "../remediation/remediation-app-definitions/manifest.yml");
 
-        Stream.of(this.remediationAppDefinitionsManifest,
-                this.remediationConsumerManifest, this.remediationProducerManifest).forEach(
-                m -> Assert.assertTrue(m.exists()));
+  Stream.of(this.remediationAppDefinitionsManifest,
+   this.remediationConsumerManifest, this.remediationProducerManifest).forEach(
+   m -> Assert.assertTrue(m.exists()));
 
-        deployDemoPreRequisites();
-        deployDemoConsumer();
-        deployDemoProducer();
-        deployDataFlowServer();
-        deployRemediationAppDefinitions();
-        deployAppDefinitionsToDataFlowServer();
-        deployRemediationStream();
+  deployDemoPreRequisites();
+  deployDemoConsumer();
+  deployDemoProducer();
+  deployDataFlowServer();
+  deployRemediationAppDefinitions();
+  deployAppDefinitionsToDataFlowServer();
+  deployRemediationStream();
+ }
+
+ private void startProduction() {
+  String url = cloudFoundryService.urlForApplication(this
+   .applicationNameFromManifest(this.remediationProducerManifest));
+  this.restTemplate.getForEntity(url + "/start", String.class);
+ }
+
+ private String cf() {
+  StringBuilder res = new StringBuilder();
+  System.getenv().forEach(
+   (k, v) -> {
+    if (k.toLowerCase().contains("cf_")) {
+     res.append(" --").append(k.toLowerCase().replace("_", ".")).append('=')
+      .append(v);
     }
+   });
+  return res.toString();
+ }
 
-    private void startProduction() {
-        String url = cloudFoundryService.urlForApplication(this
-                .applicationNameFromManifest(this.remediationProducerManifest));
-        this.restTemplate.getForEntity(url + "/start", String.class);
-    }
+ private boolean dataFlowDefinitionsNeedsCleaning() {
+  DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
+  StreamOperations streamOperations = dataFlowTemplate.streamOperations();
+  return streamOperations
+   .list()
+   .getContent()
+   .stream()
+   .anyMatch(
+    sdr -> sdr.getName().equalsIgnoreCase(this.rmqMetricsLogStreamName));
+ }
 
-    private String cf() {
-        StringBuilder res = new StringBuilder();
-        System.getenv().forEach(
-                (k, v) -> {
-                    if (k.toLowerCase().contains("cf_")) {
-                        res.append(" --").append(k.toLowerCase().replace("_", ".")).append('=')
-                                .append(v);
-                    }
-                });
-        return res.toString();
-    }
+ private void deployRemediationStream() {
 
-    private boolean dataFlowDefinitionsNeedsCleaning() {
-        DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
-        StreamOperations streamOperations = dataFlowTemplate.streamOperations();
-        return streamOperations
-                .list()
-                .getContent()
-                .stream()
-                .anyMatch(
-                        sdr -> sdr.getName().equalsIgnoreCase(this.rmqMetricsLogStreamName));
-    }
+  String rabbitAddressProperty = " --spring.rabbitmq.addresses=${vcap.services."
+   + this.demoRabbitMqServiceName + ".credentials.uri}";
 
-    private void deployRemediationStream() {
+  String streamDefinition = "rabbit-queue-metrics --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group  "
+   + rabbitAddressProperty
+   + "| transform --expression=headers['queue-size'] "
+   + "| cloudfoundry-autoscaler "
+   + cf()
+   + " --cloudfoundry.autoscaler.sink.instanceCountMinimum=1 "
+   + " --cloudfoundry.autoscaler.sink.applicationName=remediation-rabbitmq-consumer "
+   + " --cloudfoundry.autoscaler.sink.instanceCountMaximum=10 "
+   + " --cloudfoundry.autoscaler.sink.thresholdMaximum=5 ";
 
-        String rabbitAddressProperty = " --spring.rabbitmq.addresses=${vcap.services."
-                + this.demoRabbitMqServiceName + ".credentials.uri}";
+  log.info("stream definition: " + streamDefinition);
+  StreamOperations streamOperations = lazyDataFlowTemplate().streamOperations();
+  if (this.dataFlowDefinitionsNeedsCleaning()) {
+   log.info("calling destroyAll()");
+   streamOperations.destroyAll();
+   log.info("there are " + streamOperations.list().getContent().size()
+    + " streams now.");
+  }
+  streamOperations.createStream(this.rmqMetricsLogStreamName, streamDefinition,
+   false);
+  streamOperations.deploy(this.rmqMetricsLogStreamName, Collections
+   .singletonMap("deployer.rabbit-queue-metrics.cloudfoundry.services",
+    this.demoRabbitMqServiceName));
+  log.info("deployed stream " + this.rmqMetricsLogStreamName);
+ }
 
-        String streamDefinition = "rabbit-queue-metrics --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group  "
-                + rabbitAddressProperty
-                + "| transform --expression=headers['queue-size'] "
-                + "| cloudfoundry-autoscaler "
-                + cf()
-                + " --cloudfoundry.autoscaler.sink.instanceCountMinimum=1 "
-                + " --cloudfoundry.autoscaler.sink.applicationName=remediation-rabbitmq-consumer "
-                + " --cloudfoundry.autoscaler.sink.instanceCountMaximum=10 "
-                + " --cloudfoundry.autoscaler.sink.thresholdMaximum=5 ";
+ private boolean appExists(File f) {
+  return this.cloudFoundryService
+   .applicationExists(applicationNameFromManifest(f));
+ }
 
-        log.info("stream definition: " + streamDefinition);
-        StreamOperations streamOperations = lazyDataFlowTemplate().streamOperations();
-        if (this.dataFlowDefinitionsNeedsCleaning()) {
-            log.info("calling destroyAll()");
-            streamOperations.destroyAll();
-            log.info("there are " + streamOperations.list().getContent().size()
-                    + " streams now.");
-        }
-        streamOperations.createStream(this.rmqMetricsLogStreamName, streamDefinition,
-                false);
-        streamOperations.deploy(this.rmqMetricsLogStreamName, Collections
-                .singletonMap("deployer.rabbit-queue-metrics.cloudfoundry.services",
-                        this.demoRabbitMqServiceName));
-        log.info("deployed stream " + this.rmqMetricsLogStreamName);
-    }
+ private void pushIfDoesNotExist(File f) {
+  if (!appExists(f)) {
+   this.cloudFoundryService.pushApplicationUsingManifest(f);
+  }
+ }
 
-    private boolean appExists(File f) {
-        return this.cloudFoundryService
-                .applicationExists(applicationNameFromManifest(f));
-    }
+ private URI applicationDefinitionPropertiesURI() {
+  String appName = applicationNameFromManifest(this.remediationAppDefinitionsManifest);
+  String urlForAppDefinitions = this.cloudFoundryService
+   .urlForApplication(appName);
+  if (!urlForAppDefinitions.endsWith("/")) {
+   urlForAppDefinitions = urlForAppDefinitions + "/";
+  }
+  return URI.create(urlForAppDefinitions + "remediation-apps.properties");
+ }
 
-    private void pushIfDoesNotExist(File f) {
-        if (!appExists(f)) {
-            this.cloudFoundryService.pushApplicationUsingManifest(f);
-        }
-    }
+ private void deployRemediationAppDefinitions() {
+  pushIfDoesNotExist(remediationAppDefinitionsManifest);
+ }
 
-    private URI applicationDefinitionPropertiesURI() {
-        String appName = applicationNameFromManifest(this.remediationAppDefinitionsManifest);
-        String urlForAppDefinitions = this.cloudFoundryService
-                .urlForApplication(appName);
-        if (!urlForAppDefinitions.endsWith("/")) {
-            urlForAppDefinitions = urlForAppDefinitions + "/";
-        }
-        return URI.create(urlForAppDefinitions + "remediation-apps.properties");
-    }
+ private void deployDemoPreRequisites() {
+  cloudFoundryService.createServiceIfMissing("cloudamqp", "tiger",
+   demoRabbitMqServiceName);
+ }
 
-    private void deployRemediationAppDefinitions() {
-        pushIfDoesNotExist(remediationAppDefinitionsManifest);
-    }
+ private String applicationNameFromManifest(File file) {
+  return cloudFoundryService.applicationManifestFrom(file).entrySet().stream()
+   .findFirst().map(e -> e.getValue().getName()).orElse(null);
+ }
 
-    private void deployDemoPreRequisites() {
-        cloudFoundryService.createServiceIfMissing("cloudamqp", "tiger",
-                demoRabbitMqServiceName);
-    }
+ private void deployDemoProducer() {
+  pushIfDoesNotExist(this.remediationProducerManifest);
+ }
 
-    private String applicationNameFromManifest(File file) {
-        return cloudFoundryService.applicationManifestFrom(file).entrySet().stream()
-                .findFirst().map(e -> e.getValue().getName()).orElse(null);
-    }
+ private void deployDemoConsumer() {
+  pushIfDoesNotExist(this.remediationConsumerManifest);
+ }
 
-    private void deployDemoProducer() {
-        pushIfDoesNotExist(this.remediationProducerManifest);
-    }
+ private DataFlowTemplate lazyDataFlowTemplate() {
+  synchronized (this.monitor) {
+   if (null == this.dataFlowTemplate) {
+    this.dataFlowTemplate = dataFlowTemplate(this.baseCfDfAppName);
+    this.log.info("created new " + DataFlowTemplate.class.getName());
+   }
+   return this.dataFlowTemplate;
+  }
+ }
 
-    private void deployDemoConsumer() {
-        pushIfDoesNotExist(this.remediationConsumerManifest);
-    }
+ private void deployAppDefinitionsToDataFlowServer() {
 
-    private DataFlowTemplate lazyDataFlowTemplate() {
-        synchronized (this.monitor) {
-            if (null == this.dataFlowTemplate) {
-                this.dataFlowTemplate = dataFlowTemplate(this.baseCfDfAppName);
-                this.log.info("created new " + DataFlowTemplate.class.getName());
-            }
-            return this.dataFlowTemplate;
-        }
-    }
+  this
+   .lazyDataFlowTemplate()
+   .appRegistryOperations()
+   .list()
+   .getContent()
+   .forEach(
+    apr -> {
+     lazyDataFlowTemplate().appRegistryOperations().unregister(apr.getName(),
+      ApplicationType.valueOf(apr.getType()));
+    });
 
-    private void deployAppDefinitionsToDataFlowServer() {
+  List<String> apps = new ArrayList<>();
+  apps
+   .add("http://repo.spring.io/libs-release-local/org/springframework/cloud/task/app/spring-cloud-task-app-descriptor/Addison.RELEASE/spring-cloud-task-app-descriptor-Addison.RELEASE.task-apps-maven");
+  apps
+   .add("http://repo.spring.io/libs-release/org/springframework/cloud/stream/app/spring-cloud-stream-app-descriptor/Avogadro.SR1/spring-cloud-stream-app-descriptor-Avogadro.SR1.stream-apps-rabbit-maven");
+  apps.add(this.applicationDefinitionPropertiesURI().toString());
+  apps.parallelStream().forEach(
+   s -> this.lazyDataFlowTemplate().appRegistryOperations()
+    .importFromResource(s, true));
+ }
 
-        this
-                .lazyDataFlowTemplate()
-                .appRegistryOperations()
-                .list()
-                .getContent()
-                .forEach(
-                        apr -> {
-                            lazyDataFlowTemplate().appRegistryOperations().unregister(apr.getName(),
-                                    ApplicationType.valueOf(apr.getType()));
-                        });
+ private int instanceCountForApplication(String appName) {
+  GetApplicationRequest build = GetApplicationRequest.builder().name(appName)
+   .build();
 
-        List<String> apps = new ArrayList<>();
-        apps
-                .add("http://repo.spring.io/libs-release-local/org/springframework/cloud/task/app/spring-cloud-task-app-descriptor/Addison.RELEASE/spring-cloud-task-app-descriptor-Addison.RELEASE.task-apps-maven");
-        apps
-                .add("http://repo.spring.io/libs-release/org/springframework/cloud/stream/app/spring-cloud-stream-app-descriptor/Avogadro.SR1/spring-cloud-stream-app-descriptor-Avogadro.SR1.stream-apps-rabbit-maven");
-        apps.add(this.applicationDefinitionPropertiesURI().toString());
-        apps.parallelStream().forEach(
-                s -> this.lazyDataFlowTemplate().appRegistryOperations()
-                        .importFromResource(s, true));
-    }
+  ApplicationDetail applicationDetail = this.cloudFoundryOperations
+   .applications().get(build).block();
 
-    private int instanceCountForApplication(String appName) {
-        GetApplicationRequest build = GetApplicationRequest
-                .builder()
-                .name(appName)
-                .build();
+  return applicationDetail.getRunningInstances();
+ }
 
-        ApplicationDetail applicationDetail = this.cloudFoundryOperations
-                .applications()
-                .get(build)
-                .block();
+ @Test
+ public void test() throws Throwable {
+  this.startProduction();
+  int counter = 0;
+  String name = this
+   .applicationNameFromManifest(this.remediationConsumerManifest);
+  boolean scaled = false;
+  while (counter++ < (60 * 2)) { // the
+                                 // result
+                                 // is
+                                 // we'll
+                                 // wait
+                                 // 120
+                                 // seconds
+                                 // before
+                                 // failing
+                                 // the
+                                 // test.
+                                 // it
+                                 // should
+                                 // scale
+                                 // much
+                                 // quicker
+                                 // than
+                                 // that
+   log.info("attempt #" + counter + " to validate count of scaled apps");
+   int runningInstances = instanceCountForApplication(name);
+   if (runningInstances > 1) {
+    scaled = true;
+    log.info("it has scaled to " + runningInstances + " instances.");
+    break;
+   }
+   Thread.sleep(1000L);
+  }
+  Assert.assertTrue(scaled);
+ }
 
-        return applicationDetail.getRunningInstances();
-    }
+ private DataFlowTemplate dataFlowTemplate(String cfDfServerName) {
+  String urlForApplication = this.cloudFoundryService
+   .urlForApplication(cfDfServerName);
+  log
+   .info("attempting to create a DataFlowTemplate using the following API endpoint "
+    + urlForApplication);
+  return new DataFlowTemplate(URI.create(urlForApplication), new RestTemplate());
+ }
 
-    @Test
-    public void test() throws Throwable {
-        this.startProduction();
-        int counter = 0;
-        String name = this.applicationNameFromManifest(this.remediationConsumerManifest);
-        boolean scaled = false;
-        while (counter++ < (60 * 2)) { // the result is we'll wait 120 seconds before failing the test. it should scale much quicker than that
-            log.info("attempt #" + counter + " to validate count of scaled apps");
-            int runningInstances = instanceCountForApplication(name);
-            if (runningInstances > 1) {
-                scaled = true;
-                log.info("it has scaled to " + runningInstances + " instances.");
-                break;
-            }
-            Thread.sleep(1000L);
-        }
-        Assert.assertTrue(scaled);
-    }
+ private String serverJarUrl() {
+  String url = "http://repo.spring.io/libs-snapshot/"
+   + "org/springframework/cloud/spring-cloud-dataflow-server-cloudfoundry/1.2.0.RC1/spring-cloud-dataflow-server-cloudfoundry-1.2.0.RC1.jar";
+  log.info("server .jar URL: " + url);
+  return url;
+ }
 
-    private DataFlowTemplate dataFlowTemplate(String cfDfServerName) {
-        String urlForApplication = this.cloudFoundryService
-                .urlForApplication(cfDfServerName);
-        log
-                .info("attempting to create a DataFlowTemplate using the following API endpoint "
-                        + urlForApplication);
-        return new DataFlowTemplate(URI.create(urlForApplication), new RestTemplate());
-    }
+ private void deployDataFlowServer() throws Throwable {
 
-    private String serverJarUrl() {
-        String url = "http://repo.spring.io/libs-snapshot/"
-                + "org/springframework/cloud/spring-cloud-dataflow-server-cloudfoundry/1.2.0.RC1/spring-cloud-dataflow-server-cloudfoundry-1.2.0.RC1.jar";
-        log.info("server .jar URL: " + url);
-        return url;
-    }
+  log.info("deploying the Spring Cloud Data Flow Cloud Foundry Server.");
 
-    private void deployDataFlowServer() throws Throwable {
+  if (this.cloudFoundryService.applicationExists(this.baseCfDfAppName)) {
+   return;
+  }
 
-        log.info("deploying the Spring Cloud Data Flow Cloud Foundry Server.");
+  // deploy the DF server
+  String serverRedis = baseCfDfAppName + "-redis", serverMysql = baseCfDfAppName
+   + "-mysql", serverRabbit = baseCfDfAppName + "-rabbit";
+  Stream
+   .of("rediscloud 100mb " + serverRedis, "cloudamqp lemur " + serverRabbit,
+    "cleardb spark " + serverMysql)
+   // "p-mysql 100mb " + serverMysql)
+   .parallel()
+   .map(x -> x.split(" "))
+   .forEach(
+    tpl -> this.cloudFoundryService.createServiceIfMissing(tpl[0], tpl[1],
+     tpl[2]));
 
-        if (this.cloudFoundryService.applicationExists(this.baseCfDfAppName)) {
-            return;
-        }
+  String urlForServerJarDistribution = this.serverJarUrl();
+  File cfdfJar = new File(System.getProperty("user.home"), this.baseCfDfAppName
+   + ".jar");
+  Assert.assertTrue(cfdfJar.getParentFile().exists()
+   || cfdfJar.getParentFile().mkdirs());
+  Path targetFile = cfdfJar.toPath();
+  if (!cfdfJar.exists()) {
+   URI uri = URI.create(urlForServerJarDistribution);
+   try (InputStream inputStream = uri.toURL().openStream()) {
+    java.nio.file.Files.copy(inputStream, targetFile,
+     StandardCopyOption.REPLACE_EXISTING);
+   }
+   this.log.info("..downloaded Data Flow server .jar to "
+    + targetFile.toFile().getAbsolutePath() + ".");
+  }
+  log.info("Data Flow server .jar lives at " + cfdfJar.getAbsolutePath());
 
-        // deploy the DF server
-        String serverRedis = baseCfDfAppName + "-redis", serverMysql = baseCfDfAppName
-                + "-mysql", serverRabbit = baseCfDfAppName + "-rabbit";
-        Stream
-                .of("rediscloud 100mb " + serverRedis, "cloudamqp lemur " + serverRabbit,
-                        "cleardb spark " + serverMysql)
-                // "p-mysql 100mb " + serverMysql)
-                .parallel()
-                .map(x -> x.split(" "))
-                .forEach(
-                        tpl -> this.cloudFoundryService.createServiceIfMissing(tpl[0], tpl[1],
-                                tpl[2]));
+  int twoG = 1024 * 2;
+  this.cloudFoundryOperations
+   .applications()
+   .push(
+    PushApplicationRequest.builder().application(targetFile)
+     .buildpack("https://github.com/cloudfoundry/java-buildpack.git")
+     .noStart(true).name(this.baseCfDfAppName)
+     .host("cfdf-" + UUID.randomUUID().toString()).memory(twoG).diskQuota(twoG)
+     .build()).block();
+  log.info("..pushed (but didn't start) the Data Flow server");
 
-        String urlForServerJarDistribution = this.serverJarUrl();
-        File cfdfJar = new File(System.getProperty("user.home"), this.baseCfDfAppName
-                + ".jar");
-        Assert.assertTrue(cfdfJar.getParentFile().exists()
-                || cfdfJar.getParentFile().mkdirs());
-        Path targetFile = cfdfJar.toPath();
-        if (!cfdfJar.exists()) {
-            URI uri = URI.create(urlForServerJarDistribution);
-            try (InputStream inputStream = uri.toURL().openStream()) {
-                java.nio.file.Files.copy(inputStream, targetFile,
-                        StandardCopyOption.REPLACE_EXISTING);
-            }
-            this.log.info("..downloaded Data Flow server .jar to "
-                    + targetFile.toFile().getAbsolutePath() + ".");
-        }
-        log.info("Data Flow server .jar lives at " + cfdfJar.getAbsolutePath());
+  Map<String, String> env = new ConcurrentHashMap<>();
 
-        int twoG = 1024 * 2;
-        this.cloudFoundryOperations
-                .applications()
-                .push(
-                        PushApplicationRequest.builder().application(targetFile)
-                                .buildpack("https://github.com/cloudfoundry/java-buildpack.git")
-                                .noStart(true).name(this.baseCfDfAppName)
-                                .host("cfdf-" + UUID.randomUUID().toString()).memory(twoG).diskQuota(twoG)
-                                .build()).block();
-        log.info("..pushed (but didn't start) the Data Flow server");
+  // CF authentication
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_ORG", System.getenv("CF_ORG"));
+  env
+   .put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_SPACE", System.getenv("CF_SPACE"));
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_USERNAME",
+   System.getenv("CF_USER"));
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_PASSWORD",
+   System.getenv("CF_PASSWORD"));
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_TASK_API_TIMEOUT", "120");
 
-        Map<String, String> env = new ConcurrentHashMap<>();
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_STREAM_SERVICES", serverRabbit);
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_TASK_SERVICES", serverMysql);
 
-        // CF authentication
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_ORG", System.getenv("CF_ORG"));
-        env
-                .put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_SPACE", System.getenv("CF_SPACE"));
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_USERNAME",
-                System.getenv("CF_USER"));
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_PASSWORD",
-                System.getenv("CF_PASSWORD"));
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_TASK_API_TIMEOUT", "120");
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_SKIP_SSL_VALIDATION", "false");
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_URL",
+   "https://api.run.pivotal.io");
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_DOMAIN", "cfapps.io");
+  env
+   .put("MAVEN_REMOTE_REPOSITORIES_LR_URL",
+    "https://cloudnativejava.artifactoryonline.com/cloudnativejava/libs-release");
+  env
+   .put("MAVEN_REMOTE_REPOSITORIES_LS_URL",
+    "https://cloudnativejava.artifactoryonline.com/cloudnativejava/libs-snapshot");
+  env
+   .put("MAVEN_REMOTE_REPOSITORIES_PR_URL",
+    "https://cloudnativejava.artifactoryonline.com/cloudnativejava/plugins-release");
+  env
+   .put(
+    "MAVEN_REMOTE_REPOSITORIES_PS_URL",
+    "https://cloudnativejava.artifactoryonline.com/cloudnativejava/plugins-snapshot");
 
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_STREAM_SERVICES", serverRabbit);
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_TASK_SERVICES", serverMysql);
+  env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_STREAM_INSTANCES", "1");
 
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_SKIP_SSL_VALIDATION", "false");
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_URL",
-                "https://api.run.pivotal.io");
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_DOMAIN", "cfapps.io");
-        env
-                .put("MAVEN_REMOTE_REPOSITORIES_LR_URL",
-                        "https://cloudnativejava.artifactoryonline.com/cloudnativejava/libs-release");
-        env
-                .put("MAVEN_REMOTE_REPOSITORIES_LS_URL",
-                        "https://cloudnativejava.artifactoryonline.com/cloudnativejava/libs-snapshot");
-        env
-                .put("MAVEN_REMOTE_REPOSITORIES_PR_URL",
-                        "https://cloudnativejava.artifactoryonline.com/cloudnativejava/plugins-release");
-        env
-                .put(
-                        "MAVEN_REMOTE_REPOSITORIES_PS_URL",
-                        "https://cloudnativejava.artifactoryonline.com/cloudnativejava/plugins-snapshot");
+  env.forEach((k, v) -> {
+   this.cloudFoundryOperations
+    .applications()
+    .setEnvironmentVariable(
+     SetEnvironmentVariableApplicationRequest.builder().name(baseCfDfAppName)
+      .variableName(k).variableValue(v).build()).block();
 
-        env.put("SPRING_CLOUD_DEPLOYER_CLOUDFOUNDRY_STREAM_INSTANCES", "1");
+   log.info("..set environment variable for " + baseCfDfAppName + ": " + k);
+  });
 
-        env.forEach((k, v) -> {
-            this.cloudFoundryOperations
-                    .applications()
-                    .setEnvironmentVariable(
-                            SetEnvironmentVariableApplicationRequest.builder().name(baseCfDfAppName)
-                                    .variableName(k).variableValue(v).build()).block();
+  log.info("..set all " + env.size() + " environment variables.");
 
-            log.info("..set environment variable for " + baseCfDfAppName + ": " + k);
-        });
+  // bind the relevant services to DF
+  Stream.of(serverMysql, serverRedis).forEach(
+   svc -> {
+    log.info("..binding " + svc + " to " + this.baseCfDfAppName);
+    this.cloudFoundryOperations
+     .services()
+     .bind(
+      BindServiceInstanceRequest.builder().applicationName(baseCfDfAppName)
+       .serviceInstanceName(svc).build()).block();
+    log.info("..bound " + svc + " to " + baseCfDfAppName);
+   });
 
-        log.info("..set all " + env.size() + " environment variables.");
+  // start
+  this.cloudFoundryOperations
+   .applications()
+   .start(
+    StartApplicationRequest.builder().stagingTimeout(Duration.ofMinutes(10))
+     .startupTimeout(Duration.ofMinutes(10)).name(baseCfDfAppName).build())
+   .block();
 
-        // bind the relevant services to DF
-        Stream.of(serverMysql, serverRedis).forEach(
-                svc -> {
-                    log.info("..binding " + svc + " to " + this.baseCfDfAppName);
-                    this.cloudFoundryOperations
-                            .services()
-                            .bind(
-                                    BindServiceInstanceRequest.builder().applicationName(baseCfDfAppName)
-                                            .serviceInstanceName(svc).build()).block();
-                    log.info("..bound " + svc + " to " + baseCfDfAppName);
-                });
+  log.info("started the Spring Cloud Data Flow Cloud Foundry server.");
+ }
 
-        // start
-        this.cloudFoundryOperations
-                .applications()
-                .start(
-                        StartApplicationRequest.builder().stagingTimeout(Duration.ofMinutes(10))
-                                .startupTimeout(Duration.ofMinutes(10)).name(baseCfDfAppName).build())
-                .block();
-
-        log.info("started the Spring Cloud Data Flow Cloud Foundry server.");
-    }
-
-    @EnableAutoConfiguration
-    @Configuration
-    public static class Config {
-    }
+ @EnableAutoConfiguration
+ @Configuration
+ public static class Config {
+ }
 }

@@ -39,13 +39,7 @@ public class DataFlowInitializer {
  }
 
  @EventListener(ApplicationReadyEvent.class)
- public void onAppReady(ApplicationReadyEvent event) {
-  // TODO
-  // 1) deploy the regular app
-  // definitions
-  // 2) deploy the RMQ metrics source
-  // 3) create a stream definition
-  // 4) login and observe the results
+ public void onAppReady(ApplicationReadyEvent evt) {
 
   this.deployAppDefinitions();
 

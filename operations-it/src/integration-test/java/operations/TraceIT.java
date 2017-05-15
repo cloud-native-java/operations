@@ -21,7 +21,6 @@ import org.springframework.web.client.RestTemplate;
 import java.io.File;
 import java.net.URI;
 
-@Ignore
 @RunWith(SpringRunner.class)
 @SpringBootTest(classes = TraceIT.Config.class)
 public class TraceIT {
