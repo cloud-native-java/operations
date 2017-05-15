@@ -50,6 +50,8 @@ public class RemediationIT {
     @Autowired
     private CloudFoundryOperations cloudFoundryOperations;
 
+    private final RestTemplate restTemplate = new RestTemplate();
+
     @Autowired
     private CloudFoundryService cloudFoundryService;
 
@@ -69,14 +71,20 @@ public class RemediationIT {
                 .forEach(m -> Assert.assertTrue(m.exists()));
 
         deployDemoPreRequisites();
-        deployDemoProducer();
         deployDemoConsumer();
+        deployDemoProducer();
+        startProduction();
         deployRemediationAppDefinitions();
         deployDataFlowServer();
         deployAppDefinitionsToDataFlowServer();
         deployRemediationStream();
     }
 
+    private void startProduction() {
+        String appName = this.applicationNameFromManifest(
+                this.remediationProducerManifest);
+        this.restTemplate.getForEntity(appName + "/start", String.class);
+    }
 
     private String cf() {
         StringBuilder res = new StringBuilder();
@@ -90,7 +98,6 @@ public class RemediationIT {
         });
         return res.toString();
     }
-
 
     private boolean dataFlowDefinitionsNeedsCleaning() {
         DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
@@ -119,25 +126,17 @@ public class RemediationIT {
                 // "| transform --expression=payload['consumers'] " +
                 "| log --expression=headers['queue-consumers']  ";
       */
-
-      log.info("stream definition: " + streamDefinition);
-
-        DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
-
-        StreamOperations streamOperations = dataFlowTemplate.streamOperations();
-
+        log.info("stream definition: " + streamDefinition);
+        StreamOperations streamOperations = lazyDataFlowTemplate().streamOperations();
         if (this.dataFlowDefinitionsNeedsCleaning()) {
             log.info("calling destroyAll()");
             streamOperations.destroyAll();
             log.info("there are " + streamOperations.list().getContent().size() + " streams now.");
         }
-
         streamOperations.createStream(this.rmqMetricsLogStreamName, streamDefinition, false);
         streamOperations.deploy(this.rmqMetricsLogStreamName,
                 Collections.singletonMap("deployer.rabbit-queue-metrics.cloudfoundry.services", this.demoRabbitMqServiceName));
-
         log.info("deployed stream " + this.rmqMetricsLogStreamName);
-
     }
 
     private boolean appExists(File f) {
