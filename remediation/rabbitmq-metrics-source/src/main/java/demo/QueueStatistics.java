@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QueueStatistics {
-    private String queue;
-    private int size, consumers;
+
+ private String queue;
+
+ private int size, consumers;
 }

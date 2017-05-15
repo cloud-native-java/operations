@@ -15,19 +15,21 @@ import org.springframework.integration.dsl.IntegrationFlows;
 @SpringBootApplication
 public class AutoScalerSinkApplication {
 
-    @Bean
-    public IntegrationFlow inboundScaleDecisionFlow(CloudFoundryOperations operations,
-                                                    AutoScalerSinkProperties properties) throws Exception {
+ @Bean
+ public IntegrationFlow inboundScaleDecisionFlow(
+  CloudFoundryOperations operations, AutoScalerSinkProperties properties)
+  throws Exception {
 
-        AutoScalerMessageHandler messageHandler = new AutoScalerMessageHandler(
-                operations, properties.getThresholdMinimum(), properties.getThresholdMaximum(),
-                properties.getInstanceCountMinimum(), properties.getInstanceCountMaximum(),
-                properties.getMetricHeaderKey(), properties.getApplicationName());
+  AutoScalerMessageHandler messageHandler = new AutoScalerMessageHandler(
+   operations, properties.getThresholdMinimum(),
+   properties.getThresholdMaximum(), properties.getInstanceCountMinimum(),
+   properties.getInstanceCountMaximum(), properties.getMetricHeaderKey(),
+   properties.getApplicationName());
 
-        return IntegrationFlows.from(Sink.INPUT).handle(messageHandler).get();
-    }
+  return IntegrationFlows.from(Sink.INPUT).handle(messageHandler).get();
+ }
 
-    public static void main(String[] args) throws Exception {
-        SpringApplication.run(AutoScalerSinkApplication.class, args);
-    }
+ public static void main(String[] args) throws Exception {
+  SpringApplication.run(AutoScalerSinkApplication.class, args);
+ }
 }

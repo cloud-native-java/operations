@@ -29,50 +29,51 @@ import java.util.stream.Stream;
 @SpringBootTest(classes = LoggingIT.Config.class)
 public class LoggingIT {
 
-    private File root, loggingManifest;
+ private File root, loggingManifest;
 
-    @Autowired
-    private CloudFoundryService cloudFoundryService;
+ @Autowired
+ private CloudFoundryService cloudFoundryService;
 
-    private final Log log = LogFactory.getLog(getClass());
-    private final RestTemplate restTemplate = new RestTemplate();
-    private void exists(File f) {
-        Assert.assertTrue(f.getAbsolutePath() + " does not exist!", f.exists());
-    }
+ private final Log log = LogFactory.getLog(getClass());
 
-    @Before
-    public void before() throws Throwable {
-        this.root = new File(".");
-        this.loggingManifest = new File(this.root, "../logging/manifest.yml");
-        Stream.of(this.loggingManifest).forEach(this::exists);
-        this.cloudFoundryService.pushApplicationUsingManifest( this.loggingManifest);
-    }
+ private final RestTemplate restTemplate = new RestTemplate();
 
-    private String level(String uri) {
-        ResponseEntity<JsonNode> responseEntity = this.restTemplate.getForEntity(URI.create(uri), JsonNode.class);
-        JsonNode body = responseEntity.getBody();
-        JsonNode configuredLevel = body.get("configuredLevel");
-        return configuredLevel.asText();
-    }
+ private void exists(File f) {
+  Assert.assertTrue(f.getAbsolutePath() + " does not exist!", f.exists());
+ }
 
-    @Test
-    public void logging() throws Throwable {
-        String loggingApp = "logging-application";
-        String appUrl = this.cloudFoundryService.urlForApplication(loggingApp);
-        String loggersUrl = appUrl + "/loggers/demo";
-        log.info(loggersUrl);
-        Assert.assertEquals(level(loggersUrl), "ERROR");
-        RequestEntity<String> entity =
-                RequestEntity
-                        .post(URI.create(loggersUrl))
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .body("{ \"configuredLevel\": \"DEBUG\" }");
-        this.restTemplate.exchange(entity, Void.class);
-        Assert.assertEquals(level(loggersUrl), "DEBUG");
-    }
+ @Before
+ public void before() throws Throwable {
+  this.root = new File(".");
+  this.loggingManifest = new File(this.root, "../logging/manifest.yml");
+  Stream.of(this.loggingManifest).forEach(this::exists);
+  this.cloudFoundryService.pushApplicationUsingManifest(this.loggingManifest);
+ }
 
-    @Configuration
-    @EnableAutoConfiguration
-    public static class Config {
-    }
+ private String level(String uri) {
+  ResponseEntity<JsonNode> responseEntity = this.restTemplate.getForEntity(
+   URI.create(uri), JsonNode.class);
+  JsonNode body = responseEntity.getBody();
+  JsonNode configuredLevel = body.get("configuredLevel");
+  return configuredLevel.asText();
+ }
+
+ @Test
+ public void logging() throws Throwable {
+  String loggingApp = "logging-application";
+  String appUrl = this.cloudFoundryService.urlForApplication(loggingApp);
+  String loggersUrl = appUrl + "/loggers/demo";
+  log.info(loggersUrl);
+  Assert.assertEquals(level(loggersUrl), "ERROR");
+  RequestEntity<String> entity = RequestEntity.post(URI.create(loggersUrl))
+   .contentType(MediaType.APPLICATION_JSON)
+   .body("{ \"configuredLevel\": \"DEBUG\" }");
+  this.restTemplate.exchange(entity, Void.class);
+  Assert.assertEquals(level(loggersUrl), "DEBUG");
+ }
+
+ @Configuration
+ @EnableAutoConfiguration
+ public static class Config {
+ }
 }

@@ -10,8 +10,8 @@ import org.springframework.web.client.RestTemplate;
 public class CloudFoundryUsageMetricsSourceApplication {
 
  @Bean
- RestTemplate restTemplate (){
-  return new RestTemplateBuilder() .build() ;
+ RestTemplate restTemplate() {
+  return new RestTemplateBuilder().build();
  }
 
  public static void main(String[] args) {

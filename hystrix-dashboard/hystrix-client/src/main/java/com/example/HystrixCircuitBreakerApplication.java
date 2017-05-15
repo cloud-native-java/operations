@@ -22,4 +22,3 @@ public class HystrixCircuitBreakerApplication {
   return new RestTemplate();
  }
 }
-

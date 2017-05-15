@@ -12,6 +12,5 @@ import org.springframework.stereotype.Component;
 @ConfigurationProperties(value = "rabbitmq.metrics")
 public class QueueMonitorProperties {
 
-    private String queueName;
+ private String queueName;
 }
-
