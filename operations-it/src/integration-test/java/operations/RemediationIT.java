@@ -110,9 +110,9 @@ public class RemediationIT {
     private void deployRemediationStream() {
 
 
-        String rabbitAddressProperty = "--spring.rabbitmq.addresses=${vcap.services." + this.demoRabbitMqServiceName + ".credentials.uri}";
+        String rabbitAddressProperty = " --spring.rabbitmq.addresses=${vcap.services." + this.demoRabbitMqServiceName + ".credentials.uri}";
 
-        String streamDefinition = "rabbit-queue-metrics  " + rabbitAddressProperty +
+        String streamDefinition = "rabbit-queue-metrics --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group  " + rabbitAddressProperty +
                 "| transform --expression=headers['queue-size'] " +
                 "| cloudfoundry-autoscaler " + cf() +
                 " --cloudfoundry.autoscaler.sink.instanceCountMinimum=1 " +
