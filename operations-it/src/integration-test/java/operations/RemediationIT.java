@@ -40,7 +40,8 @@ public class RemediationIT {
 
     private final Log log = LogFactory.getLog(getClass());
 
-    private String demoRabbitMqServiceName = "remediation-rmq";
+    private String demoRabbitMqServiceName = "remediation-cfdf-rabbit";
+//    private String demoRabbitMqServiceName = "remediation-rmq";
 
     private String baseCfDfAppName = "remediation-cfdf";
 
@@ -141,7 +142,7 @@ public class RemediationIT {
     }
 
     private boolean appExists(File f) {
-        return cloudFoundryService.applicationExists(
+        return this.cloudFoundryService.applicationExists(
                 applicationNameFromManifest(f));
     }
 

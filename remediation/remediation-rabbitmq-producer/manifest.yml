@@ -6,7 +6,7 @@ applications:
   host: remediation-rmq-producer-${random-word}
   path: target/remediation-rabbitmq-producer.jar
   services:
-    - remediation-rmq
+     - remediation-cfdf-rabbit
   env:
     SPRING_PROFILES_ACTIVE: cloud
     DEBUG: "true"
