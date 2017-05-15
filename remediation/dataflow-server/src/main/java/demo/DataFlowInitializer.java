@@ -21,8 +21,22 @@ public class DataFlowInitializer {
     private final Log log = LogFactory.getLog(getClass());
 
     private DataFlowTemplate dataFlowTemplate;
+    private String demoRabbitMqServiceName = "remediation-rmq";
 
     private final Object monitor = new Object();
+
+    String cf() {
+        StringBuilder res = new StringBuilder();
+        System.getenv().forEach((k, v) -> {
+            if (k.toLowerCase().contains("cf_")) {
+                res.append(" --")
+                        .append(k.toLowerCase().replace("_", "."))
+                        .append('=')
+                        .append(v);
+            }
+        });
+        return res.toString();
+    }
 
     @EventListener(ApplicationReadyEvent.class)
     public void onAppReady(ApplicationReadyEvent event) {
@@ -34,35 +48,20 @@ public class DataFlowInitializer {
 
         this.deployAppDefinitions();
 
-        String rmqHost = "localhost", rmqPort = "5672", rmqUsername = "guest", rmqPw = "guest";
-
-        String propertyPrefix = "spring.rabbitmq.";
-        Map<String, String> prs = new HashMap<>();
-        prs.put(propertyPrefix + "host", rmqHost);
-        prs.put(propertyPrefix + "port", rmqPort);
-        prs.put(propertyPrefix + "username", rmqUsername);
-        prs.put(propertyPrefix + "password", rmqPw);
-        StringBuffer sb = new StringBuffer();
-        prs.forEach((key, value) -> sb.append("--").append(key).append('=').append(value).append(' '));
-        String rmqProps = sb.toString().trim() ;
-
-        log.info(rmqProps);
-//        String definition = "rabbit-queue-metrics --rabbitmq.metrics.queueName=testq.testq-group |   log";
-        String definition1 = "rabbit-queue-metrics " +
-                rmqProps + " --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group | transform --expression=payload.size  | log";
+        this.lazyDataFlowTemplate().streamOperations().destroyAll();
 
 
-        // as configured if we start up 1 instances of the consumer then this will show the queue size is ever increasing
-        // as configured if we start up 2 instances of the consumer then this will show the queue size as level/flat
-        // as configured if we start up 3 instances of the consumer then this will show the queue size as draining
-
-        // TODO configure the cloud foundry autoscaler to say that the max threshold is, say, 2 messages.
-        // TODO it should scale up to equlibrium
+        String streamDefinition = "rabbit-queue-metrics --management.security.enabled=false  --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group " +
+                "| transform --expression=headers['queue-size'] " +
+                "| cloudfoundry-autoscaler " + cf() +
+                " --cloudfoundry.autoscaler.sink.instanceCountMinimum=1 " +
+                " --cloudfoundry.autoscaler.sink.applicationName=remediation-rabbitmq-consumer " +
+                " --cloudfoundry.autoscaler.sink.instanceCountMaximum=10 " +
+                " --cloudfoundry.autoscaler.sink.thresholdMaximum=5 ";
 
         this.lazyDataFlowTemplate()
                 .streamOperations()
-                .createStream("rmq-metrics-log",
-                        definition1, true);
+                .createStream("rmq-metrics-log", streamDefinition, true);
     }
 
     private void deployAppDefinitions() {

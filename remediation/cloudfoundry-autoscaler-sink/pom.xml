@@ -45,6 +45,7 @@
             <scope>test</scope>
         </dependency>
         <dependency>
+            <scope>runtime</scope>
             <groupId>cnj</groupId>
             <artifactId>it-support</artifactId>
         </dependency>

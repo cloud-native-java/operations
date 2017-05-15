@@ -27,13 +27,6 @@ public class AutoScalerMessageHandler implements MessageHandler {
 
  public AutoScalerMessageHandler(CloudFoundryOperations client,
   Number minNumber, Number maxNumber, Number icMin, Number icMax,
-  String metricHeaderKey, String appName, RetryTemplate retryTemplate) {
-  this(client, minNumber, maxNumber, icMin, icMax, metricHeaderKey, appName);
-  this.retryTemplate = retryTemplate;
- }
-
- public AutoScalerMessageHandler(CloudFoundryOperations client,
-  Number minNumber, Number maxNumber, Number icMin, Number icMax,
   String metricHeaderKey, String appName) {
 
   this.client = client;

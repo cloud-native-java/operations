@@ -77,22 +77,55 @@ public class RemediationIT {
         deployRemediationStream();
     }
 
+
+    private String cf() {
+        StringBuilder res = new StringBuilder();
+        System.getenv().forEach((k, v) -> {
+            if (k.toLowerCase().contains("cf_")) {
+                res.append(" --")
+                        .append(k.toLowerCase().replace("_", "."))
+                        .append('=')
+                        .append(v);
+            }
+        });
+        return res.toString();
+    }
+
+
     private boolean dataFlowDefinitionsNeedsCleaning() {
         DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
         StreamOperations streamOperations = dataFlowTemplate.streamOperations();
         return streamOperations.list().getContent()
                 .stream()
-                .anyMatch(sdr -> sdr.getName().equalsIgnoreCase(rmqMetricsLogStreamName));
+                .anyMatch(sdr -> sdr.getName().equalsIgnoreCase(this.rmqMetricsLogStreamName));
     }
 
     private void deployRemediationStream() {
-        String streamDefinition = "rabbit-queue-metrics --management.security.enabled=false --spring.rabbitmq.addresses=${vcap.services." +
+
+
+        String rabbitAddressProperty = "--spring.rabbitmq.addresses=${vcap.services." + this.demoRabbitMqServiceName + ".credentials.uri}";
+
+        String streamDefinition = "rabbit-queue-metrics  " + rabbitAddressProperty +
+                "| transform --expression=headers['queue-size'] " +
+                "| cloudfoundry-autoscaler " + cf() +
+                " --cloudfoundry.autoscaler.sink.instanceCountMinimum=1 " +
+                " --cloudfoundry.autoscaler.sink.applicationName=remediation-rabbitmq-consumer " +
+                " --cloudfoundry.autoscaler.sink.instanceCountMaximum=10 " +
+                " --cloudfoundry.autoscaler.sink.thresholdMaximum=5 ";
+
+
+      /*  String streamDefinition = "rabbit-queue-metrics --management.security.enabled=false --spring.rabbitmq.addresses=${vcap.services." +
                 this.demoRabbitMqServiceName + ".credentials.uri} --rabbitmq.metrics.queueName=remediation-demo.remediation-demo-group " +
                 // "| transform --expression=payload['consumers'] " +
-                "| log --expression=payload  ";
-        log.info("stream definition: " + streamDefinition);
+                "| log --expression=headers['queue-consumers']  ";
+      */
+
+      log.info("stream definition: " + streamDefinition);
+
         DataFlowTemplate dataFlowTemplate = this.lazyDataFlowTemplate();
+
         StreamOperations streamOperations = dataFlowTemplate.streamOperations();
+
         if (this.dataFlowDefinitionsNeedsCleaning()) {
             log.info("calling destroyAll()");
             streamOperations.destroyAll();
@@ -135,7 +168,7 @@ public class RemediationIT {
 
     private void deployDemoPreRequisites() {
         cloudFoundryService.createServiceIfMissing(
-                "cloudamqp", "lemur", demoRabbitMqServiceName);
+                "cloudamqp", "tiger", demoRabbitMqServiceName);
     }
 
     private String applicationNameFromManifest(File file) {
@@ -201,10 +234,8 @@ public class RemediationIT {
     private DataFlowTemplate dataFlowTemplate(String cfDfServerName) {
         String urlForApplication = this.cloudFoundryService.urlForApplication(cfDfServerName);
         log.info("attempting to create a DataFlowTemplate using the following API endpoint " + urlForApplication);
-        return Optional
-                .ofNullable(urlForApplication)
-                .map(u -> new DataFlowTemplate(URI.create(u), new RestTemplate()))
-                .orElseThrow(() -> new RuntimeException("can't find a URI for the Spring Cloud Data Flow server!"));
+        return new DataFlowTemplate(URI.create(urlForApplication),
+                new RestTemplate());
     }
 
     private String serverJarUrl() {
@@ -325,52 +356,6 @@ public class RemediationIT {
 
         log.info("started the Spring Cloud Data Flow Cloud Foundry server.");
     }
-
-
-    /**
-     * private final Log log = LogFactory.getLog(getClass());
-     * <p>
-     * private DataFlowTemplate dataFlowTemplate;
-     * <p>
-     * private final Object monitor = new Object();
-     *
-     * @EventListener(ApplicationReadyEvent.class) public void onAppReady(ApplicationReadyEvent event) {
-     * // TODO
-     * // 1) deploy the regular app definitions
-     * // 2) deploy the RMQ metrics source
-     * // 3) create a stream definition
-     * // 4) login and observe the results
-     * <p>
-     * this.deployAppDefinitions();
-     * this.lazyDataFlowTemplate()
-     * .streamOperations()
-     * .createStream("rmq-metrics-log", "rabbit-queue-metrics --rabbitmq.metrics.queueName=testq.testq-group | log" , true) ;
-     * }
-     * <p>
-     * private void deployAppDefinitions() {
-     * List<String> apps = new ArrayList<>();
-     * apps.add("http://repo.spring.io/libs-release-local/org/springframework/cloud/task/app/spring-cloud-task-app-descriptor/Addison.RELEASE/spring-cloud-task-app-descriptor-Addison.RELEASE.task-apps-maven");
-     * apps.add("http://repo.spring.io/libs-release/org/springframework/cloud/stream/app/spring-cloud-stream-app-descriptor/Avogadro.SR1/spring-cloud-stream-app-descriptor-Avogadro.SR1.stream-apps-rabbit-maven");
-     * apps.add("http://localhost:9494/apps.properties");
-     * apps
-     * .parallelStream()
-     * .forEach(s -> lazyDataFlowTemplate()
-     * .appRegistryOperations().importFromResource(s, true));
-     * }
-     * <p>
-     * private DataFlowTemplate lazyDataFlowTemplate() {
-     * synchronized (this.monitor) {
-     * if (null == this.dataFlowTemplate) {
-     * this.dataFlowTemplate = new DataFlowTemplate(URI.create("http://localhost:9494"), new RestTemplate());
-     * this.log.info("created new " + DataFlowTemplate.class.getName());
-     * }
-     * return this.dataFlowTemplate;
-     * }
-     * }
-     * @Test public void test() throws Throwable {
-     * <p>
-     * }
-     */
 
     @EnableAutoConfiguration
     @Configuration

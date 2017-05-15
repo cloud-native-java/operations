@@ -27,6 +27,7 @@ import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import org.springframework.scheduling.Trigger;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -66,18 +67,16 @@ public class QueueMetricsSourceApplication {
                 .transform((Transformer) message -> {
                     Object payload = message.getPayload();
                     QueueStatistics statistics = QueueStatistics.class.cast(payload);
-                    Map<String, Object> statsMap = new ConcurrentHashMap<>();
-                    statsMap.put("queue", statistics.getQueue());
-                    statsMap.put("consumers", statistics.getConsumers());
-                    statsMap.put("size", statistics.getSize());
+                    Map<String, Object> statsMap = new HashMap<>();
+                    statsMap.put("queue-name", statistics.getQueue());
+                    statsMap.put("queue-consumers", statistics.getConsumers());
+                    statsMap.put("queue-size", statistics.getSize());
                     log.info("statsMap: " + statsMap.toString());
                     Message<String> msg = MessageBuilder
-                            .withPayload(statistics.getQueue())
-                            .copyHeadersIfAbsent(message.getHeaders())
-                            .setHeader("queue-name", statistics.getQueue())
-                            .setHeader("queue-consumers", statistics.getConsumers())
-                            .setHeader("queue-size", statistics.getSize())
-                            .build();
+                        .withPayload(statistics.getQueue())
+                        .copyHeadersIfAbsent(message.getHeaders())
+                        .copyHeadersIfAbsent(statsMap)
+                        .build();
                     log.info("..created stats message with 3 headers");
                     return msg;
                 })
