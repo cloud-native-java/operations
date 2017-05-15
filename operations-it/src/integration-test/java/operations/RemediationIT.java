@@ -15,6 +15,7 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.cloud.dataflow.core.ApplicationType;
 import org.springframework.cloud.dataflow.rest.client.DataFlowTemplate;
 import org.springframework.cloud.dataflow.rest.client.StreamOperations;
 import org.springframework.context.annotation.Configuration;
@@ -73,9 +74,9 @@ public class RemediationIT {
         deployDemoPreRequisites();
         deployDemoConsumer();
         deployDemoProducer();
-        startProduction();
-        deployRemediationAppDefinitions();
         deployDataFlowServer();
+        deployRemediationAppDefinitions();
+        startProduction();
         deployAppDefinitionsToDataFlowServer();
         deployRemediationStream();
     }
@@ -201,6 +202,14 @@ public class RemediationIT {
 
     private void deployAppDefinitionsToDataFlowServer() {
 
+        this.lazyDataFlowTemplate()
+                .appRegistryOperations()
+                .list().getContent()
+                .forEach(apr -> {
+                    lazyDataFlowTemplate()
+                            .appRegistryOperations()
+                            .unregister(apr.getName(), ApplicationType.valueOf(apr.getType()));
+                });
 
         List<String> apps = new ArrayList<>();
         apps.add("http://repo.spring.io/libs-release-local/org/springframework/cloud/task/app/spring-cloud-task-app-descriptor/Addison.RELEASE/spring-cloud-task-app-descriptor-Addison.RELEASE.task-apps-maven");
@@ -248,10 +257,11 @@ public class RemediationIT {
 
         log.info("deploying the Spring Cloud Data Flow Cloud Foundry Server.");
 
+       /* todo
         if (this.cloudFoundryService.applicationExists(this.baseCfDfAppName)) {
             return;
         }
-
+*/
         // deploy the DF server
         String serverRedis = baseCfDfAppName + "-redis",
                 serverMysql = baseCfDfAppName + "-mysql",
@@ -343,7 +353,7 @@ public class RemediationIT {
                             .services()
                             .bind(BindServiceInstanceRequest.builder().applicationName(baseCfDfAppName)
                                     .serviceInstanceName(svc).build()).block();
-                    log.info("..binding " + svc + " to " + baseCfDfAppName);
+                    log.info("..bound " + svc + " to " + baseCfDfAppName);
                 });
 
         // start
