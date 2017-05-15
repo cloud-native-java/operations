@@ -81,9 +81,9 @@ public class RemediationIT {
     }
 
     private void startProduction() {
-        String appName = this.applicationNameFromManifest(
-                this.remediationProducerManifest);
-        this.restTemplate.getForEntity(appName + "/start", String.class);
+        String url = cloudFoundryService.urlForApplication(this.applicationNameFromManifest(
+                this.remediationProducerManifest));
+        this.restTemplate.getForEntity(url + "/start", String.class);
     }
 
     private String cf() {
