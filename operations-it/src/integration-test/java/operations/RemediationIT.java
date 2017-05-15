@@ -266,7 +266,8 @@ public class RemediationIT {
         String serverRedis = baseCfDfAppName + "-redis",
                 serverMysql = baseCfDfAppName + "-mysql",
                 serverRabbit = baseCfDfAppName + "-rabbit";
-        Stream.of("rediscloud 100mb " + serverRedis, "cloudamqp lemur " + serverRabbit, "p-mysql 100mb " + serverMysql)
+        Stream.of("rediscloud 100mb " + serverRedis, "cloudamqp lemur " + serverRabbit,
+                "cleardb spark " + serverMysql) //"p-mysql 100mb " + serverMysql)
                 .parallel()
                 .map(x -> x.split(" "))
                 .forEach(tpl -> this.cloudFoundryService.createServiceIfMissing(tpl[0], tpl[1], tpl[2]));
