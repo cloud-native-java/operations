@@ -22,8 +22,10 @@ class MessageClientRestController {
  @RequestMapping("/")
  Map<String, String> message() {
 
-  ParameterizedTypeReference<Map<String, String>> ptr = new ParameterizedTypeReference<Map<String, String>>() {
-  };
+  //@formatter:off
+  ParameterizedTypeReference<Map<String, String>> ptr =
+          new ParameterizedTypeReference<Map<String, String>>() { };
+  //@formatter:on
 
   return this.restTemplate.exchange(this.host, HttpMethod.GET, null, ptr)
    .getBody();
